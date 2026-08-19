@@ -1,0 +1,1223 @@
+{
+  "checks": {
+    "bird_interact_evaluator": {
+      "python_files_compiled": 55,
+      "revision": "451fe2c3518ee1cf908d8139e2913483bd519381",
+      "runtime_blocker": "The public Mini-Interact rows contain empty sol_sql, test_cases, and external_knowledge; the official user simulator and scorer require the private payload.",
+      "runtime_status": "conditional",
+      "status": "pass",
+      "syntax_failures": [],
+      "syntax_warnings": [
+        {
+          "path": "mini_interact/knowledge_based/mini_interact_agent/src/envs/ic_env.py",
+          "warning": "invalid escape sequence '\\.'"
+        }
+      ]
+    },
+    "bird_sql_dev_20251106": {
+      "database_count": 11,
+      "database_root": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-sql-dev-20251106-databases\\minidev\\MINIDEV\\dev_databases",
+      "database_tables": {
+        "california_schools": 3,
+        "card_games": 7,
+        "codebase_community": 8,
+        "debit_card_specializing": 6,
+        "european_football_2": 8,
+        "financial": 8,
+        "formula_1": 14,
+        "student_club": 8,
+        "superhero": 10,
+        "thrombosis_prediction": 3,
+        "toxicology": 4
+      },
+      "difficulty_counts": {
+        "challenging": 231,
+        "moderate": 443,
+        "simple": 860
+      },
+      "gold_execution": {
+        "errors": 0,
+        "failures": [
+          {
+            "db_id": "card_games",
+            "error": "interrupted",
+            "question_id": 518,
+            "seconds": 30.016,
+            "status": "timeout"
+          },
+          {
+            "db_id": "codebase_community",
+            "error": "interrupted",
+            "question_id": 701,
+            "seconds": 30.015,
+            "status": "timeout"
+          },
+          {
+            "db_id": "european_football_2",
+            "error": "interrupted",
+            "question_id": 1131,
+            "seconds": 30.046,
+            "status": "timeout"
+          }
+        ],
+        "passed": 1531,
+        "requested": true,
+        "slowest_passes": [
+          {
+            "db_id": "european_football_2",
+            "question_id": 1126,
+            "returned_rows": 1147,
+            "seconds": 27.312,
+            "status": "pass"
+          },
+          {
+            "db_id": "codebase_community",
+            "question_id": 693,
+            "returned_rows": 1,
+            "seconds": 26.0,
+            "status": "pass"
+          },
+          {
+            "db_id": "card_games",
+            "question_id": 530,
+            "returned_rows": 136,
+            "seconds": 11.313,
+            "status": "pass"
+          },
+          {
+            "db_id": "toxicology",
+            "question_id": 207,
+            "returned_rows": 5,
+            "seconds": 8.328,
+            "status": "pass"
+          },
+          {
+            "db_id": "financial",
+            "question_id": 127,
+            "returned_rows": 4167,
+            "seconds": 3.468,
+            "status": "pass"
+          },
+          {
+            "db_id": "financial",
+            "question_id": 106,
+            "returned_rows": 1,
+            "seconds": 2.75,
+            "status": "pass"
+          },
+          {
+            "db_id": "formula_1",
+            "question_id": 1015,
+            "returned_rows": 1,
+            "seconds": 2.328,
+            "status": "pass"
+          },
+          {
+            "db_id": "formula_1",
+            "question_id": 1016,
+            "returned_rows": 1,
+            "seconds": 2.313,
+            "status": "pass"
+          },
+          {
+            "db_id": "card_games",
+            "question_id": 384,
+            "returned_rows": 228765,
+            "seconds": 2.281,
+            "status": "pass"
+          },
+          {
+            "db_id": "financial",
+            "question_id": 153,
+            "returned_rows": 77,
+            "seconds": 1.844,
+            "status": "pass"
+          }
+        ],
+        "timed_out": 3,
+        "timeout_seconds_per_query": 30.0,
+        "workers": 6
+      },
+      "rows": 1534,
+      "status": "conditional"
+    },
+    "bird_sql_dev_20251106_databases": {
+      "archive": {
+        "bytes": 799944582,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-sql-dev-20251106-databases.zip",
+        "sha256": "aeb211c0e39010bbdae3838bb5e8bd27dc446ed77495b1709f85ccc9bf67f2be"
+      },
+      "extracted": {
+        "file_count": 219,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-sql-dev-20251106-databases",
+        "total_bytes": 3539193972
+      },
+      "legacy_comparison": {
+        "different_files": [
+          "california_schools",
+          "european_football_2",
+          "formula_1",
+          "thrombosis_prediction",
+          "toxicology"
+        ],
+        "exact_file_matches": 6,
+        "interpretation": "The linked clean-release package and legacy BIRD databases are distinct benchmark environments; results must pin one root.",
+        "legacy_root": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-dev\\dev_databases\\dev_databases",
+        "logical_differences": {
+          "california_schools": {
+            "legacy_sha256": "986817d793479801ed55133e55aa27e335422c0cd3866b54a3d6317b7c5f09c1",
+            "row_count_differences": {},
+            "same_bytes": true
+          },
+          "european_football_2": {
+            "legacy_sha256": "e4d361dbeec6591a4b315877c0c481da05c8ff5a3d389b34d6e17b6f15bee4e0",
+            "row_count_differences": {},
+            "same_bytes": true
+          },
+          "formula_1": {
+            "legacy_sha256": "17185981cd747f6cdc374cb02a6096db3130e6ec2ddc582fe1686a28fb4c4c8a",
+            "row_count_differences": {
+              "lapTimes": {
+                "legacy": 420369,
+                "official": 400524
+              },
+              "pitStops": {
+                "legacy": 6070,
+                "official": 5815
+              },
+              "qualifying": {
+                "legacy": 7397,
+                "official": 6967
+              },
+              "races": {
+                "legacy": 976,
+                "official": 954
+              },
+              "results": {
+                "legacy": 23657,
+                "official": 23179
+              }
+            },
+            "same_bytes": true
+          },
+          "thrombosis_prediction": {
+            "legacy_sha256": "e7e16d74b4731b4b8d33fdbe8c29cd5622620788ce8d1f335631f65fc7cf1db9",
+            "row_count_differences": {
+              "Examination": {
+                "legacy": 806,
+                "official": 106
+              }
+            },
+            "same_bytes": true
+          },
+          "toxicology": {
+            "legacy_sha256": "f5fa7f21af1ad878ff8fef1b0582b8cb2d7ed63dbac65ff16d2ba05667650c5b",
+            "row_count_differences": {
+              "atom": {
+                "legacy": 12333,
+                "official": 9111
+              },
+              "bond": {
+                "legacy": 12379,
+                "official": 9156
+              },
+              "connected": {
+                "legacy": 24758,
+                "official": 18312
+              }
+            },
+            "same_bytes": true
+          }
+        }
+      },
+      "source": "https://drive.google.com/file/d/13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG/view",
+      "sqlite_files": {
+        "california_schools": {
+          "bytes": 11116544,
+          "sha256": "c0903eec662e63068fd1d14403d3d6c1d473287fc10c4356333ea58f878db983"
+        },
+        "card_games": {
+          "bytes": 261820416,
+          "sha256": "c98bdb57fe7474da798b407785544b9af0daaad5d61fd21e2a73309493bc1227"
+        },
+        "codebase_community": {
+          "bytes": 481419264,
+          "sha256": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d"
+        },
+        "debit_card_specializing": {
+          "bytes": 34635776,
+          "sha256": "b3d149ad05746dbbe5116e229e17e18f09c39db43cf117d9ef3441753608b691"
+        },
+        "european_football_2": {
+          "bytes": 597754880,
+          "sha256": "f72f5c9b990371417288a67b27a02e601ef904d45525c2c9f7931fb01001c536"
+        },
+        "financial": {
+          "bytes": 71294976,
+          "sha256": "d15d89cdb068a202b6f2b99342af44dffc1d52545b39ceaf62efdc0ba570101e"
+        },
+        "formula_1": {
+          "bytes": 22360064,
+          "sha256": "79770caf966707e35516fa566e24b40ae515c74ec1ec4631235245645b87b24d"
+        },
+        "student_club": {
+          "bytes": 2641920,
+          "sha256": "eb89bcfe97eefa386a27904ec5aa15159811a7eac894ec659a36e48fa9f76b77"
+        },
+        "superhero": {
+          "bytes": 237568,
+          "sha256": "75e94a2c3236ee3bb2c01fb97a1c4b4c1c269bcefd4eab1d04be323d2d0825b1"
+        },
+        "thrombosis_prediction": {
+          "bytes": 7327744,
+          "sha256": "87583183c3dc472fba04de702965560a9d7c0a548836613f242317e0eeb83f00"
+        },
+        "toxicology": {
+          "bytes": 2678784,
+          "sha256": "35ef27ae6bdfda530e125ed369666ac0abb8bc8c0bcc0ad09407f547ecb61a93"
+        }
+      },
+      "status": "pass"
+    },
+    "clarity": {
+      "paper": "https://aclanthology.org/2026.acl-industry.86/",
+      "reason": "No official public CLARITY dataset repository was identified at acquisition time. Keep CLARITY as a planned secondary diagnostic until the authors release data or provide it directly.",
+      "status": "blocked"
+    },
+    "mini_interact": {
+      "database_folder_count": 27,
+      "database_tables": {
+        "alien": {
+          "database": 11,
+          "template": 11
+        },
+        "archeology": {
+          "database": 14,
+          "template": 14
+        },
+        "cold_chain_pharma_compliance": {
+          "database": 12,
+          "template": 12
+        },
+        "credit": {
+          "database": 6,
+          "template": 6
+        },
+        "cross_db": {
+          "database": 7,
+          "template": 7
+        },
+        "crypto": {
+          "database": 10,
+          "template": 10
+        },
+        "cybermarket": {
+          "database": 9,
+          "template": 9
+        },
+        "disaster": {
+          "database": 10,
+          "template": 10
+        },
+        "exchange_traded_funds": {
+          "database": 15,
+          "template": 15
+        },
+        "fake": {
+          "database": 9,
+          "template": 9
+        },
+        "gaming": {
+          "database": 8,
+          "template": 8
+        },
+        "households": {
+          "database": 7,
+          "template": 7
+        },
+        "hulushows": {
+          "database": 7,
+          "template": 7
+        },
+        "insider": {
+          "database": 7,
+          "template": 7
+        },
+        "labor_certification_applications": {
+          "database": 9,
+          "template": 9
+        },
+        "mental": {
+          "database": 9,
+          "template": 9
+        },
+        "museum": {
+          "database": 14,
+          "template": 14
+        },
+        "news": {
+          "database": 8,
+          "template": 8
+        },
+        "organ_transplant": {
+          "database": 14,
+          "template": 14
+        },
+        "planets_data": {
+          "database": 7,
+          "template": 7
+        },
+        "polar": {
+          "database": 14,
+          "template": 14
+        },
+        "reverse_logistics": {
+          "database": 8,
+          "template": 8
+        },
+        "robot": {
+          "database": 10,
+          "template": 10
+        },
+        "solar": {
+          "database": 8,
+          "template": 8
+        },
+        "sports_events": {
+          "database": 11,
+          "template": 11
+        },
+        "vaccine": {
+          "database": 7,
+          "template": 7
+        },
+        "virtual": {
+          "database": 14,
+          "template": 14
+        }
+      },
+      "extra_database_folders": [
+        "sports_events"
+      ],
+      "ground_truth_payload": {
+        "action": "Request the official GT and test-case package, then merge it using the BIRD-Interact instructions.",
+        "rows_with_empty_external_knowledge": 300,
+        "rows_with_empty_sol_sql": 300,
+        "rows_with_empty_test_cases": 300,
+        "status": "blocked"
+      },
+      "public_structure": "pass",
+      "rows": 300,
+      "selected_database_count": 26,
+      "status": "conditional"
+    }
+  },
+  "conditional_components": [
+    "bird_sql_dev_20251106",
+    "clarity",
+    "mini_interact"
+  ],
+  "hard_failures": [],
+  "overall_status": "conditional",
+  "schema_version": 2,
+  "snapshots": {
+    "bird_interact_evaluator": {
+      "revision": "451fe2c3518ee1cf908d8139e2913483bd519381",
+      "source": "https://github.com/bird-bench/BIRD-Interact"
+    },
+    "bird_sql_dev_20251106": {
+      "file_count": 3,
+      "files": {
+        ".gitattributes": {
+          "bytes": 2520,
+          "sha256": "3e212547c7d45b35a50029a40ba016253be17d4b7d9401a294b43a3b33a98656"
+        },
+        "README.md": {
+          "bytes": 9044,
+          "sha256": "3e44a9eb6bfc87fd78b86b629e78019e4df3c496026afb3509612169604336a8"
+        },
+        "data/dev_20251106-00000-of-00001.json": {
+          "bytes": 959066,
+          "sha256": "0310b7ca2dfb6247234e2073f93e7a75106ee41ba55231f75d06d2ef68efe2ec"
+        }
+      },
+      "revision": "3c11fb193e5439b338e23677fa0aae11e8b85db9",
+      "source": "https://huggingface.co/datasets/birdsql/bird_sql_dev_20251106",
+      "total_bytes": 970630
+    },
+    "bird_sql_dev_20251106_databases": {
+      "archive": {
+        "bytes": 799944582,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-sql-dev-20251106-databases.zip",
+        "sha256": "aeb211c0e39010bbdae3838bb5e8bd27dc446ed77495b1709f85ccc9bf67f2be"
+      },
+      "extracted": {
+        "file_count": 219,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-sql-dev-20251106-databases",
+        "total_bytes": 3539193972
+      },
+      "legacy_comparison": {
+        "different_files": [
+          "california_schools",
+          "european_football_2",
+          "formula_1",
+          "thrombosis_prediction",
+          "toxicology"
+        ],
+        "exact_file_matches": 6,
+        "interpretation": "The linked clean-release package and legacy BIRD databases are distinct benchmark environments; results must pin one root.",
+        "legacy_root": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\bird-dev\\dev_databases\\dev_databases",
+        "logical_differences": {
+          "california_schools": {
+            "legacy_sha256": "986817d793479801ed55133e55aa27e335422c0cd3866b54a3d6317b7c5f09c1",
+            "row_count_differences": {},
+            "same_bytes": true
+          },
+          "european_football_2": {
+            "legacy_sha256": "e4d361dbeec6591a4b315877c0c481da05c8ff5a3d389b34d6e17b6f15bee4e0",
+            "row_count_differences": {},
+            "same_bytes": true
+          },
+          "formula_1": {
+            "legacy_sha256": "17185981cd747f6cdc374cb02a6096db3130e6ec2ddc582fe1686a28fb4c4c8a",
+            "row_count_differences": {
+              "lapTimes": {
+                "legacy": 420369,
+                "official": 400524
+              },
+              "pitStops": {
+                "legacy": 6070,
+                "official": 5815
+              },
+              "qualifying": {
+                "legacy": 7397,
+                "official": 6967
+              },
+              "races": {
+                "legacy": 976,
+                "official": 954
+              },
+              "results": {
+                "legacy": 23657,
+                "official": 23179
+              }
+            },
+            "same_bytes": true
+          },
+          "thrombosis_prediction": {
+            "legacy_sha256": "e7e16d74b4731b4b8d33fdbe8c29cd5622620788ce8d1f335631f65fc7cf1db9",
+            "row_count_differences": {
+              "Examination": {
+                "legacy": 806,
+                "official": 106
+              }
+            },
+            "same_bytes": true
+          },
+          "toxicology": {
+            "legacy_sha256": "f5fa7f21af1ad878ff8fef1b0582b8cb2d7ed63dbac65ff16d2ba05667650c5b",
+            "row_count_differences": {
+              "atom": {
+                "legacy": 12333,
+                "official": 9111
+              },
+              "bond": {
+                "legacy": 12379,
+                "official": 9156
+              },
+              "connected": {
+                "legacy": 24758,
+                "official": 18312
+              }
+            },
+            "same_bytes": true
+          }
+        }
+      },
+      "source": "https://drive.google.com/file/d/13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG/view",
+      "sqlite_files": {
+        "california_schools": {
+          "bytes": 11116544,
+          "sha256": "c0903eec662e63068fd1d14403d3d6c1d473287fc10c4356333ea58f878db983"
+        },
+        "card_games": {
+          "bytes": 261820416,
+          "sha256": "c98bdb57fe7474da798b407785544b9af0daaad5d61fd21e2a73309493bc1227"
+        },
+        "codebase_community": {
+          "bytes": 481419264,
+          "sha256": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d"
+        },
+        "debit_card_specializing": {
+          "bytes": 34635776,
+          "sha256": "b3d149ad05746dbbe5116e229e17e18f09c39db43cf117d9ef3441753608b691"
+        },
+        "european_football_2": {
+          "bytes": 597754880,
+          "sha256": "f72f5c9b990371417288a67b27a02e601ef904d45525c2c9f7931fb01001c536"
+        },
+        "financial": {
+          "bytes": 71294976,
+          "sha256": "d15d89cdb068a202b6f2b99342af44dffc1d52545b39ceaf62efdc0ba570101e"
+        },
+        "formula_1": {
+          "bytes": 22360064,
+          "sha256": "79770caf966707e35516fa566e24b40ae515c74ec1ec4631235245645b87b24d"
+        },
+        "student_club": {
+          "bytes": 2641920,
+          "sha256": "eb89bcfe97eefa386a27904ec5aa15159811a7eac894ec659a36e48fa9f76b77"
+        },
+        "superhero": {
+          "bytes": 237568,
+          "sha256": "75e94a2c3236ee3bb2c01fb97a1c4b4c1c269bcefd4eab1d04be323d2d0825b1"
+        },
+        "thrombosis_prediction": {
+          "bytes": 7327744,
+          "sha256": "87583183c3dc472fba04de702965560a9d7c0a548836613f242317e0eeb83f00"
+        },
+        "toxicology": {
+          "bytes": 2678784,
+          "sha256": "35ef27ae6bdfda530e125ed369666ac0abb8bc8c0bcc0ad09407f547ecb61a93"
+        }
+      },
+      "status": "pass"
+    },
+    "mini_interact": {
+      "file_count": 157,
+      "files": {
+        ".gitattributes": {
+          "bytes": 2566,
+          "sha256": "aedd5f28f558500d7ff1df969fa6767dc4db2d7587d59b936fad61cd6192b6d3"
+        },
+        ".gitignore": {
+          "bytes": 50,
+          "sha256": "90f37e238c1f45edae1a9e25ff76fa0bcc93354b97c66f0c24d8c5e72bc3aabf"
+        },
+        "README.md": {
+          "bytes": 6420,
+          "sha256": "d48e685a32cbbe45d546a8cc4f2dca4ffb9501baaa75b5472d16743fd927dfe2"
+        },
+        "alien/alien.sqlite": {
+          "bytes": 2371584,
+          "sha256": "e160643c9abb43ba69917532f2654637e677460df25678f9daecdefb416046ed"
+        },
+        "alien/alien_column_meaning_base.json": {
+          "bytes": 26267,
+          "sha256": "946efebaa59995c019b524779170f96287f8577ba84b9fe1d672373c5a52d241"
+        },
+        "alien/alien_kb.jsonl": {
+          "bytes": 25364,
+          "sha256": "f3bfb55b9bb94a473aa8a3722f9d89a5212b139241c0249641d173cfe9f43a43"
+        },
+        "alien/alien_schema.txt": {
+          "bytes": 13197,
+          "sha256": "2036553bcd3fe3233827e6bc9c8672afcbb10d07f5031150a4d87daad3031a4b"
+        },
+        "alien/alien_template.sqlite": {
+          "bytes": 2371584,
+          "sha256": "e160643c9abb43ba69917532f2654637e677460df25678f9daecdefb416046ed"
+        },
+        "archeology/archeology.sqlite": {
+          "bytes": 2547712,
+          "sha256": "b525a54561e866f12cb373e5d3588ffcfdda13f59966cd9e3e28bb2633b21fdd"
+        },
+        "archeology/archeology_column_meaning_base.json": {
+          "bytes": 26979,
+          "sha256": "db128e3f97046af879abced1c22ce6b7af9252b8b1f2aa3f8810dae0964763d9"
+        },
+        "archeology/archeology_kb.jsonl": {
+          "bytes": 27888,
+          "sha256": "b64c434aee78fc682d3db8017c8614a3d6f47bd11181dfdbf6c4c38b343262c5"
+        },
+        "archeology/archeology_schema.txt": {
+          "bytes": 14316,
+          "sha256": "9b83b25075848872c12776a1db1a04f831a58e82d006bf0c3287becf075efc33"
+        },
+        "archeology/archeology_template.sqlite": {
+          "bytes": 2547712,
+          "sha256": "b525a54561e866f12cb373e5d3588ffcfdda13f59966cd9e3e28bb2633b21fdd"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance.sqlite": {
+          "bytes": 3063808,
+          "sha256": "63cb1f3da77d52aef56b72b50b744ea875a0776fc7e1f689f2262b491ea58afc"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance_column_meaning_base.json": {
+          "bytes": 20329,
+          "sha256": "4e8c7acfda342709a84b846e1d940b1b2ff04e9c499b4ce3cccece9240302971"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance_kb.jsonl": {
+          "bytes": 29954,
+          "sha256": "4628bca8d7262e0fd519d8eed94f8a40fc9914342393fb1aeb73c5616ec5e812"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance_schema.txt": {
+          "bytes": 19314,
+          "sha256": "a1389212c3e3784e7584b00f30b28941134f15d9fb769ae7e7e82609068db80d"
+        },
+        "cold_chain_pharma_compliance/cold_chain_pharma_compliance_template.sqlite": {
+          "bytes": 3063808,
+          "sha256": "61e31ef581f9533aed0df18550795d64034ca8c5f80a1c69b83b2c54769c428e"
+        },
+        "credit/credit.sqlite": {
+          "bytes": 1306624,
+          "sha256": "c1ba8d05ed529c159792070b45734c90698200ee28e11d07586a2f17eddfd87b"
+        },
+        "credit/credit_column_meaning_base.json": {
+          "bytes": 15945,
+          "sha256": "c6d1d4bb326eb667e890fb770d1f7f860d4230902a612abcd9b558b07e0e9255"
+        },
+        "credit/credit_kb.jsonl": {
+          "bytes": 19865,
+          "sha256": "75bd0592899e5064f601a0e17a65b4447fc6a2a7467ce7cd8c4ff83db1187a13"
+        },
+        "credit/credit_schema.txt": {
+          "bytes": 11697,
+          "sha256": "94e4076b4f62a134012e7df2c417dac884a01c900e84ef3cb20524f47d78add6"
+        },
+        "credit/credit_template.sqlite": {
+          "bytes": 1306624,
+          "sha256": "c1ba8d05ed529c159792070b45734c90698200ee28e11d07586a2f17eddfd87b"
+        },
+        "cross_db/cross_db.sqlite": {
+          "bytes": 1261568,
+          "sha256": "d7e40379640260a2a16fb014b9af240a2d187de9223470f05ac92c390ec5e657"
+        },
+        "cross_db/cross_db_column_meaning_base.json": {
+          "bytes": 18433,
+          "sha256": "15800edfa38a1344edd217d0d355eb2a4bf70bcc4951ca23288145a31a9625ba"
+        },
+        "cross_db/cross_db_kb.jsonl": {
+          "bytes": 23202,
+          "sha256": "f1794746a8953b40a64607ff39644a7d452170dbfe2229613b190123882606ff"
+        },
+        "cross_db/cross_db_schema.txt": {
+          "bytes": 12588,
+          "sha256": "76cde47c3b2e676ce8a2426639106506f764ef6f1c1ae874bc901a3ce8af34ef"
+        },
+        "cross_db/cross_db_template.sqlite": {
+          "bytes": 1261568,
+          "sha256": "d7e40379640260a2a16fb014b9af240a2d187de9223470f05ac92c390ec5e657"
+        },
+        "crypto/crypto.sqlite": {
+          "bytes": 2969600,
+          "sha256": "49103c15d930b290298ac52e2f965877f3caacde6c5269c6c798e596b4c7a5e1"
+        },
+        "crypto/crypto_column_meaning_base.json": {
+          "bytes": 15712,
+          "sha256": "70bc3e5cc2ea978ec4e22ca2edcaf372744b7986564028b947b873633b2413a8"
+        },
+        "crypto/crypto_kb.jsonl": {
+          "bytes": 23163,
+          "sha256": "779af012959dafbddffedcad554501f18cba393156010afb2dccea18c0d9503e"
+        },
+        "crypto/crypto_schema.txt": {
+          "bytes": 13985,
+          "sha256": "4a4c5b8c1d9b24601e9c1a913817c5c354d8e0587baffb2eefb4d48879657073"
+        },
+        "crypto/crypto_template.sqlite": {
+          "bytes": 2969600,
+          "sha256": "49103c15d930b290298ac52e2f965877f3caacde6c5269c6c798e596b4c7a5e1"
+        },
+        "cybermarket/cybermarket.sqlite": {
+          "bytes": 4231168,
+          "sha256": "23153eba8d258ef4846257326c4481850d7632bc2efdbe2b2236efa00d316922"
+        },
+        "cybermarket/cybermarket_column_meaning_base.json": {
+          "bytes": 19351,
+          "sha256": "af9c541ef1389d6b01f3c6b6645aa6d52902ff6f79eba7af802a32e1e0c62718"
+        },
+        "cybermarket/cybermarket_kb.jsonl": {
+          "bytes": 27442,
+          "sha256": "b4a5dc174b6abc19ef0e5efdc0c55a8aad46d57efef2c987a1f7ec7c43f06f18"
+        },
+        "cybermarket/cybermarket_schema.txt": {
+          "bytes": 16001,
+          "sha256": "8f2cfd5033ccd86eabe1bae038cb95ff8f5b5db9b73839ce6d2f5fe3d53667ba"
+        },
+        "cybermarket/cybermarket_template.sqlite": {
+          "bytes": 4231168,
+          "sha256": "23153eba8d258ef4846257326c4481850d7632bc2efdbe2b2236efa00d316922"
+        },
+        "disaster/disaster.sqlite": {
+          "bytes": 2097152,
+          "sha256": "a6ded0fe31d3baef51295aee4a94ad5f21af77a2d6e226b64ad217e466617e09"
+        },
+        "disaster/disaster_column_meaning_base.json": {
+          "bytes": 20736,
+          "sha256": "758f42b134c7c70fe00314a4800d22de5adaa5c421da9d5c2af1c56a10c22d47"
+        },
+        "disaster/disaster_kb.jsonl": {
+          "bytes": 22815,
+          "sha256": "a6d26857dd67678d0c7a552f8ebe57738ac40f4eda1bb426e20f6b2be329f4bf"
+        },
+        "disaster/disaster_schema.txt": {
+          "bytes": 16691,
+          "sha256": "0e2f22c6f8ae26811388037265ee521d87aacea51887f38df2ae2ba1fe18ffb6"
+        },
+        "disaster/disaster_template.sqlite": {
+          "bytes": 2097152,
+          "sha256": "a6ded0fe31d3baef51295aee4a94ad5f21af77a2d6e226b64ad217e466617e09"
+        },
+        "exchange_traded_funds/exchange_traded_funds.sqlite": {
+          "bytes": 11079680,
+          "sha256": "17099a6027ce6efe3ec1cca87985c1aa79a909e704c375df633ef4953954bcc8"
+        },
+        "exchange_traded_funds/exchange_traded_funds.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "exchange_traded_funds/exchange_traded_funds.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "exchange_traded_funds/exchange_traded_funds_column_meaning_base.json": {
+          "bytes": 25434,
+          "sha256": "35e364343bea3b39f471985e834048454c06f3fa087235ef9127b6033d0fd57e"
+        },
+        "exchange_traded_funds/exchange_traded_funds_kb.jsonl": {
+          "bytes": 34348,
+          "sha256": "0b6b75a85f079000c05dc1ac3753edeb322e45d1467e68f2f0e7a1aac24485d2"
+        },
+        "exchange_traded_funds/exchange_traded_funds_schema.txt": {
+          "bytes": 23665,
+          "sha256": "9fb879dc1f30359bc8e7fe7d00878c0802a8f84743c2948e0ff867198b0d266c"
+        },
+        "exchange_traded_funds/exchange_traded_funds_template.sqlite": {
+          "bytes": 11079680,
+          "sha256": "977740ab39883848554baf64dd5009614698969fff3a1930242755f1e1fb68bd"
+        },
+        "fake/fake.sqlite": {
+          "bytes": 2666496,
+          "sha256": "9a2c6888064e47d82fcf7d47fd0d4bafa5f3ac20569f87b1c98db2e5d2ff9f96"
+        },
+        "fake/fake_column_meaning_base.json": {
+          "bytes": 17099,
+          "sha256": "f4134b89b30aa98e10a4aaaed59ac7b2e842c93630f48050b822767e50203025"
+        },
+        "fake/fake_kb.jsonl": {
+          "bytes": 26346,
+          "sha256": "43a58b8873fd4f372dc4354059f20c09e28f958aad7a633c2e3944f21a9c5cba"
+        },
+        "fake/fake_schema.txt": {
+          "bytes": 13538,
+          "sha256": "d8826eeb5558365510aedd1bd145366575060e216902ff0a0b2588ec04a4e40b"
+        },
+        "fake/fake_template.sqlite": {
+          "bytes": 2666496,
+          "sha256": "9a2c6888064e47d82fcf7d47fd0d4bafa5f3ac20569f87b1c98db2e5d2ff9f96"
+        },
+        "gaming/gaming.sqlite": {
+          "bytes": 1388544,
+          "sha256": "830ff704c00442b83d243f1e96dc79441436b20b7afbd20b15bccad5052f54ec"
+        },
+        "gaming/gaming_column_meaning_base.json": {
+          "bytes": 20316,
+          "sha256": "c52a9da6b0d9a13c66edf49f5c16718b2c5816fb42eff094f174e41c5dae296f"
+        },
+        "gaming/gaming_kb.jsonl": {
+          "bytes": 26810,
+          "sha256": "1439fb71bd760881c5195f06029df1b648d9568c87cc66a20e9ca5f5abf93850"
+        },
+        "gaming/gaming_schema.txt": {
+          "bytes": 14165,
+          "sha256": "10392c3037bc0d435ed1419df385ceacb0cd4369843da1df2084c266bf1ccdbd"
+        },
+        "gaming/gaming_template.sqlite": {
+          "bytes": 1388544,
+          "sha256": "830ff704c00442b83d243f1e96dc79441436b20b7afbd20b15bccad5052f54ec"
+        },
+        "households/households.sqlite": {
+          "bytes": 720896,
+          "sha256": "637f21242266538c667fc8d45eb0985d30dd6a30a0fd1346801bb2148e7c4e12"
+        },
+        "households/households.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "households/households.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "households/households_column_meaning_base.json": {
+          "bytes": 7870,
+          "sha256": "7c60aa24994a9b40138ba6b54a390d2ed327de207601ff6a0cffab84ec8d838e"
+        },
+        "households/households_kb.jsonl": {
+          "bytes": 14432,
+          "sha256": "540e5f24cf399dc07937c5edc58e19bee355faa98d02de7a761282fd687a82c4"
+        },
+        "households/households_schema.txt": {
+          "bytes": 5015,
+          "sha256": "564973860b8155650ef6e3a63680f6576bde113ea77920e971f0d49adaa6bd52"
+        },
+        "households/households_template.sqlite": {
+          "bytes": 720896,
+          "sha256": "bef56a062f2af564146af3b5e3dddd29073801d6c91c5c898e7cca37bb93e8ce"
+        },
+        "hulushows/hulushows.sqlite": {
+          "bytes": 4579328,
+          "sha256": "abc396adba075a769dc27087487e1acf4cd116c4ec76ec848b77f98ffc86f21a"
+        },
+        "hulushows/hulushows.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "hulushows/hulushows.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hulushows/hulushows_column_meaning_base.json": {
+          "bytes": 17787,
+          "sha256": "c646e06fc95def16eb88e7926c3158c2107b64d21056cb01b5746a2183de0c1a"
+        },
+        "hulushows/hulushows_kb.jsonl": {
+          "bytes": 30180,
+          "sha256": "6176eacdfb4b805a182bf32b0f68b1c8497dffce36099ed08e5a8519fb6b102b"
+        },
+        "hulushows/hulushows_schema.txt": {
+          "bytes": 11063,
+          "sha256": "b14897ada7e947e801c7f8327f5e4d8f60ecc90797fd66da7ec531a16b7fd55c"
+        },
+        "hulushows/hulushows_template.sqlite": {
+          "bytes": 4579328,
+          "sha256": "640ea627b0077c36bc3c778d24dc9c81384eb25b135eee734f4438ce20980861"
+        },
+        "insider/insider.sqlite": {
+          "bytes": 1486848,
+          "sha256": "5a340024cb8022f819874086bef2a409074e7f15018d3a8dc9c6d0387d796bae"
+        },
+        "insider/insider_column_meaning_base.json": {
+          "bytes": 15486,
+          "sha256": "260d1cdfc06ec970cd552a1e35448de69db3f7d4b69ec75726d104eff119e396"
+        },
+        "insider/insider_kb.jsonl": {
+          "bytes": 30736,
+          "sha256": "5ffb6b49d94bab8aa52e8ff8a82bf378b2395a67dd337b57921de44b2fcf9b52"
+        },
+        "insider/insider_schema.txt": {
+          "bytes": 9955,
+          "sha256": "abae6b43fe260d4dcc6621227717a4cccb6970e00bc1d2c6087d176c9e54f016"
+        },
+        "insider/insider_template.sqlite": {
+          "bytes": 1486848,
+          "sha256": "5a340024cb8022f819874086bef2a409074e7f15018d3a8dc9c6d0387d796bae"
+        },
+        "labor_certification_applications/labor_certification_applications.sqlite": {
+          "bytes": 1695744,
+          "sha256": "9450aee554878ab8e660f396425681dab6c6d46800083c2735a58df9d58f95a3"
+        },
+        "labor_certification_applications/labor_certification_applications.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "labor_certification_applications/labor_certification_applications.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "labor_certification_applications/labor_certification_applications_column_meaning_base.json": {
+          "bytes": 14967,
+          "sha256": "4cfe2c8bb36f3f3529e6f4f590f97b220e21150aadb5d7449f20778e0fe2b36f"
+        },
+        "labor_certification_applications/labor_certification_applications_kb.jsonl": {
+          "bytes": 27429,
+          "sha256": "5e43ab50e4c0474c3fcf014718a5893c3d846764ec46da5af357b00ac732305e"
+        },
+        "labor_certification_applications/labor_certification_applications_schema.txt": {
+          "bytes": 13061,
+          "sha256": "fd8a2716171296a80442eede2d84b43f4fbcd68b672ebfd3c58797331e4439ad"
+        },
+        "labor_certification_applications/labor_certification_applications_template.sqlite": {
+          "bytes": 1695744,
+          "sha256": "76fc9b8700462b40ee230727e2150a41a9739e6b0ba844db25517d5635a95203"
+        },
+        "mental/mental.sqlite": {
+          "bytes": 1470464,
+          "sha256": "64c03a0f0857cd017eed8193df3069e2d0f42e5eeac10fcb03c7918ecec6470f"
+        },
+        "mental/mental_column_meaning_base.json": {
+          "bytes": 16219,
+          "sha256": "52d64f0e53808e67615002f83892bb79e7c857d465bcd4c9561592f5a4a845ee"
+        },
+        "mental/mental_kb.jsonl": {
+          "bytes": 27436,
+          "sha256": "ff0878cac619e4bbb2495e35d9a027a19cc7babf8b237bb4c28cb146a43d1426"
+        },
+        "mental/mental_schema.txt": {
+          "bytes": 10473,
+          "sha256": "1c08ee4fd6b8f2e4b258698d06b6a891f4c993e261a6770bc930c4334ba4962e"
+        },
+        "mental/mental_template.sqlite": {
+          "bytes": 1470464,
+          "sha256": "64c03a0f0857cd017eed8193df3069e2d0f42e5eeac10fcb03c7918ecec6470f"
+        },
+        "mini_interact.jsonl": {
+          "bytes": 464656,
+          "sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0"
+        },
+        "museum/museum.sqlite": {
+          "bytes": 2019328,
+          "sha256": "4bc022713669f1cab2736e453a012f53eea396e9b94457e744c858cc034d1fb3"
+        },
+        "museum/museum_column_meaning_base.json": {
+          "bytes": 26701,
+          "sha256": "ee8e092624d2537a88796bcefc2062c889b1a83ca14627b206d6e3c412c5b544"
+        },
+        "museum/museum_kb.jsonl": {
+          "bytes": 22491,
+          "sha256": "d1d9b4c3a5522c59cc57463dd1e92fb52c71112b4054ea4b8dcd9cbed021cbeb"
+        },
+        "museum/museum_schema.txt": {
+          "bytes": 21471,
+          "sha256": "b0ced1ffff2c4340fb179a87ca0ae6dbd8f37c57754264cc44a10efcfdbc7b6b"
+        },
+        "museum/museum_template.sqlite": {
+          "bytes": 2019328,
+          "sha256": "4bc022713669f1cab2736e453a012f53eea396e9b94457e744c858cc034d1fb3"
+        },
+        "news/news.sqlite": {
+          "bytes": 1716224,
+          "sha256": "3d7163ee93932af7e33ecf46e4ef2c98e9bd8132c3f3ed4c434670feeb441142"
+        },
+        "news/news_column_meaning_base.json": {
+          "bytes": 14970,
+          "sha256": "3300c691692bc8b4b2045958cb413b53a2ad8f38648530cd43e93b7db21c4422"
+        },
+        "news/news_kb.jsonl": {
+          "bytes": 23700,
+          "sha256": "f40ebb30a9ad3b044d09d791eb497d9a7a014030e6ac5438f28f4f0a65267988"
+        },
+        "news/news_schema.txt": {
+          "bytes": 11295,
+          "sha256": "00add86c1a562e7ccd091159285465c62065f7f3d029569c9b40decb68a1f379"
+        },
+        "news/news_template.sqlite": {
+          "bytes": 1716224,
+          "sha256": "3d7163ee93932af7e33ecf46e4ef2c98e9bd8132c3f3ed4c434670feeb441142"
+        },
+        "organ_transplant/organ_transplant.sqlite": {
+          "bytes": 1740800,
+          "sha256": "8941521d52de1c39e8f867f63f4f049db83a59d4e77f3dcf2dec9a9ca8ca161d"
+        },
+        "organ_transplant/organ_transplant.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "organ_transplant/organ_transplant.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "organ_transplant/organ_transplant_column_meaning_base.json": {
+          "bytes": 24297,
+          "sha256": "617d79a97e5c911b7e1b1a7c33f547ece067870b347da0396023c3dafbf6b1c7"
+        },
+        "organ_transplant/organ_transplant_kb.jsonl": {
+          "bytes": 26679,
+          "sha256": "a5171d6c8c6a46d0233f682774035358bcbc01f85df9f03423b79dbf7a7bc1b5"
+        },
+        "organ_transplant/organ_transplant_schema.txt": {
+          "bytes": 19748,
+          "sha256": "d9aacb164306ce1a899ec42e9831cd9402a8239727f1dd13a770f0c772bd89e3"
+        },
+        "organ_transplant/organ_transplant_template.sqlite": {
+          "bytes": 1740800,
+          "sha256": "ce597af1fecfeb3eabfdc932105ba0843940fc2d1e479083b251683f033daebe"
+        },
+        "planets_data/planets_data.sqlite": {
+          "bytes": 2822144,
+          "sha256": "913d940b180d0fa4e0de0dfeba6f3e3ea0d559f9742ab1325d546d7934aaebdc"
+        },
+        "planets_data/planets_data.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "planets_data/planets_data.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "planets_data/planets_data_column_meaning_base.json": {
+          "bytes": 19170,
+          "sha256": "2be9462c3b703caf00485eab91d66adc12d6e05d059d9f45fd8db6585a2a9c8a"
+        },
+        "planets_data/planets_data_kb.jsonl": {
+          "bytes": 20025,
+          "sha256": "2e31e1141a6351e17133734ff5db6676fd580a7402804888efe40a0cd06cfa24"
+        },
+        "planets_data/planets_data_schema.txt": {
+          "bytes": 8149,
+          "sha256": "c68e93dfcafc0a3bafdc587020bc7570920dd0ab070960ba79db35c13c124483"
+        },
+        "planets_data/planets_data_template.sqlite": {
+          "bytes": 2822144,
+          "sha256": "ff86983a2bd689380bece0ec5f886cc81ed846d119058612d3e2d93a4c1b6eb1"
+        },
+        "polar/polar.sqlite": {
+          "bytes": 2740224,
+          "sha256": "6d351808b75c7adfb9d073741345ab2368eeb0accc53369977b531764f54fe8d"
+        },
+        "polar/polar_column_meaning_base.json": {
+          "bytes": 27453,
+          "sha256": "f9e1968f4a583516637a87fc71a5ec6ee6c1ddba05548adf827d92f1cea587b6"
+        },
+        "polar/polar_kb.jsonl": {
+          "bytes": 26594,
+          "sha256": "d980e657893f43c3e622add7c21ad5dc56ab485c3987b8531fa5508db8c9abbc"
+        },
+        "polar/polar_schema.txt": {
+          "bytes": 24307,
+          "sha256": "3d4590bc22c957fc7c8ea928607151f2bdb5f2541e6530ea2e4197f0a3fccf28"
+        },
+        "polar/polar_template.sqlite": {
+          "bytes": 2740224,
+          "sha256": "6d351808b75c7adfb9d073741345ab2368eeb0accc53369977b531764f54fe8d"
+        },
+        "reverse_logistics/reverse_logistics.sqlite": {
+          "bytes": 3158016,
+          "sha256": "9dc2dbc320691b448ee1b004dc42f243745a1c237c1de811ebdeb2e2e456eced"
+        },
+        "reverse_logistics/reverse_logistics.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "reverse_logistics/reverse_logistics.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "reverse_logistics/reverse_logistics_column_meaning_base.json": {
+          "bytes": 18185,
+          "sha256": "06688be5e8f9cc34b62db12937ef6bf85c91cd4c7a033de6ab7b70ce62ff20df"
+        },
+        "reverse_logistics/reverse_logistics_kb.jsonl": {
+          "bytes": 10377,
+          "sha256": "b12b12a350b0ff6827095742a1093dc4b69594cc81bbd8ddd58cfd95e205ce8b"
+        },
+        "reverse_logistics/reverse_logistics_schema.txt": {
+          "bytes": 14754,
+          "sha256": "036bb0391728189f7e79e612f87db6b09a6e7a7ff6743d45627d1b0ebf407e85"
+        },
+        "reverse_logistics/reverse_logistics_template.sqlite": {
+          "bytes": 3158016,
+          "sha256": "58865ca7ab024abdfd2844a874771881b971e4a20854db56981b5f816361eea2"
+        },
+        "robot/robot.sqlite": {
+          "bytes": 2179072,
+          "sha256": "aef0e7b7134f891da0ae5621638abb12229accd916fb0c7fb2691a66223c05c4"
+        },
+        "robot/robot_column_meaning_base.json": {
+          "bytes": 17441,
+          "sha256": "340dacfa5fc86cb7c56e9b786c809b9c758df6f194e3d348f5a14c8c92b76e3c"
+        },
+        "robot/robot_kb.jsonl": {
+          "bytes": 21997,
+          "sha256": "a5faef8f216f8878ada656a1fad33ef0c719bd6b93bf485c11e780eed51e12dc"
+        },
+        "robot/robot_schema.txt": {
+          "bytes": 16038,
+          "sha256": "4144c1f84e38d1b86229ebcdb6c304623e035d8368aa2ff122824d41f72b0cc8"
+        },
+        "robot/robot_template.sqlite": {
+          "bytes": 2179072,
+          "sha256": "aef0e7b7134f891da0ae5621638abb12229accd916fb0c7fb2691a66223c05c4"
+        },
+        "solar/solar.sqlite": {
+          "bytes": 2215936,
+          "sha256": "d143744388100c33eaf7330af84dc71321fc7c317332961e4129196fd66cbc27"
+        },
+        "solar/solar_column_meaning_base.json": {
+          "bytes": 12742,
+          "sha256": "effbe996d98d499e5f998a10e761a05e5c97e03b8e8365d9b51db2d439fc905a"
+        },
+        "solar/solar_kb.jsonl": {
+          "bytes": 22181,
+          "sha256": "df5aa052c51b74bcde21ea1935ee7c432abd893077c5b6f00220ea1ba1eee995"
+        },
+        "solar/solar_schema.txt": {
+          "bytes": 11289,
+          "sha256": "658baeb470220368468411b130214283eeeede809d10c452bf33892b28ad5aa7"
+        },
+        "solar/solar_template.sqlite": {
+          "bytes": 2215936,
+          "sha256": "d143744388100c33eaf7330af84dc71321fc7c317332961e4129196fd66cbc27"
+        },
+        "sports_events/sports_events.sqlite": {
+          "bytes": 1310720,
+          "sha256": "516b42d467c4508e7b7a4d8180ef762e77f82c33f1ec0a6dc50a47400305ce03"
+        },
+        "sports_events/sports_events.sqlite-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        },
+        "sports_events/sports_events.sqlite-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "sports_events/sports_events_column_meaning_base.json": {
+          "bytes": 13484,
+          "sha256": "53040b88c34c8fe9ec99ebc12d90a297ff374e9ce936c42db4c94b3c670e38a1"
+        },
+        "sports_events/sports_events_kb.jsonl": {
+          "bytes": 21888,
+          "sha256": "0e1cca104c5d48dec121b8acdcbd17111980308e22d38bd39a2f05fee843b8cd"
+        },
+        "sports_events/sports_events_schema.txt": {
+          "bytes": 11756,
+          "sha256": "feae3ad7cd4c3430e5a458d03d314691ca04b2008e94d764765ab1ba0678aacb"
+        },
+        "sports_events/sports_events_template.sqlite": {
+          "bytes": 1310720,
+          "sha256": "1e825cbca8c6bccafdc0e609d0234cd7695f3860bdceb742954b5010778b3b8f"
+        },
+        "vaccine/vaccine.sqlite": {
+          "bytes": 1290240,
+          "sha256": "2aaf3f42a086d2a70365390bde5db91682fcc842c27febad665f3fe14f0bd402"
+        },
+        "vaccine/vaccine_column_meaning_base.json": {
+          "bytes": 17011,
+          "sha256": "6ebc8c3b1c64df4226a07d2a218c460f8af4503ad407e9a6550b794f88a5946e"
+        },
+        "vaccine/vaccine_kb.jsonl": {
+          "bytes": 18778,
+          "sha256": "dc7541d25f16c8e00655215713c2a049e63cf0828a4a52793bd1e68f60ee25d9"
+        },
+        "vaccine/vaccine_schema.txt": {
+          "bytes": 12898,
+          "sha256": "fd8952b4c7ca529a2c4aeb16e33ac2a779524034f06c8ee0c6284ff343538b30"
+        },
+        "vaccine/vaccine_template.sqlite": {
+          "bytes": 1290240,
+          "sha256": "2aaf3f42a086d2a70365390bde5db91682fcc842c27febad665f3fe14f0bd402"
+        },
+        "virtual/virtual.sqlite": {
+          "bytes": 2551808,
+          "sha256": "d963a35900ac10f5b4a12cdf672ed999742fcf2b04b704e52411c6a1af2acd77"
+        },
+        "virtual/virtual_column_meaning_base.json": {
+          "bytes": 20774,
+          "sha256": "a121848d786b50c2cc2383ce6bd251a3d1ba3367ba40105c9e677233fec3918d"
+        },
+        "virtual/virtual_kb.jsonl": {
+          "bytes": 26954,
+          "sha256": "f4967a884d1130cbc7da4d7de8e108a8498d2f8eb6d91e94cae7df820b6afec9"
+        },
+        "virtual/virtual_schema.txt": {
+          "bytes": 16982,
+          "sha256": "0f79de27972fbaaaa134d85bc1296d18db6c40e7e73fce075ae404dd3c2f3f41"
+        },
+        "virtual/virtual_template.sqlite": {
+          "bytes": 2551808,
+          "sha256": "d963a35900ac10f5b4a12cdf672ed999742fcf2b04b704e52411c6a1af2acd77"
+        }
+      },
+      "revision": "10253f235dbc6092a97e9c0acd30dba6203d8e59",
+      "source": "https://huggingface.co/datasets/birdsql/mini-interact",
+      "total_bytes": 139689703
+    }
+  }
+}
