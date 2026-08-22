@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "selection_version": "mini-interact-public-development-split-v1",
+  "purpose": "development_only_excluded_from_confirmation",
+  "public_data": {
+    "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\mini-interact\\mini_interact.jsonl",
+    "sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0"
+  },
+  "selection_uses_private_fields": false,
+  "seed": 20260820,
+  "method": "Force already-inspected development IDs, then cycle over public high_level x ambiguity-count strata while preferring unseen databases; rank ties by SHA-256(seed:instance_id).",
+  "forced_development_ids": [
+    "alien_1"
+  ],
+  "instance_ids": [
+    "alien_1",
+    "exchange_traded_funds_17",
+    "organ_transplant_20",
+    "households_10",
+    "credit_5",
+    "cross_db_3",
+    "robot_7",
+    "virtual_2",
+    "labor_certification_applications_4",
+    "museum_2"
+  ],
+  "excluded_instance_ids": [],
+  "count": 10,
+  "database_count": 10,
+  "strata": {
+    "high:1-2": 2,
+    "high:3-4": 3,
+    "high:5+": 2,
+    "low:1-2": 1,
+    "low:3-4": 1,
+    "low:5+": 1
+  }
+}

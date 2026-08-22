@@ -1,0 +1,65 @@
+{
+  "artifact": "Mini-Interact private merge and gold evaluator smoke",
+  "date": "2026-08-20",
+  "official_code_revision": "451fe2c3518ee1cf908d8139e2913483bd519381",
+  "merge": {
+    "script": "codebase/experiment/datasets/bird-interact-evaluator/combine_public_with_gt.py",
+    "script_sha256": "5174e24fc2bc93955e5ad9d614b72ec5e8213e306f711cc864403dcc6c80e6c0",
+    "python_mode": "Python 3.12.12 with -X utf8",
+    "public_path": "codebase/experiment/datasets/mini-interact/mini_interact.jsonl",
+    "public_sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0",
+    "private_gt_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_GTs_20251112.jsonl",
+    "private_gt_sha256": "76be864cb9bce1492daf20ff037463f1b37c5cc6dba593f7bd469bd2b1647824",
+    "output_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_merged_20251112.jsonl",
+    "output_bytes": 736550,
+    "output_sha256": "af60beaec040fbb5d0891141e97efb24d148c57aaa9dfe13fc4a97f2d70c5fcb",
+    "rows": 300,
+    "unique_instance_ids": 300,
+    "non_gt_field_mismatches": 0,
+    "nonempty_sol_sql_rows": 300,
+    "nonempty_external_knowledge_rows": 300,
+    "nonempty_custom_test_case_rows": 0,
+    "windows_encoding_finding": {
+      "default_encoding_output_rejected": true,
+      "affected_public_rows": 3,
+      "affected_public_fields": [
+        "amb_user_query",
+        "knowledge_ambiguity",
+        "user_query_ambiguity"
+      ],
+      "quarantined_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_merged_20251112.encoding-invalid.jsonl",
+      "quarantined_sha256": "f210171459f91413f5f10c0b1dffdad882742378fa8580df50952299bfe5fee2"
+    }
+  },
+  "gold_smoke": {
+    "instance_id": "alien_1",
+    "mode": "gold",
+    "model_or_api_calls": 0,
+    "wrapper": "codebase/experiment/datasets/bird-interact-evaluator/mini_interact/knowledge_based/mini_interact_conv/evaluation/wrapper_evaluation_sqlite.py",
+    "wrapper_sha256": "0cd0046241f1ff6ab364d09f5bc8547e7791e8211b7f8370a83d9ae21d670f0a",
+    "single_instance_evaluator_sha256": "94dfac8bf4b57b57fe10431075bfb501d44a4d136cf1ae86b51d8b94d86af61b",
+    "status": "success",
+    "overall_accuracy_percent": 100.0,
+    "execution_errors": 0,
+    "timeout_errors": 0,
+    "assertion_errors": 0,
+    "custom_test_cases": 0,
+    "default_fallback_passed": true,
+    "active_database_unchanged": true,
+    "template_database_unchanged": true,
+    "alien_database_sha256": "e160643c9abb43ba69917532f2654637e677460df25678f9daecdefb416046ed",
+    "ephemeral_files_before": 0,
+    "ephemeral_files_after": 0,
+    "report_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_merged_20251112_simple_report.txt",
+    "status_output_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_merged_20251112_simple_output_with_status.jsonl",
+    "known_reporting_issue": "The report prints 1/0 tests because total_test_cases is captured before the default fallback is inserted. Final status and aggregate accuracy are success/100%."
+  },
+  "follow_up_smoke": {
+    "manifest": "codebase/experiment/manifests/mini-interact-evaluator-adapter-2026-08-20.json",
+    "instances": 3,
+    "databases": 3,
+    "passed": 3,
+    "model_or_api_calls": 0
+  },
+  "status": "private_merge_valid_and_three_database_gold_smoke_passed_full_run_not_started"
+}

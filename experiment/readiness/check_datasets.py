@@ -9,7 +9,6 @@ remain reviewable.
 from __future__ import annotations
 
 import argparse
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import json
 import sqlite3
@@ -17,10 +16,10 @@ import subprocess
 import time
 import warnings
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import closing
 from pathlib import Path
 from typing import Any
-
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DATASETS_ROOT = EXPERIMENT_ROOT / "datasets"
@@ -38,6 +37,18 @@ DEFAULT_LEGACY_BIRD_DB_ROOT = (
     DEFAULT_DATASETS_ROOT / "bird-dev" / "dev_databases" / "dev_databases"
 )
 DEFAULT_MANIFEST = EXPERIMENT_ROOT / "manifests" / "datasets-readiness.json"
+DEFAULT_MINI_PRIVATE_GT = (
+    DEFAULT_DATASETS_ROOT
+    / "private"
+    / "mini-interact"
+    / "mini_interact_GTs_20251112.jsonl"
+)
+DEFAULT_MINI_PRIVATE_MERGED = (
+    DEFAULT_DATASETS_ROOT
+    / "private"
+    / "mini-interact"
+    / "mini_interact_merged_20251112.jsonl"
+)
 
 CLEAN_BIRD_PACKAGE_FILE_ID = "13VLWIwpw5E3d5DUkMvzw7hvHE67a4XkG"
 CLEAN_BIRD_PACKAGE_SHA256 = (
@@ -48,6 +59,13 @@ CLEAN_BIRD_SOURCE = "https://huggingface.co/datasets/birdsql/bird_sql_dev_202511
 MINI_INTERACT_SOURCE = "https://huggingface.co/datasets/birdsql/mini-interact"
 BIRD_INTERACT_SOURCE = "https://github.com/bird-bench/BIRD-Interact"
 CLARITY_PAPER = "https://aclanthology.org/2026.acl-industry.86/"
+MINI_INTERACT_PRIVATE_GT_SHA256 = (
+    "76be864cb9bce1492daf20ff037463f1b37c5cc6dba593f7bd469bd2b1647824"
+)
+MINI_INTERACT_PRIVATE_MERGED_SHA256 = (
+    "af60beaec040fbb5d0891141e97efb24d148c57aaa9dfe13fc4a97f2d70c5fcb"
+)
+MINI_INTERACT_GT_FIELDS = ("sol_sql", "external_knowledge", "test_cases")
 
 
 class ReadinessFailure(RuntimeError):
@@ -167,6 +185,44 @@ def sqlite_table_counts(path: Path) -> dict[str, int]:
         return counts
 
 
+def sqlite_logical_hash(path: Path) -> str:
+    """Hash user-visible schema and complete table contents, ignoring page layout."""
+
+    digest = hashlib.sha256()
+    with closing(_connect_readonly(path)) as connection:
+        objects = connection.execute(
+            "SELECT type, name, sql FROM sqlite_master "
+            "WHERE name NOT LIKE 'sqlite_%' AND sql IS NOT NULL "
+            "ORDER BY type, name"
+        ).fetchall()
+        digest.update(
+            json.dumps(objects, ensure_ascii=False, default=repr).encode("utf-8")
+        )
+        tables = [name for object_type, name, _ in objects if object_type == "table"]
+        for table in tables:
+            quoted = str(table).replace('"', '""')
+            rows = [
+                json.dumps(
+                    [
+                        {
+                            "type": type(value).__name__,
+                            "value": value.hex() if isinstance(value, bytes) else value,
+                        }
+                        for value in row
+                    ],
+                    ensure_ascii=False,
+                    default=repr,
+                    separators=(",", ":"),
+                )
+                for row in connection.execute(f'SELECT * FROM "{quoted}"')
+            ]
+            digest.update(str(table).encode("utf-8"))
+            for row in sorted(rows):
+                digest.update(row.encode("utf-8"))
+                digest.update(b"\n")
+    return digest.hexdigest()
+
+
 def check_clean_bird_package(
     archive: Path,
     database_root: Path,
@@ -234,8 +290,7 @@ def check_clean_bird_package(
     return {
         "status": "pass",
         "source": (
-            "https://drive.google.com/file/d/"
-            f"{CLEAN_BIRD_PACKAGE_FILE_ID}/view"
+            f"https://drive.google.com/file/d/{CLEAN_BIRD_PACKAGE_FILE_ID}/view"
         ),
         "archive": {
             "path": str(archive),
@@ -261,9 +316,7 @@ def check_clean_bird_package(
     }
 
 
-def execute_readonly_sql(
-    database: Path, sql: str, timeout_seconds: float
-) -> int:
+def execute_readonly_sql(database: Path, sql: str, timeout_seconds: float) -> int:
     deadline = time.monotonic() + timeout_seconds
     row_count = 0
     with closing(_connect_readonly(database)) as connection:
@@ -303,7 +356,9 @@ def check_clean_bird(
         require(isinstance(row, dict), f"Clean BIRD row {index} is not an object")
         missing = sorted(required - row.keys())
         require(not missing, f"Clean BIRD row {index} is missing {missing}")
-        require(bool(str(row["question"]).strip()), f"Row {index} has an empty question")
+        require(
+            bool(str(row["question"]).strip()), f"Row {index} has an empty question"
+        )
         require(bool(str(row["SQL"]).strip()), f"Row {index} has empty SQL")
 
     question_ids = [row["question_id"] for row in rows]
@@ -492,9 +547,13 @@ def check_mini_interact(dataset_root: Path) -> dict[str, Any]:
         if path.is_dir() and path.name != ".git"
     )
     missing_folders = sorted(set(selected_databases) - set(database_folders))
-    require(not missing_folders, f"Mini-Interact DB folders are missing: {missing_folders}")
+    require(
+        not missing_folders, f"Mini-Interact DB folders are missing: {missing_folders}"
+    )
 
-    database_tables: dict[str, dict[str, int]] = {}
+    database_tables: dict[str, dict[str, Any]] = {}
+    exact_database_template_matches = 0
+    logical_database_template_matches = 0
     for database_id in database_folders:
         folder = dataset_root / database_id
         required_files = {
@@ -512,22 +571,38 @@ def check_mini_interact(dataset_root: Path) -> dict[str, Any]:
         )
         load_jsonl(required_files["knowledge"])
         _parse_json_file(required_files["column_meanings"])
+        database_hash = sha256_file(required_files["database"])
+        template_hash = sha256_file(required_files["template"])
+        exact_match = database_hash == template_hash
+        if exact_match:
+            exact_database_template_matches += 1
+            logical_match = True
+            logical_hash = None
+        else:
+            database_logical_hash = sqlite_logical_hash(required_files["database"])
+            template_logical_hash = sqlite_logical_hash(required_files["template"])
+            logical_match = database_logical_hash == template_logical_hash
+            require(
+                logical_match,
+                f"Mini-Interact active/template contents differ for {database_id}",
+            )
+            logical_database_template_matches += 1
+            logical_hash = database_logical_hash
         database_tables[database_id] = {
             "database": sqlite_quick_check(required_files["database"]),
             "template": sqlite_quick_check(required_files["template"]),
+            "database_sha256": database_hash,
+            "template_sha256": template_hash,
+            "exact_file_match": exact_match,
+            "logical_content_match": logical_match,
+            "logical_sha256": logical_hash,
         }
 
     rows_with_empty_solution = sum(not row["sol_sql"] for row in rows)
     rows_with_empty_tests = sum(not row["test_cases"] for row in rows)
     rows_with_empty_knowledge = sum(not row["external_knowledge"] for row in rows)
-    public_payload_complete = (
-        not rows_with_empty_solution
-        and not rows_with_empty_tests
-        and not rows_with_empty_knowledge
-    )
-
     return {
-        "status": "pass" if public_payload_complete else "conditional",
+        "status": "pass",
         "public_structure": "pass",
         "rows": len(rows),
         "selected_database_count": len(selected_databases),
@@ -536,22 +611,186 @@ def check_mini_interact(dataset_root: Path) -> dict[str, Any]:
             set(database_folders) - set(selected_databases)
         ),
         "database_tables": database_tables,
+        "active_template_comparison": {
+            "exact_file_matches": exact_database_template_matches,
+            "byte_different_but_logically_identical": (
+                logical_database_template_matches
+            ),
+            "logical_mismatches": 0,
+            "interpretation": (
+                "Policy probes use <db>.sqlite as in the released agent path; "
+                "the scorer copies <db>_template.sqlite. Every pair has the "
+                "same user-visible schema and complete table contents."
+            ),
+        },
         "ground_truth_payload": {
-            "status": "pass" if public_payload_complete else "blocked",
+            "status": "omitted_from_public_release",
             "rows_with_empty_sol_sql": rows_with_empty_solution,
             "rows_with_empty_test_cases": rows_with_empty_tests,
             "rows_with_empty_external_knowledge": rows_with_empty_knowledge,
-            "action": (
-                "Request the official GT and test-case package, then merge it "
-                "using the BIRD-Interact instructions."
-                if not public_payload_complete
-                else "none"
+            "action": "Validate the separately stored private merge.",
+        },
+    }
+
+
+def _without_mini_interact_gt_fields(row: dict[str, Any]) -> dict[str, Any]:
+    """Return only fields that must remain identical to the public release."""
+
+    visible = dict(row)
+    for field in MINI_INTERACT_GT_FIELDS:
+        visible.pop(field, None)
+    if isinstance(visible.get("follow_up"), dict):
+        follow_up = dict(visible["follow_up"])
+        for field in MINI_INTERACT_GT_FIELDS:
+            follow_up.pop(field, None)
+        visible["follow_up"] = follow_up
+    return visible
+
+
+def effective_mini_interact_test_case_count(row: dict[str, Any]) -> int:
+    """Count custom tests, or the official default execution fallback."""
+
+    test_cases = row.get("test_cases", [])
+    return len(test_cases) if test_cases else 1
+
+
+def check_mini_interact_private(
+    public_file: Path,
+    private_gt_file: Path,
+    merged_file: Path,
+    *,
+    expected_rows: int = 300,
+    expected_private_sha256: str | None = MINI_INTERACT_PRIVATE_GT_SHA256,
+    expected_merged_sha256: str | None = MINI_INTERACT_PRIVATE_MERGED_SHA256,
+) -> dict[str, Any]:
+    """Validate the private payload and merge without exposing hidden values."""
+
+    missing = [
+        str(path) for path in (private_gt_file, merged_file) if not path.is_file()
+    ]
+    if missing:
+        return {
+            "status": "blocked",
+            "reason": "Private Mini-Interact payload or canonical merge is missing.",
+            "missing": missing,
+        }
+
+    require(
+        public_file.is_file(), f"Mini-Interact public file is missing: {public_file}"
+    )
+    private_hash = sha256_file(private_gt_file)
+    merged_hash = sha256_file(merged_file)
+    if expected_private_sha256 is not None:
+        require(
+            private_hash == expected_private_sha256,
+            "Mini-Interact private payload SHA-256 differs from the received artifact",
+        )
+    if expected_merged_sha256 is not None:
+        require(
+            merged_hash == expected_merged_sha256,
+            "Mini-Interact canonical merge SHA-256 differs from the validated artifact",
+        )
+
+    public_rows = load_jsonl(public_file)
+    private_rows = load_jsonl(private_gt_file)
+    merged_rows = load_jsonl(merged_file)
+    for label, rows in (
+        ("public", public_rows),
+        ("private", private_rows),
+        ("merged", merged_rows),
+    ):
+        require(
+            len(rows) == expected_rows,
+            f"Expected {expected_rows} Mini-Interact {label} rows, found {len(rows)}",
+        )
+
+    def index(rows: list[dict[str, Any]], label: str) -> dict[str, dict[str, Any]]:
+        indexed = {str(row.get("instance_id", "")): row for row in rows}
+        require(
+            "" not in indexed, f"Mini-Interact {label} contains an empty instance_id"
+        )
+        require(
+            len(indexed) == len(rows),
+            f"Mini-Interact {label} instance_id values are not unique",
+        )
+        return indexed
+
+    public_by_id = index(public_rows, "public")
+    private_by_id = index(private_rows, "private")
+    merged_by_id = index(merged_rows, "merged")
+    require(
+        public_by_id.keys() == private_by_id.keys() == merged_by_id.keys(),
+        "Mini-Interact public, private, and merged instance_id sets differ",
+    )
+
+    for instance_id, public_row in public_by_id.items():
+        private_row = private_by_id[instance_id]
+        merged_row = merged_by_id[instance_id]
+        require(
+            _without_mini_interact_gt_fields(public_row)
+            == _without_mini_interact_gt_fields(merged_row),
+            f"Mini-Interact merge changed a public field for {instance_id}",
+        )
+        for field in MINI_INTERACT_GT_FIELDS:
+            require(
+                merged_row.get(field, []) == private_row.get(field, []),
+                f"Mini-Interact merge mismatched hidden field {field} for {instance_id}",
+            )
+        if isinstance(private_row.get("follow_up"), dict):
+            merged_follow_up = merged_row.get("follow_up", {})
+            require(
+                isinstance(merged_follow_up, dict),
+                f"Mini-Interact merged follow_up is invalid for {instance_id}",
+            )
+            for field in MINI_INTERACT_GT_FIELDS:
+                require(
+                    merged_follow_up.get(field, [])
+                    == private_row["follow_up"].get(field, []),
+                    f"Mini-Interact follow_up mismatched {field} for {instance_id}",
+                )
+
+    nonempty_solution = sum(bool(row.get("sol_sql")) for row in merged_rows)
+    nonempty_knowledge = sum(bool(row.get("external_knowledge")) for row in merged_rows)
+    custom_test_rows = sum(bool(row.get("test_cases")) for row in merged_rows)
+    fallback_rows = sum(not row.get("test_cases") for row in merged_rows)
+    require(
+        nonempty_solution == expected_rows,
+        "Mini-Interact canonical merge contains empty solution SQL",
+    )
+    require(
+        nonempty_knowledge == expected_rows,
+        "Mini-Interact canonical merge contains empty oracle knowledge",
+    )
+
+    return {
+        "status": "pass",
+        "privacy": "hidden values omitted from this manifest",
+        "rows": expected_rows,
+        "matching_instance_ids": expected_rows,
+        "public_field_mismatches": 0,
+        "private_payload": {
+            "path": str(private_gt_file),
+            "bytes": private_gt_file.stat().st_size,
+            "sha256": private_hash,
+        },
+        "canonical_merge": {
+            "path": str(merged_file),
+            "bytes": merged_file.stat().st_size,
+            "sha256": merged_hash,
+            "nonempty_solution_rows": nonempty_solution,
+            "nonempty_oracle_knowledge_rows": nonempty_knowledge,
+            "custom_test_case_rows": custom_test_rows,
+            "default_execution_fallback_rows": fallback_rows,
+            "effective_test_case_count": sum(
+                effective_mini_interact_test_case_count(row) for row in merged_rows
             ),
         },
     }
 
 
-def check_evaluator(evaluator_root: Path) -> dict[str, Any]:
+def check_evaluator(
+    evaluator_root: Path, *, private_payload_ready: bool = False
+) -> dict[str, Any]:
     required_files = [
         evaluator_root / "env" / "requirements.txt",
         evaluator_root
@@ -605,11 +844,14 @@ def check_evaluator(evaluator_root: Path) -> dict[str, Any]:
         "python_files_compiled": compiled,
         "syntax_failures": syntax_failures,
         "syntax_warnings": syntax_warnings,
-        "runtime_status": "conditional",
-        "runtime_blocker": (
-            "The public Mini-Interact rows contain empty sol_sql, test_cases, "
-            "and external_knowledge; the official user simulator and scorer "
-            "require the private payload."
+        "runtime_status": (
+            "three_database_gold_smoke_passed" if private_payload_ready else "blocked"
+        ),
+        "runtime_note": (
+            "The private merge is available and a three-database gold/default smoke "
+            "has passed; no full run has been started."
+            if private_payload_ready
+            else "The official simulator and scorer require the private payload."
         ),
     }
 
@@ -650,7 +892,14 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
         workers=args.clean_workers,
     )
     mini = check_mini_interact(mini_root)
-    evaluator = check_evaluator(evaluator_root)
+    mini_private = check_mini_interact_private(
+        mini_root / "mini_interact.jsonl",
+        args.mini_private_gt,
+        args.mini_private_merged,
+    )
+    evaluator = check_evaluator(
+        evaluator_root, private_payload_ready=mini_private["status"] == "pass"
+    )
     clarity = check_clarity(args.datasets_root / "clarity")
 
     snapshots = {
@@ -677,6 +926,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "bird_sql_dev_20251106": clean,
             "bird_sql_dev_20251106_databases": clean_package,
             "mini_interact": mini,
+            "mini_interact_private": mini_private,
             "bird_interact_evaluator": evaluator,
         }.items()
         if result["status"] == "fail"
@@ -687,15 +937,15 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "bird_sql_dev_20251106": clean,
             "bird_sql_dev_20251106_databases": clean_package,
             "mini_interact": mini,
+            "mini_interact_private": mini_private,
             "bird_interact_evaluator": evaluator,
-            "clarity": clarity,
         }.items()
         if result["status"] in {"conditional", "blocked", "unverified"}
     ]
     overall = "fail" if hard_failures else ("conditional" if conditional else "pass")
 
     return {
-        "schema_version": 2,
+        "schema_version": 3,
         "overall_status": overall,
         "hard_failures": hard_failures,
         "conditional_components": conditional,
@@ -704,6 +954,7 @@ def build_manifest(args: argparse.Namespace) -> dict[str, Any]:
             "bird_sql_dev_20251106": clean,
             "bird_sql_dev_20251106_databases": clean_package,
             "mini_interact": mini,
+            "mini_interact_private": mini_private,
             "bird_interact_evaluator": evaluator,
             "clarity": clarity,
         },
@@ -716,9 +967,7 @@ def preserve_completed_gold_sweep(
     """Carry forward an expensive sweep when the benchmark snapshot is unchanged."""
 
     try:
-        previous_gold = previous["checks"]["bird_sql_dev_20251106"][
-            "gold_execution"
-        ]
+        previous_gold = previous["checks"]["bird_sql_dev_20251106"]["gold_execution"]
         same_metadata = (
             current["snapshots"]["bird_sql_dev_20251106"]
             == previous["snapshots"]["bird_sql_dev_20251106"]
@@ -742,16 +991,14 @@ def preserve_completed_gold_sweep(
         clean["status"] = "pass"
 
     required = {
-        name: result
-        for name, result in current["checks"].items()
-        if name != "clarity"
+        name: result for name, result in current["checks"].items() if name != "clarity"
     }
     current["hard_failures"] = sorted(
         name for name, result in required.items() if result["status"] == "fail"
     )
     current["conditional_components"] = sorted(
         name
-        for name, result in current["checks"].items()
+        for name, result in required.items()
         if result["status"] in {"conditional", "blocked", "unverified"}
     )
     current["overall_status"] = (
@@ -793,6 +1040,18 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=DEFAULT_MANIFEST,
         help="Tracked JSON manifest to write.",
+    )
+    parser.add_argument(
+        "--mini-private-gt",
+        type=Path,
+        default=DEFAULT_MINI_PRIVATE_GT,
+        help="Private Mini-Interact ground-truth payload received from BIRD.",
+    )
+    parser.add_argument(
+        "--mini-private-merged",
+        type=Path,
+        default=DEFAULT_MINI_PRIVATE_MERGED,
+        help="Canonical UTF-8 merge of public and private Mini-Interact rows.",
     )
     parser.add_argument(
         "--execute-clean-gold",

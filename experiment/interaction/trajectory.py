@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
 import hashlib
 import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-
 
 SCHEMA_VERSION = 1
 
@@ -29,7 +28,7 @@ def content_hash(value: Any) -> str:
 class BenchmarkTask:
     """Model-visible benchmark fields; deliberately excludes gold SQL."""
 
-    question_id: int
+    question_id: int | str
     db_id: str
     question: str
     evidence: str | None
@@ -79,7 +78,7 @@ class Trajectory:
         policy: str,
         task: BenchmarkTask,
         config: dict[str, Any],
-    ) -> "Trajectory":
+    ) -> Trajectory:
         return cls(
             schema_version=SCHEMA_VERSION,
             run_id=run_id,
@@ -138,7 +137,7 @@ class Trajectory:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict[str, Any]) -> "Trajectory":
+    def from_dict(cls, payload: dict[str, Any]) -> Trajectory:
         trajectory = cls(
             schema_version=int(payload["schema_version"]),
             run_id=str(payload["run_id"]),

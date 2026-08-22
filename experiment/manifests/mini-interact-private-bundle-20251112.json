@@ -1,0 +1,51 @@
+{
+  "artifact": "Mini-Interact hidden ground-truth payload",
+  "received_on": "2026-08-20",
+  "request": {
+    "sent_on": "2026-08-20",
+    "from": "Muhammad Faqih Akmal via NTU student email",
+    "to": "bird.bench25@gmail.com",
+    "subject": "[mini-interact GT&Test Cases]",
+    "research_only_and_no_redistribution_commitment": true
+  },
+  "sender": "bird.bench25@gmail.com",
+  "email_subject": "[mini-interact GT&Test Cases]",
+  "correspondence_record": "context/dataset-access-correspondence.md",
+  "official_sources": {
+    "dataset_card": "https://huggingface.co/datasets/birdsql/mini-interact",
+    "merge_instructions": "https://github.com/bird-bench/BIRD-Interact?tab=readme-ov-file#combine-the-public-data-with-the-ground-truth-and-test-cases",
+    "evaluator": "https://github.com/bird-bench/BIRD-Interact/tree/main/mini_interact",
+    "paper": "https://arxiv.org/abs/2510.05318"
+  },
+  "filename": "mini_interact_GTs_20251112.jsonl",
+  "local_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_GTs_20251112.jsonl",
+  "original_preserved_at": "C:/Users/fxv/Desktop/mini_interact_GTs_20251112.jsonl",
+  "bytes": 299467,
+  "sha256": "76be864cb9bce1492daf20ff037463f1b37c5cc6dba593f7bd469bd2b1647824",
+  "jsonl_rows": 300,
+  "unique_instance_ids": 300,
+  "public_instance_id_match": {
+    "public_rows": 300,
+    "missing_from_private_payload": 0,
+    "extra_in_private_payload": 0
+  },
+  "top_level_fields": [
+    "instance_id",
+    "sol_sql",
+    "external_knowledge",
+    "test_cases"
+  ],
+  "field_audit": {
+    "nonempty_sol_sql_rows": 300,
+    "nonempty_external_knowledge_rows": 300,
+    "nonempty_custom_test_case_rows": 0
+  },
+  "test_case_interpretation": "All custom test_cases arrays are empty. The pinned official Mini-Interact evaluator deliberately falls back to its default gold-SQL execution test when no custom cases are supplied.",
+  "privacy": {
+    "git_ignored": true,
+    "sender_stated_redistribution_terms": false,
+    "requester_committed_not_to_redistribute": true,
+    "policy": "Do not commit, redistribute, or expose the hidden payload to the evaluated policy/model."
+  },
+  "status": "acquired_validated_and_merged_privately_three_database_gold_smoke_passed"
+}

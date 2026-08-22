@@ -3,8 +3,8 @@
     "bird_interact_evaluator": {
       "python_files_compiled": 55,
       "revision": "451fe2c3518ee1cf908d8139e2913483bd519381",
-      "runtime_blocker": "The public Mini-Interact rows contain empty sol_sql, test_cases, and external_knowledge; the official user simulator and scorer require the private payload.",
-      "runtime_status": "conditional",
+      "runtime_note": "The private merge is available and a three-database gold/default smoke has passed; no full run has been started.",
+      "runtime_status": "three_database_gold_smoke_passed",
       "status": "pass",
       "syntax_failures": [],
       "syntax_warnings": [
@@ -285,141 +285,302 @@
       "status": "blocked"
     },
     "mini_interact": {
+      "active_template_comparison": {
+        "byte_different_but_logically_identical": 9,
+        "exact_file_matches": 18,
+        "interpretation": "Policy probes use <db>.sqlite as in the released agent path; the scorer copies <db>_template.sqlite. Every pair has the same user-visible schema and complete table contents.",
+        "logical_mismatches": 0
+      },
       "database_folder_count": 27,
       "database_tables": {
         "alien": {
           "database": 11,
-          "template": 11
+          "database_sha256": "e160643c9abb43ba69917532f2654637e677460df25678f9daecdefb416046ed",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 11,
+          "template_sha256": "e160643c9abb43ba69917532f2654637e677460df25678f9daecdefb416046ed"
         },
         "archeology": {
           "database": 14,
-          "template": 14
+          "database_sha256": "b525a54561e866f12cb373e5d3588ffcfdda13f59966cd9e3e28bb2633b21fdd",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 14,
+          "template_sha256": "b525a54561e866f12cb373e5d3588ffcfdda13f59966cd9e3e28bb2633b21fdd"
         },
         "cold_chain_pharma_compliance": {
           "database": 12,
-          "template": 12
+          "database_sha256": "63cb1f3da77d52aef56b72b50b744ea875a0776fc7e1f689f2262b491ea58afc",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "f2095a541b469247a1ea38af6ff1d6c2c6e9bf3dc6eeb3b5596f6ffcf01d76a6",
+          "template": 12,
+          "template_sha256": "61e31ef581f9533aed0df18550795d64034ca8c5f80a1c69b83b2c54769c428e"
         },
         "credit": {
           "database": 6,
-          "template": 6
+          "database_sha256": "c1ba8d05ed529c159792070b45734c90698200ee28e11d07586a2f17eddfd87b",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 6,
+          "template_sha256": "c1ba8d05ed529c159792070b45734c90698200ee28e11d07586a2f17eddfd87b"
         },
         "cross_db": {
           "database": 7,
-          "template": 7
+          "database_sha256": "d7e40379640260a2a16fb014b9af240a2d187de9223470f05ac92c390ec5e657",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 7,
+          "template_sha256": "d7e40379640260a2a16fb014b9af240a2d187de9223470f05ac92c390ec5e657"
         },
         "crypto": {
           "database": 10,
-          "template": 10
+          "database_sha256": "49103c15d930b290298ac52e2f965877f3caacde6c5269c6c798e596b4c7a5e1",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 10,
+          "template_sha256": "49103c15d930b290298ac52e2f965877f3caacde6c5269c6c798e596b4c7a5e1"
         },
         "cybermarket": {
           "database": 9,
-          "template": 9
+          "database_sha256": "23153eba8d258ef4846257326c4481850d7632bc2efdbe2b2236efa00d316922",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 9,
+          "template_sha256": "23153eba8d258ef4846257326c4481850d7632bc2efdbe2b2236efa00d316922"
         },
         "disaster": {
           "database": 10,
-          "template": 10
+          "database_sha256": "a6ded0fe31d3baef51295aee4a94ad5f21af77a2d6e226b64ad217e466617e09",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 10,
+          "template_sha256": "a6ded0fe31d3baef51295aee4a94ad5f21af77a2d6e226b64ad217e466617e09"
         },
         "exchange_traded_funds": {
           "database": 15,
-          "template": 15
+          "database_sha256": "17099a6027ce6efe3ec1cca87985c1aa79a909e704c375df633ef4953954bcc8",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "634edcde45976b007dfe1d8c7c8f0e391b411d51bbf2c00eb610e76537f30d0f",
+          "template": 15,
+          "template_sha256": "977740ab39883848554baf64dd5009614698969fff3a1930242755f1e1fb68bd"
         },
         "fake": {
           "database": 9,
-          "template": 9
+          "database_sha256": "9a2c6888064e47d82fcf7d47fd0d4bafa5f3ac20569f87b1c98db2e5d2ff9f96",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 9,
+          "template_sha256": "9a2c6888064e47d82fcf7d47fd0d4bafa5f3ac20569f87b1c98db2e5d2ff9f96"
         },
         "gaming": {
           "database": 8,
-          "template": 8
+          "database_sha256": "830ff704c00442b83d243f1e96dc79441436b20b7afbd20b15bccad5052f54ec",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 8,
+          "template_sha256": "830ff704c00442b83d243f1e96dc79441436b20b7afbd20b15bccad5052f54ec"
         },
         "households": {
           "database": 7,
-          "template": 7
+          "database_sha256": "637f21242266538c667fc8d45eb0985d30dd6a30a0fd1346801bb2148e7c4e12",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "548732fcf9b931010f0f82226b178b902508902a08172fe332481c4800846000",
+          "template": 7,
+          "template_sha256": "bef56a062f2af564146af3b5e3dddd29073801d6c91c5c898e7cca37bb93e8ce"
         },
         "hulushows": {
           "database": 7,
-          "template": 7
+          "database_sha256": "abc396adba075a769dc27087487e1acf4cd116c4ec76ec848b77f98ffc86f21a",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "b65ebefec589fdb95f1883a1bd3ea3310d69ea89f1bc9e1fd7e218f79dec2d7e",
+          "template": 7,
+          "template_sha256": "640ea627b0077c36bc3c778d24dc9c81384eb25b135eee734f4438ce20980861"
         },
         "insider": {
           "database": 7,
-          "template": 7
+          "database_sha256": "5a340024cb8022f819874086bef2a409074e7f15018d3a8dc9c6d0387d796bae",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 7,
+          "template_sha256": "5a340024cb8022f819874086bef2a409074e7f15018d3a8dc9c6d0387d796bae"
         },
         "labor_certification_applications": {
           "database": 9,
-          "template": 9
+          "database_sha256": "9450aee554878ab8e660f396425681dab6c6d46800083c2735a58df9d58f95a3",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "5c81bf6e0265f3740b4a2da22b4f97334f71a2d2b648d2160010bf59f47df2a4",
+          "template": 9,
+          "template_sha256": "76fc9b8700462b40ee230727e2150a41a9739e6b0ba844db25517d5635a95203"
         },
         "mental": {
           "database": 9,
-          "template": 9
+          "database_sha256": "64c03a0f0857cd017eed8193df3069e2d0f42e5eeac10fcb03c7918ecec6470f",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 9,
+          "template_sha256": "64c03a0f0857cd017eed8193df3069e2d0f42e5eeac10fcb03c7918ecec6470f"
         },
         "museum": {
           "database": 14,
-          "template": 14
+          "database_sha256": "4bc022713669f1cab2736e453a012f53eea396e9b94457e744c858cc034d1fb3",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 14,
+          "template_sha256": "4bc022713669f1cab2736e453a012f53eea396e9b94457e744c858cc034d1fb3"
         },
         "news": {
           "database": 8,
-          "template": 8
+          "database_sha256": "3d7163ee93932af7e33ecf46e4ef2c98e9bd8132c3f3ed4c434670feeb441142",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 8,
+          "template_sha256": "3d7163ee93932af7e33ecf46e4ef2c98e9bd8132c3f3ed4c434670feeb441142"
         },
         "organ_transplant": {
           "database": 14,
-          "template": 14
+          "database_sha256": "8941521d52de1c39e8f867f63f4f049db83a59d4e77f3dcf2dec9a9ca8ca161d",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "3ac641cca4b4be39e3bc870170d7805dc360e6c1cd45892f020469671b98df07",
+          "template": 14,
+          "template_sha256": "ce597af1fecfeb3eabfdc932105ba0843940fc2d1e479083b251683f033daebe"
         },
         "planets_data": {
           "database": 7,
-          "template": 7
+          "database_sha256": "913d940b180d0fa4e0de0dfeba6f3e3ea0d559f9742ab1325d546d7934aaebdc",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "3ae4113f1625225d88f479580ef045548d30b7783e6cacbb9f50b36c6d81be52",
+          "template": 7,
+          "template_sha256": "ff86983a2bd689380bece0ec5f886cc81ed846d119058612d3e2d93a4c1b6eb1"
         },
         "polar": {
           "database": 14,
-          "template": 14
+          "database_sha256": "6d351808b75c7adfb9d073741345ab2368eeb0accc53369977b531764f54fe8d",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 14,
+          "template_sha256": "6d351808b75c7adfb9d073741345ab2368eeb0accc53369977b531764f54fe8d"
         },
         "reverse_logistics": {
           "database": 8,
-          "template": 8
+          "database_sha256": "9dc2dbc320691b448ee1b004dc42f243745a1c237c1de811ebdeb2e2e456eced",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "8568e66a7895910b4027dc1c832f5b619a53ed8385e93b3dcad9e8af057b3374",
+          "template": 8,
+          "template_sha256": "58865ca7ab024abdfd2844a874771881b971e4a20854db56981b5f816361eea2"
         },
         "robot": {
           "database": 10,
-          "template": 10
+          "database_sha256": "aef0e7b7134f891da0ae5621638abb12229accd916fb0c7fb2691a66223c05c4",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 10,
+          "template_sha256": "aef0e7b7134f891da0ae5621638abb12229accd916fb0c7fb2691a66223c05c4"
         },
         "solar": {
           "database": 8,
-          "template": 8
+          "database_sha256": "d143744388100c33eaf7330af84dc71321fc7c317332961e4129196fd66cbc27",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 8,
+          "template_sha256": "d143744388100c33eaf7330af84dc71321fc7c317332961e4129196fd66cbc27"
         },
         "sports_events": {
           "database": 11,
-          "template": 11
+          "database_sha256": "516b42d467c4508e7b7a4d8180ef762e77f82c33f1ec0a6dc50a47400305ce03",
+          "exact_file_match": false,
+          "logical_content_match": true,
+          "logical_sha256": "cb4c2d4624b80d5ca7c75755dbf32e23624cf52a5a2433beabc5b1bdcfd7d58a",
+          "template": 11,
+          "template_sha256": "1e825cbca8c6bccafdc0e609d0234cd7695f3860bdceb742954b5010778b3b8f"
         },
         "vaccine": {
           "database": 7,
-          "template": 7
+          "database_sha256": "2aaf3f42a086d2a70365390bde5db91682fcc842c27febad665f3fe14f0bd402",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 7,
+          "template_sha256": "2aaf3f42a086d2a70365390bde5db91682fcc842c27febad665f3fe14f0bd402"
         },
         "virtual": {
           "database": 14,
-          "template": 14
+          "database_sha256": "d963a35900ac10f5b4a12cdf672ed999742fcf2b04b704e52411c6a1af2acd77",
+          "exact_file_match": true,
+          "logical_content_match": true,
+          "logical_sha256": null,
+          "template": 14,
+          "template_sha256": "d963a35900ac10f5b4a12cdf672ed999742fcf2b04b704e52411c6a1af2acd77"
         }
       },
       "extra_database_folders": [
         "sports_events"
       ],
       "ground_truth_payload": {
-        "action": "Request the official GT and test-case package, then merge it using the BIRD-Interact instructions.",
+        "action": "Validate the separately stored private merge.",
         "rows_with_empty_external_knowledge": 300,
         "rows_with_empty_sol_sql": 300,
         "rows_with_empty_test_cases": 300,
-        "status": "blocked"
+        "status": "omitted_from_public_release"
       },
       "public_structure": "pass",
       "rows": 300,
       "selected_database_count": 26,
-      "status": "conditional"
+      "status": "pass"
+    },
+    "mini_interact_private": {
+      "canonical_merge": {
+        "bytes": 736550,
+        "custom_test_case_rows": 0,
+        "default_execution_fallback_rows": 300,
+        "effective_test_case_count": 300,
+        "nonempty_oracle_knowledge_rows": 300,
+        "nonempty_solution_rows": 300,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\private\\mini-interact\\mini_interact_merged_20251112.jsonl",
+        "sha256": "af60beaec040fbb5d0891141e97efb24d148c57aaa9dfe13fc4a97f2d70c5fcb"
+      },
+      "matching_instance_ids": 300,
+      "privacy": "hidden values omitted from this manifest",
+      "private_payload": {
+        "bytes": 299467,
+        "path": "C:\\Users\\fxv\\Desktop\\NTU\\Sem 6\\Final Year Project\\codebase\\experiment\\datasets\\private\\mini-interact\\mini_interact_GTs_20251112.jsonl",
+        "sha256": "76be864cb9bce1492daf20ff037463f1b37c5cc6dba593f7bd469bd2b1647824"
+      },
+      "public_field_mismatches": 0,
+      "rows": 300,
+      "status": "pass"
     }
   },
   "conditional_components": [
-    "bird_sql_dev_20251106",
-    "clarity",
-    "mini_interact"
+    "bird_sql_dev_20251106"
   ],
   "hard_failures": [],
   "overall_status": "conditional",
-  "schema_version": 2,
+  "schema_version": 3,
   "snapshots": {
     "bird_interact_evaluator": {
       "revision": "451fe2c3518ee1cf908d8139e2913483bd519381",

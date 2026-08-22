@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from contextlib import closing
 import json
-from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
+from pathlib import Path
 
 from interaction.context import ContextBuilder
 from interaction.evaluation import evaluate_file
@@ -50,7 +50,9 @@ class ScriptedAgent:
             elapsed_ms=1.0,
         )
 
-    def start(self, prompt: str, *, cache_key: str, metadata: dict[str, str]) -> AgentTurn:
+    def start(
+        self, prompt: str, *, cache_key: str, metadata: dict[str, str]
+    ) -> AgentTurn:
         self.last_prompt = prompt
         return self._next()
 
@@ -117,9 +119,7 @@ class NoUserBaselineTest(unittest.TestCase):
                 connection.execute(
                     "UPDATE items SET alpha_name = 'Shared', beta_name = 'Different'"
                 )
-                connection.execute(
-                    "UPDATE items SET beta_name = 'Shared' WHERE id = 3"
-                )
+                connection.execute("UPDATE items SET beta_name = 'Shared' WHERE id = 3")
                 connection.commit()
             builder = ContextBuilder(
                 retrieval_query_budget=2,
@@ -248,8 +248,7 @@ class NoUserBaselineTest(unittest.TestCase):
                             "evidence": None,
                             "difficulty": "simple",
                             "SQL": (
-                                "SELECT DISTINCT name FROM items "
-                                "WHERE category = 'x'"
+                                "SELECT DISTINCT name FROM items WHERE category = 'x'"
                             ),
                         }
                     ]

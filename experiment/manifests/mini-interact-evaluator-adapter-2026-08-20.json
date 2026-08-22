@@ -1,0 +1,48 @@
+{
+  "artifact": "Mini-Interact Windows evaluator adapter and cross-database gold smoke",
+  "date": "2026-08-20",
+  "upstream": {
+    "revision": "451fe2c3518ee1cf908d8139e2913483bd519381",
+    "wrapper": "codebase/experiment/datasets/bird-interact-evaluator/mini_interact/knowledge_based/mini_interact_conv/evaluation/wrapper_evaluation_sqlite.py",
+    "wrapper_sha256": "0cd0046241f1ff6ab364d09f5bc8547e7791e8211b7f8370a83d9ae21d670f0a",
+    "single_instance_evaluator_sha256": "94dfac8bf4b57b57fe10431075bfb501d44a4d136cf1ae86b51d8b94d86af61b",
+    "windows_issue": "The wrapper launches hard-coded python3 and ./single_instance_eval_sqlite.py. Its result therefore depends on PATH and the caller's current directory.",
+    "observed_global_python": "C:/Users/fxv/scoop/apps/miniconda3/current/python.exe",
+    "observed_global_python_version": "3.13.9",
+    "observed_global_sqlite_version": "3.51.0",
+    "observed_failure": "sqlite3.OperationalError: no such function: POWER"
+  },
+  "adapter": {
+    "path": "codebase/experiment/readiness/mini_interact_eval.py",
+    "behavior": "Uses sys.executable, an absolute official single-instance evaluator path, isolated temporary database copies, an SQLite POWER/LOG preflight, explicit bounded selection unless --all is supplied, and effective fallback-test reporting.",
+    "upstream_source_modified": false,
+    "active_python": "codebase/experiment/minidev/.venv/Scripts/python.exe",
+    "active_sqlite_version": "3.50.4",
+    "math_probe": [
+      8.0,
+      2.0
+    ]
+  },
+  "gold_smoke": {
+    "model_or_api_calls": 0,
+    "instances": [
+      "alien_1",
+      "archeology_1",
+      "cross_db_1"
+    ],
+    "databases": [
+      "alien",
+      "archeology",
+      "cross_db"
+    ],
+    "passed": 3,
+    "failed": 0,
+    "effective_default_test_cases_passed": 3,
+    "source_templates_unchanged": true,
+    "private_summary_path": "codebase/experiment/datasets/private/mini-interact/mini_interact_gold_smoke_three_databases_2026-08-20.json",
+    "private_summary_bytes": 2191,
+    "private_summary_sha256": "3027572ea02c13628a190c44913bd92404e7e2629f5175a5acaec8118cd0b712"
+  },
+  "scope": "Readiness smoke only; this is not a full Mini-Interact benchmark result.",
+  "status": "pass"
+}
