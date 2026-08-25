@@ -11,6 +11,7 @@ from interaction.official_comparison import (
     balanced_launch_order,
     balanced_shards,
     exact_mcnemar_two_sided,
+    holm_adjust,
     merge_policy_outputs,
 )
 from interaction.official_protocol import PROTOCOL_VERSION
@@ -142,6 +143,48 @@ class OfficialComparisonTest(unittest.TestCase):
     def test_exact_mcnemar(self) -> None:
         self.assertEqual(exact_mcnemar_two_sided(0, 0), 1.0)
         self.assertEqual(exact_mcnemar_two_sided(0, 4), 0.125)
+
+    def test_holm_adjustment_is_monotone_in_sorted_order(self) -> None:
+        adjusted = holm_adjust({"reference": 0.00053559, "sph": 0.05223899})
+
+        self.assertEqual(adjusted["reference"], 0.00107118)
+        self.assertEqual(adjusted["sph"], 0.05223899)
+
+    def test_analysis_emits_the_primary_exact_test_family(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            paths = {}
+            outcomes = {
+                "mini_react_port": {"a": False, "b": False},
+                "sphinteract_cq": {"a": False, "b": True},
+                "proactive": {"a": True, "b": False},
+                "hybrid": {"a": True, "b": True},
+            }
+            for policy, policy_outcomes in outcomes.items():
+                path = root / f"{policy}.json"
+                metrics(path, policy, policy_outcomes)
+                paths[policy] = path
+
+            result = analyze_comparison(
+                paths,
+                expected_ids=["a", "b"],
+                seed=7,
+                bootstrap_samples=100,
+                noninferiority_margin=0.05,
+            )
+
+        family = result["primary_exact_test_family"]
+        self.assertEqual(family["method"], "Holm")
+        self.assertEqual(
+            family["comparisons"],
+            ["hybrid_minus_mini_react_port", "hybrid_minus_sphinteract_cq"],
+        )
+        self.assertIn(
+            "holm_adjusted_primary_p",
+            result["paired_comparisons"]["hybrid_minus_mini_react_port"][
+                "discordant_success"
+            ],
+        )
 
 
 if __name__ == "__main__":

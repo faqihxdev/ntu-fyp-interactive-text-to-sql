@@ -1,4 +1,4 @@
-"""Interaction-policy metrics, including the preregistered EX–turn curve."""
+"""Interaction metrics, including the project-defined EX–turn curve."""
 
 from __future__ import annotations
 

@@ -91,7 +91,10 @@ def _worker(payload_path: Path, output_path: Path) -> int:
                     result["status"] = "success"
                     result["passed_test_cases"] = 1
     except Exception as exc:  # noqa: BLE001 - child reports adapter failures.
-        result["adapter_error"] = repr(exc)
+        # Never return exception text from the private scorer process.  Some
+        # exception messages can contain SQL, paths, or benchmark internals.
+        result["adapter_error"] = "live scorer adapter failure"
+        result["adapter_error_type"] = type(exc).__name__
     output_path.write_text(
         json.dumps(result, ensure_ascii=False) + "\n", encoding="utf-8"
     )
@@ -173,13 +176,16 @@ def evaluate_live_instance(
                 result = {
                     "status": "failed",
                     "adapter_error": "live scorer child process failed",
+                    "adapter_error_type": "ChildProcessError",
                     "execution_error": False,
                     "timeout_error": False,
                     "assertion_error": False,
                     "passed_test_cases": 0,
                     "effective_total_test_cases": 1,
                     "returncode": completed.returncode,
-                    "stderr": completed.stderr[-1000:],
+                    # Preserve only whether diagnostics existed.  The raw
+                    # stream may contain private scorer details.
+                    "stderr_present": bool(completed.stderr.strip()),
                 }
             else:
                 result = json.loads(output_path.read_text(encoding="utf-8"))

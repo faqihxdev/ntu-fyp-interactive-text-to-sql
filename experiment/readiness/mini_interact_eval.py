@@ -179,8 +179,9 @@ def evaluate_instance(
                 "database_id": database_id,
                 "status": "failed",
                 "adapter_error": "official single-instance evaluator process failed",
+                "adapter_error_type": "ChildProcessError",
                 "returncode": completed.returncode,
-                "stderr": completed.stderr[-1000:],
+                "stderr_present": bool(completed.stderr.strip()),
             }
         raw_result = json.loads(output_file.read_text(encoding="utf-8"))
 

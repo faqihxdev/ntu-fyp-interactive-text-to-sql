@@ -242,4 +242,5 @@ class CodexOfficialPolicyModel:
             usage=result.usage,
             elapsed_ms=result.elapsed_ms,
             transport_attempts=int(getattr(result, "transport_attempts", 1)),
+            served_model=getattr(result, "served_model", None),
         )

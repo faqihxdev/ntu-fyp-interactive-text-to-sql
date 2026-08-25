@@ -63,6 +63,53 @@ def default_output(policy: str) -> Path:
     return EXPERIMENT_ROOT / "runs" / f"official-mini-{policy}-{stamp}.jsonl"
 
 
+def validate_existing_trajectories(
+    trajectories,
+    *,
+    selected_ids: set[str],
+    policy: str,
+    model: str,
+    reasoning_effort: str,
+    user_patience_budget: float,
+    max_action_turns: int,
+    progress_guard: bool,
+    guard_fingerprint: str,
+    max_guard_retries: int,
+) -> None:
+    """Refuse to resume into output created under a different configuration."""
+
+    seen: set[str] = set()
+    for trajectory in trajectories:
+        question_id = str(trajectory.task.question_id)
+        if question_id in seen or question_id not in selected_ids:
+            raise ValueError("Existing output has duplicate or stale task IDs")
+        seen.add(question_id)
+        config = trajectory.config
+        checks = {
+            "policy": trajectory.policy == f"{PROTOCOL_VERSION}:{policy}",
+            "requested_model": str(config.get("requested_model", ""))
+            == f"codex_subscription_proxy:{model}",
+            "reasoning_effort": config.get("reasoning_effort") == reasoning_effort,
+            "user_patience_budget": float(
+                config.get("user_patience_budget", -1)
+            )
+            == user_patience_budget,
+            "max_action_turns": int(config.get("max_action_turns", -1))
+            == max_action_turns,
+            "progress_guard": bool(config.get("progress_guard", False))
+            == progress_guard,
+            "guard_fingerprint": config.get("guard_fingerprint")
+            == guard_fingerprint,
+            "max_guard_retries": int(config.get("max_guard_retries", -1))
+            == max_guard_retries,
+        }
+        failed = [name for name, passed in checks.items() if not passed]
+        if failed:
+            raise ValueError(
+                f"Existing output is stale for {question_id}: {failed}"
+            )
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--public-data", type=Path, default=DEFAULT_PUBLIC_DATA)
@@ -77,6 +124,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--policy", choices=sorted(POLICIES), default="mini_react_port")
     parser.add_argument("--user-patience-budget", type=float, default=6.0)
     parser.add_argument("--max-action-turns", type=int, default=60)
+    parser.add_argument("--progress-guard", action="store_true")
+    parser.add_argument(
+        "--guard-fingerprint",
+        choices=("bird_set", "visible_multiset", "ordered_visible"),
+        default="bird_set",
+    )
+    parser.add_argument("--max-guard-retries", type=int, default=1)
     parser.add_argument(
         "--metric-horizon",
         type=int,
@@ -184,6 +238,9 @@ def main() -> int:
         policy=args.policy,
         user_patience_budget=args.user_patience_budget,
         max_action_turns=args.max_action_turns,
+        progress_guard=args.progress_guard,
+        guard_fingerprint=args.guard_fingerprint,
+        max_guard_retries=args.max_guard_retries,
     )
     controller = OfficialMiniInteractController(
         model=model,
@@ -197,6 +254,18 @@ def main() -> int:
     )
 
     existing = load_trajectories(output) if output.is_file() else []
+    validate_existing_trajectories(
+        existing,
+        selected_ids={str(task.question_id) for task in selected},
+        policy=args.policy,
+        model=args.model,
+        reasoning_effort=str(args.reasoning_effort),
+        user_patience_budget=args.user_patience_budget,
+        max_action_turns=args.max_action_turns,
+        progress_guard=args.progress_guard,
+        guard_fingerprint=args.guard_fingerprint,
+        max_guard_retries=args.max_guard_retries,
+    )
     completed = {str(trajectory.task.question_id) for trajectory in existing}
     for task in selected:
         if str(task.question_id) in completed:

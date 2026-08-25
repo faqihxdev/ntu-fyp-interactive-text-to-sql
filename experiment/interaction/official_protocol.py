@@ -21,6 +21,7 @@ from .trajectory import BenchmarkTask, Trajectory, Usage
 
 PROTOCOL_VERSION = "mini-interact-stress-adaptation-v3"
 SRA_NORMALIZER_VERSION = "sra-metadata-normalizer-v1"
+PROGRESS_GUARD_VERSION = "result-progress-guard-v1"
 OFFICIAL_SOURCE_REVISION = "451fe2c3518ee1cf908d8139e2913483bd519381"
 
 OFFICIAL_ACTION_COSTS: dict[str, float] = {
@@ -84,6 +85,9 @@ class OfficialMiniInteractConfig:
     max_normal_submissions: int = 5
     sql_timeout_seconds: float = 30.0
     max_result_rows: int = 500_000
+    progress_guard: bool = False
+    guard_fingerprint: str = "bird_set"
+    max_guard_retries: int = 1
 
     def validate(self) -> None:
         if self.policy not in POLICIES:
@@ -96,6 +100,14 @@ class OfficialMiniInteractConfig:
             raise ValueError("max_user_questions must be positive")
         if self.max_normal_submissions < 1:
             raise ValueError("max_normal_submissions must be positive")
+        if self.guard_fingerprint not in {
+            "bird_set",
+            "visible_multiset",
+            "ordered_visible",
+        }:
+            raise ValueError(f"Unknown guard fingerprint: {self.guard_fingerprint}")
+        if self.max_guard_retries < 0:
+            raise ValueError("max_guard_retries must be non-negative")
 
 
 @dataclass(frozen=True)
@@ -200,9 +212,7 @@ def normalize_sra_action(
             reviews[source] = "No additional ambiguity was specified."
             defaulted_review_sources.append(source)
     if defaulted_review_sources:
-        changes.append(
-            "defaulted_reviews:" + ",".join(defaulted_review_sources)
-        )
+        changes.append("defaulted_reviews:" + ",".join(defaulted_review_sources))
 
     options = tuple(action.options)
     if action.kind == "ask":
@@ -289,6 +299,7 @@ class OfficialPolicyTurn:
     usage: Usage
     elapsed_ms: float
     transport_attempts: int = 1
+    served_model: str | None = None
 
 
 class OfficialPolicyModel(Protocol):
@@ -296,6 +307,16 @@ class OfficialPolicyModel(Protocol):
     reasoning_effort: str
 
     def decide(self, request: OfficialDecisionRequest) -> OfficialPolicyTurn: ...
+
+
+def _safe_error_payload(stage: str, exc: Exception) -> dict[str, str]:
+    """Record failure class without persisting exception text or private data."""
+
+    return {
+        "stage": stage,
+        "error": f"{stage} failed",
+        "error_type": type(exc).__name__,
+    }
 
 
 class OfficialBudgetProvider(Protocol):
@@ -540,6 +561,8 @@ def allowed_actions(policy: str, phase: str, *, force_submit: bool) -> tuple[str
         raise ValueError(f"Unknown policy: {policy}")
     if force_submit:
         return ("submit",)
+    if policy == "mini_react_port" and phase == "guard_retry":
+        return (*ENVIRONMENT_ACTIONS, "submit")
     if policy == "mini_react_port":
         return OFFICIAL_ACTIONS
     if phase == "discovery":
@@ -618,6 +641,8 @@ class OfficialMiniInteractController:
         user_turns = 0
         normal_submissions = 0
         repair_submissions = 0
+        guard_retries = 0
+        rejected_fingerprints: set[str] = set()
         last_sql: str | None = None
 
         def finish(termination: str) -> Trajectory:
@@ -651,7 +676,7 @@ class OfficialMiniInteractController:
                     actor="model",
                     turn_index=user_turns,
                     elapsed_ms=(time.monotonic() - started) * 1_000,
-                    payload={"stage": "decision", "error": repr(exc)},
+                    payload=_safe_error_payload("decision", exc),
                 )
                 return finish("model_error")
 
@@ -669,6 +694,7 @@ class OfficialMiniInteractController:
                     "action": action.to_dict(),
                     "raw_output": turn.raw_output,
                     "transport_attempts": turn.transport_attempts,
+                    "served_model": turn.served_model,
                 },
                 usage=turn.usage,
             )
@@ -745,8 +771,8 @@ class OfficialMiniInteractController:
                     )
                 except Exception as exc:  # noqa: BLE001 - local adapter errors.
                     observation = OfficialToolObservation(
-                        text=f"Environment action failed: {exc}",
-                        payload={"error": repr(exc)},
+                        text="Environment action failed.",
+                        payload=_safe_error_payload("environment_action", exc),
                     )
                 record = {
                     "kind": "official_environment_action",
@@ -788,7 +814,7 @@ class OfficialMiniInteractController:
                         actor="oracle",
                         turn_index=user_turns,
                         elapsed_ms=(time.monotonic() - started) * 1_000,
-                        payload={"stage": "answer", "error": repr(exc)},
+                        payload=_safe_error_payload("answer", exc),
                     )
                     return finish("oracle_error")
                 if isinstance(raw_answer, ClarificationAnswer):
@@ -849,6 +875,12 @@ class OfficialMiniInteractController:
                 max_rows=self.config.max_result_rows,
             )
             result = database.execute(last_sql)
+            fingerprint = result.observation.fingerprints.get(
+                self.config.guard_fingerprint
+            )
+            repeated_rejected_result = bool(
+                fingerprint and fingerprint in rejected_fingerprints
+            )
             trajectory.add_event(
                 kind="sql_execution",
                 actor="environment",
@@ -880,7 +912,7 @@ class OfficialMiniInteractController:
                     actor="oracle",
                     turn_index=user_turns,
                     elapsed_ms=(time.monotonic() - started) * 1_000,
-                    payload={"stage": "judge", "error": repr(exc)},
+                    payload=_safe_error_payload("judge", exc),
                 )
                 return finish("oracle_error")
 
@@ -929,6 +961,49 @@ class OfficialMiniInteractController:
                     "remaining_bird_coins": budget.remaining,
                 }
             )
+            if fingerprint:
+                rejected_fingerprints.add(fingerprint)
+            if repeated_rejected_result:
+                guard_activates = bool(
+                    self.config.progress_guard
+                    and guard_retries < self.config.max_guard_retries
+                    and self.config.policy == "mini_react_port"
+                )
+                trajectory.add_event(
+                    kind="repeated_rejected_result",
+                    actor="progress_guard",
+                    turn_index=user_turns,
+                    elapsed_ms=(time.monotonic() - started) * 1_000,
+                    payload={
+                        "guard_version": PROGRESS_GUARD_VERSION,
+                        "fingerprint_kind": self.config.guard_fingerprint,
+                        "guard_action": (
+                            "internal_retry" if guard_activates else "observe_only"
+                        ),
+                        "retry": guard_retries + 1
+                        if guard_activates
+                        else guard_retries,
+                        "maximum_retries": self.config.max_guard_retries,
+                    },
+                )
+                if guard_activates:
+                    guard_retries += 1
+                    history.append(
+                        {
+                            "kind": "guard_feedback",
+                            "guard_version": PROGRESS_GUARD_VERSION,
+                            "fingerprint_kind": self.config.guard_fingerprint,
+                            "instruction": (
+                                "This SQL produced the same configured result "
+                                "fingerprint as an earlier rejected submission. "
+                                "Before asking the user again, make one internal "
+                                "attempt that changes that fingerprint."
+                            ),
+                            "remaining_bird_coins": budget.remaining,
+                        }
+                    )
+                    phase = "guard_retry"
+                    continue
             if self.config.policy == "mini_react_port":
                 phase = "mini_react"
                 continue

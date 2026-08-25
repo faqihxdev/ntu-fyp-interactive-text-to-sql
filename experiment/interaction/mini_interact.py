@@ -323,6 +323,14 @@ ACTION
                 "adapter": SIMULATOR_ADAPTER_VERSION,
                 "surface": "codex_subscription_proxy",
                 "model": self.proxy.model,
+                "served_models": [
+                    value
+                    for value in (
+                        getattr(encoded, "served_model", None),
+                        getattr(decoded, "served_model", None),
+                    )
+                    if value is not None
+                ],
                 "reasoning_effort": self.proxy.reasoning_effort,
                 "encoder_action": action,
                 "calls": 2,

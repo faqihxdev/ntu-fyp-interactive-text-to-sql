@@ -14,7 +14,7 @@ import random
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -348,6 +348,22 @@ def exact_mcnemar_two_sided(baseline_only: int, candidate_only: int) -> float:
     return min(1.0, 2 * cumulative / (2**discordant))
 
 
+def holm_adjust(p_values: Mapping[str, float]) -> dict[str, float]:
+    """Return Holm-adjusted p-values while preserving the input keys."""
+
+    if any(not 0.0 <= float(value) <= 1.0 for value in p_values.values()):
+        raise ValueError("Holm adjustment requires p-values in [0, 1]")
+    ordered = sorted(p_values.items(), key=lambda item: (float(item[1]), item[0]))
+    adjusted: dict[str, float] = {}
+    running_max = 0.0
+    total = len(ordered)
+    for rank, (name, value) in enumerate(ordered):
+        candidate = min(1.0, (total - rank) * float(value))
+        running_max = max(running_max, candidate)
+        adjusted[name] = round(running_max, 8)
+    return {name: adjusted[name] for name in p_values}
+
+
 def analyze_comparison(
     metrics_by_policy: dict[str, Path],
     *,
@@ -481,6 +497,22 @@ def analyze_comparison(
         }
         comparisons[f"hybrid_minus_{baseline_policy}"] = measures
 
+    primary_comparisons = (
+        "hybrid_minus_mini_react_port",
+        "hybrid_minus_sphinteract_cq",
+    )
+    primary_raw_p = {
+        name: float(
+            comparisons[name]["discordant_success"]["exact_mcnemar_two_sided_p"]
+        )
+        for name in primary_comparisons
+    }
+    primary_adjusted_p = holm_adjust(primary_raw_p)
+    for name in primary_comparisons:
+        comparisons[name]["discordant_success"][
+            "holm_adjusted_primary_p"
+        ] = primary_adjusted_p[name]
+
     return {
         "analysis_version": COMPARISON_VERSION,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -490,6 +522,12 @@ def analyze_comparison(
         "success_noninferiority_margin": noninferiority_margin,
         "policy_summaries": policy_summaries,
         "paired_comparisons": comparisons,
+        "primary_exact_test_family": {
+            "method": "Holm",
+            "comparisons": list(primary_comparisons),
+            "raw_p": primary_raw_p,
+            "adjusted_p": primary_adjusted_p,
+        },
         "claim_boundary": (
             "Matched local Mini-Interact Stress adaptation; not an official "
             "leaderboard submission or a cross-protocol ranking."

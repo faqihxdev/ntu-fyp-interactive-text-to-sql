@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -7,6 +8,8 @@ from codex_proxy.runner import (
     audit_events,
     build_codex_command,
     is_retryable_transport_failure,
+    resolve_codex_executable,
+    served_model_from_events,
     sum_usage,
     usage_from_events,
 )
@@ -32,6 +35,33 @@ class CodexProxyRunnerTest(unittest.TestCase):
         self.assertIn("--output-schema", command)
         self.assertIn("features.shell_tool=false", command)
         self.assertEqual(command[-1], "-")
+
+    def test_windows_cmd_launcher_resolves_to_packaged_native_binary(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            launcher = root / "bin" / "codex.cmd"
+            native = (
+                root
+                / "bin"
+                / "node_modules"
+                / "@openai"
+                / "codex"
+                / "node_modules"
+                / "@openai"
+                / "codex-win32-x64"
+                / "vendor"
+                / "x86_64-pc-windows-msvc"
+                / "bin"
+                / "codex.exe"
+            )
+            launcher.parent.mkdir(parents=True)
+            launcher.touch()
+            native.parent.mkdir(parents=True)
+            native.touch()
+
+            resolved = resolve_codex_executable(str(launcher), platform="nt")
+
+            self.assertEqual(Path(resolved), native)
 
     def test_audit_rejects_any_tool_item(self) -> None:
         clean = (
@@ -125,6 +155,20 @@ class CodexProxyRunnerTest(unittest.TestCase):
         self.assertEqual(total.input_tokens, 30)
         self.assertEqual(total.output_tokens, 5)
         self.assertEqual(total.total_tokens, 35)
+
+    def test_served_model_is_recorded_only_when_explicitly_returned(self) -> None:
+        self.assertIsNone(
+            served_model_from_events(({"type": "turn.completed", "usage": {}},))
+        )
+        self.assertEqual(
+            served_model_from_events(
+                (
+                    {"type": "turn.started", "model": "served-snapshot-123"},
+                    {"type": "turn.completed", "usage": {}},
+                )
+            ),
+            "served-snapshot-123",
+        )
 
 
 if __name__ == "__main__":

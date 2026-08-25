@@ -266,18 +266,23 @@ class OfficialProtocolTest(unittest.TestCase):
             kind="ask",
             question="Which interpretation should I use?",
             summary="One choice remains unresolved.",
-            reviews={source: "Reviewed." for source in (
-                "AmbQuestion",
-                "AmbColumn",
-                "AmbOutput",
-                "AmbValue",
-            )},
+            reviews={
+                source: "Reviewed."
+                for source in (
+                    "AmbQuestion",
+                    "AmbColumn",
+                    "AmbOutput",
+                    "AmbValue",
+                )
+            },
             options=("Other—please specify", "One", "Two", "Three"),
         )
 
         normalized, changes = normalize_sra_action(raw)
 
-        self.assertEqual(normalized.options, ("One", "Two", "Three", "Other—please specify"))
+        self.assertEqual(
+            normalized.options, ("One", "Two", "Three", "Other—please specify")
+        )
         self.assertEqual(changes, ("moved_open_option_to_fourth",))
         format_sra_question(normalized)
 
@@ -286,12 +291,15 @@ class OfficialProtocolTest(unittest.TestCase):
             kind="ask",
             question="Which interpretation should I use?",
             summary="One choice remains unresolved.",
-            reviews={source: "Reviewed." for source in (
-                "AmbQuestion",
-                "AmbColumn",
-                "AmbOutput",
-                "AmbValue",
-            )},
+            reviews={
+                source: "Reviewed."
+                for source in (
+                    "AmbQuestion",
+                    "AmbColumn",
+                    "AmbOutput",
+                    "AmbValue",
+                )
+            },
             options=("One", "Two", "Other—please specify"),
         )
 
@@ -303,17 +311,18 @@ class OfficialProtocolTest(unittest.TestCase):
             format_sra_question(normalized)
 
     def test_sra_normalizer_supplies_no_ambiguity_metadata(self) -> None:
-        normalized, changes = normalize_sra_action(
-            OfficialAction(kind="no_ambiguity")
-        )
+        normalized, changes = normalize_sra_action(OfficialAction(kind="no_ambiguity"))
 
         self.assertEqual(normalized.summary, "No actionable ambiguity was identified.")
-        self.assertEqual(set(normalized.reviews), {
-            "AmbQuestion",
-            "AmbColumn",
-            "AmbOutput",
-            "AmbValue",
-        })
+        self.assertEqual(
+            set(normalized.reviews),
+            {
+                "AmbQuestion",
+                "AmbColumn",
+                "AmbOutput",
+                "AmbValue",
+            },
+        )
         self.assertEqual(normalized.options, ())
         self.assertIn("defaulted_summary", changes)
         validate_sra_action(normalized)
@@ -352,7 +361,9 @@ class OfficialProtocolTest(unittest.TestCase):
                 event for event in trajectory.events if event.kind == "policy_decision"
             ]
             normalization_events = [
-                event for event in trajectory.events if event.kind == "sra_normalization"
+                event
+                for event in trajectory.events
+                if event.kind == "sra_normalization"
             ]
             self.assertEqual(trajectory.termination, "accepted_submission")
             self.assertEqual(len(policy_events[1].payload["action"]["options"]), 3)
@@ -619,6 +630,86 @@ class OfficialProtocolTest(unittest.TestCase):
                 ),
                 4.0,
             )
+
+    def test_reference_progress_guard_retries_same_result_without_asking(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public_path, _ = create_dataset(root)
+            first_wrong = "SELECT value FROM items WHERE value = 12"
+            same_result = "SELECT 6 + 6 AS value"
+            correct = "SELECT value FROM items WHERE value = 9"
+            model = ScriptedOfficialModel(
+                [
+                    OfficialAction(kind="submit", sql=first_wrong),
+                    OfficialAction(kind="submit", sql=same_result),
+                    OfficialAction(kind="submit", sql=correct),
+                ]
+            )
+            oracle = ScriptedOracle(correct)
+            trajectory = OfficialMiniInteractController(
+                model=model,
+                oracle=oracle,
+                tools=OfficialMiniInteractTools.from_file(
+                    dataset_root=root / "data", public_data=public_path
+                ),
+                budget_provider=StaticBudgetProvider(20),
+                config=OfficialMiniInteractConfig(
+                    policy="mini_react_port",
+                    progress_guard=True,
+                    max_guard_retries=1,
+                ),
+            ).run(task(), run_id="reference-guard-test")
+
+            self.assertEqual(trajectory.termination, "accepted_submission")
+            self.assertEqual(oracle.submissions, [first_wrong, same_result, correct])
+            self.assertNotIn("ask", model.requests[2].allowed_actions)
+            self.assertTrue(
+                any(
+                    record.get("kind") == "guard_feedback"
+                    for record in model.requests[2].history
+                )
+            )
+            repeats = [
+                event
+                for event in trajectory.events
+                if event.kind == "repeated_rejected_result"
+            ]
+            self.assertEqual(len(repeats), 1)
+            self.assertEqual(repeats[0].payload["guard_action"], "internal_retry")
+
+    def test_reference_without_guard_only_observes_same_result(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            public_path, _ = create_dataset(root)
+            first_wrong = "SELECT value FROM items WHERE value = 12"
+            same_result = "SELECT 6 + 6 AS value"
+            correct = "SELECT value FROM items WHERE value = 9"
+            model = ScriptedOfficialModel(
+                [
+                    OfficialAction(kind="submit", sql=first_wrong),
+                    OfficialAction(kind="submit", sql=same_result),
+                    OfficialAction(kind="submit", sql=correct),
+                ]
+            )
+            trajectory = OfficialMiniInteractController(
+                model=model,
+                oracle=ScriptedOracle(correct),
+                tools=OfficialMiniInteractTools.from_file(
+                    dataset_root=root / "data", public_data=public_path
+                ),
+                budget_provider=StaticBudgetProvider(20),
+                config=OfficialMiniInteractConfig(policy="mini_react_port"),
+            ).run(task(), run_id="reference-observe-test")
+
+            self.assertEqual(trajectory.termination, "accepted_submission")
+            self.assertIn("ask", model.requests[2].allowed_actions)
+            repeats = [
+                event
+                for event in trajectory.events
+                if event.kind == "repeated_rejected_result"
+            ]
+            self.assertEqual(len(repeats), 1)
+            self.assertEqual(repeats[0].payload["guard_action"], "observe_only")
 
     def test_rejected_submission_at_depletion_terminates(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

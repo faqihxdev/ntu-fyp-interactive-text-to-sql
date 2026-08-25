@@ -175,6 +175,7 @@ class PolicyTurn:
     usage: Usage
     elapsed_ms: float
     transport_attempts: int = 1
+    served_model: str | None = None
 
 
 class PolicyModel(Protocol):
@@ -431,6 +432,7 @@ class InteractionController:
                     "action": action.to_dict(),
                     "raw_output": turn.raw_output,
                     "transport_attempts": turn.transport_attempts,
+                    "served_model": turn.served_model,
                 },
                 usage=turn.usage,
             )

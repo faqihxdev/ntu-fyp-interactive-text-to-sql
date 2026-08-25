@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import asdict
 from datetime import datetime, timezone
+import hashlib
 import json
 from pathlib import Path
 from statistics import mean
@@ -54,6 +56,7 @@ DEFAULT_SIMULATOR_INSTRUCTIONS = Path(__file__).with_name(
 )
 MAX_AUTHORIZED_PILOT_TASKS = 100
 FULL_AUTHORIZED_TASKS = 1534
+RUN_CONTRACT_FILENAME = "run-contract.json"
 
 
 def run_tier(task_count: int) -> str:
@@ -73,6 +76,10 @@ def run_tier(task_count: int) -> str:
 
 def _stable_json(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+
+
+def _sha256_json(value: Any) -> str:
+    return hashlib.sha256(_stable_json(value).encode("utf-8")).hexdigest()
 
 
 def _relative(path: Path) -> str:
@@ -96,6 +103,106 @@ def _select_tasks(tasks, ids: list[str]):
     if missing:
         raise ValueError(f"Unknown BIRD question IDs: {missing}")
     return [by_id[value] for value in ids]
+
+
+def build_run_contract(
+    *,
+    tasks,
+    selection_path: Path,
+    dataset_path: Path,
+    database_root: Path,
+    sph_notebook: Path,
+    freeze_manifest: Path | None,
+    model: str,
+    reasoning_effort: str,
+    workers: int,
+    config: BirdDevMatchedConfig,
+) -> dict[str, Any]:
+    """Bind resumable task records to one exact input and controller contract."""
+
+    database_hashes = {
+        task.db_id: sha256_file(database_path(database_root, task))
+        for task in tasks
+    }
+    implementation_paths = [
+        Path(__file__),
+        Path(__file__).with_name("bird_dev_matched.py"),
+        Path(__file__).with_name("sphinteract_source.py"),
+        DEFAULT_POLICY_INSTRUCTIONS,
+        DEFAULT_SIMULATOR_INSTRUCTIONS,
+    ]
+    return {
+        "schema_version": 1,
+        "protocol": PROTOCOL_VERSION,
+        "arms": list(ARMS),
+        "selection": {
+            "path": _relative(selection_path),
+            "sha256": sha256_file(selection_path),
+            "tasks": len(tasks),
+        },
+        "dataset": {
+            "path": _relative(dataset_path),
+            "sha256": sha256_file(dataset_path),
+        },
+        "databases": {
+            "root": _relative(database_root),
+            "sha256_by_db_id": dict(sorted(database_hashes.items())),
+        },
+        "sphinteract_notebook": {
+            "path": _relative(sph_notebook),
+            "sha256": sha256_file(sph_notebook),
+        },
+        "freeze_manifest": (
+            {
+                "path": _relative(freeze_manifest),
+                "sha256": sha256_file(freeze_manifest),
+            }
+            if freeze_manifest
+            else None
+        ),
+        "model": {
+            "surface": "codex_subscription_proxy",
+            "requested": model,
+            "reasoning_effort": reasoning_effort,
+            "verbosity": "low",
+            "maximum_transport_retries": 1,
+        },
+        "workers": workers,
+        "controller_config": asdict(config),
+        "implementation_hashes": {
+            _relative(path): sha256_file(path) for path in implementation_paths
+        },
+    }
+
+
+def ensure_run_contract(
+    path: Path,
+    expected: dict[str, Any],
+    *,
+    existing_record_count: int,
+) -> str:
+    """Create or validate the immutable sidecar required for safe resume."""
+
+    expected_digest = _sha256_json(expected)
+    if path.is_file():
+        actual = json.loads(path.read_text(encoding="utf-8"))
+        if actual != expected:
+            raise ValueError(
+                "Existing run contract does not match the requested inputs or settings"
+            )
+        return expected_digest
+    if existing_record_count:
+        raise ValueError(
+            "Existing task records have no run contract; refusing an unverifiable resume"
+        )
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(".tmp")
+    temporary.write_text(
+        json.dumps(expected, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+    temporary.replace(path)
+    return expected_digest
 
 
 def validate_freeze(
@@ -144,7 +251,12 @@ def _task_record_path(output_root: Path, question_id: int | str) -> Path:
     return output_root / "tasks" / f"{int(question_id):04d}.json"
 
 
-def _validate_record(path: Path, expected_id: str) -> dict[str, Any]:
+def _validate_record(
+    path: Path,
+    expected_id: str,
+    *,
+    expected_contract_sha256: str,
+) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload.get("protocol") != PROTOCOL_VERSION:
         raise ValueError(f"Record protocol mismatch: {path}")
@@ -152,6 +264,8 @@ def _validate_record(path: Path, expected_id: str) -> dict[str, Any]:
         raise ValueError(f"Record task mismatch: {path}")
     if "task_error" not in payload and set(payload.get("arms", {})) != set(ARMS):
         raise ValueError(f"Record arm set mismatch: {path}")
+    if payload.get("run_contract_sha256") != expected_contract_sha256:
+        raise ValueError(f"Record run contract mismatch: {path}")
     return payload
 
 
@@ -283,11 +397,38 @@ def main() -> int:
     args.output_root.mkdir(parents=True, exist_ok=True)
     run_started_at = datetime.now(timezone.utc)
     run_started = time.monotonic()
+    config = BirdDevMatchedConfig()
+    existing_record_count = sum(
+        _task_record_path(args.output_root, task.question_id).is_file()
+        for task in tasks
+    )
+    try:
+        run_contract = build_run_contract(
+            tasks=tasks,
+            selection_path=args.selection_manifest,
+            dataset_path=args.dataset,
+            database_root=args.database_root,
+            sph_notebook=args.sph_notebook,
+            freeze_manifest=args.freeze_manifest,
+            model=args.model,
+            reasoning_effort=str(args.reasoning_effort),
+            workers=args.workers,
+            config=config,
+        )
+        run_contract_path = args.output_root / RUN_CONTRACT_FILENAME
+        run_contract_sha256 = ensure_run_contract(
+            run_contract_path,
+            run_contract,
+            existing_record_count=existing_record_count,
+        )
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        print(f"BIRD MATCHED RUN REFUSED: {exc}")
+        return 2
     evaluator = BirdDevPrivateEvaluator(
         rows=rows,
         database_root=args.database_root,
-        timeout_seconds=120.0,
-        max_rows=500_000,
+        timeout_seconds=config.sql_timeout_seconds,
+        max_rows=config.max_result_rows,
     )
     policy_proxy = CodexSubscriptionProxy(
         model=args.model,
@@ -310,7 +451,9 @@ def main() -> int:
         path = _task_record_path(args.output_root, task.question_id)
         if path.is_file():
             completed[str(task.question_id)] = _validate_record(
-                path, str(task.question_id)
+                path,
+                str(task.question_id),
+                expected_contract_sha256=run_contract_sha256,
             )
         else:
             pending.append(task)
@@ -324,12 +467,13 @@ def main() -> int:
             prompts=prompts,
             database_root=args.database_root,
             artifact_root=args.output_root / "artifacts",
-            config=BirdDevMatchedConfig(),
+            config=config,
         )
         try:
             record = controller.run_task(task)
         except Exception as exc:  # noqa: BLE001 - retain task-level failures.
             record = _task_error_record(task, exc)
+        record["run_contract_sha256"] = run_contract_sha256
         _write_record(_task_record_path(args.output_root, task.question_id), record)
         return task, record
 
@@ -410,6 +554,10 @@ def main() -> int:
             "monetary_cost_available": False,
         },
         "workers": args.workers,
+        "run_contract": {
+            "path": _relative(run_contract_path),
+            "sha256": run_contract_sha256,
+        },
         "task_records": _relative(merged),
         "task_records_sha256": sha256_file(merged),
         "physical_usage": usage,
