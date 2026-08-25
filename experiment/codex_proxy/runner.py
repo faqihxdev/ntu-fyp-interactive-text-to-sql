@@ -33,6 +33,7 @@ class CodexProxyResult:
     events: tuple[dict[str, Any], ...]
     codex_cli_version: str
     transport_attempts: int
+    served_model: str | None = None
 
 
 def _toml_string(value: str) -> str:
@@ -188,6 +189,24 @@ def usage_from_events(events: tuple[dict[str, Any], ...]) -> Usage:
     )
 
 
+def served_model_from_events(events: tuple[dict[str, Any], ...]) -> str | None:
+    """Extract a returned model identifier if the CLI explicitly emits one."""
+
+    identifiers: list[str] = []
+    for event in events:
+        containers = [event]
+        for key in ("item", "response", "turn"):
+            value = event.get(key)
+            if isinstance(value, dict):
+                containers.append(value)
+        for container in containers:
+            for key in ("served_model", "model_id", "model_slug", "model"):
+                value = container.get(key)
+                if isinstance(value, str) and value.strip():
+                    identifiers.append(value.strip())
+    return identifiers[-1] if identifiers else None
+
+
 def sum_usage(records: list[Usage]) -> Usage:
     return Usage(
         input_tokens=sum(record.input_tokens for record in records),
@@ -221,7 +240,7 @@ class CodexSubscriptionProxy:
         executable = codex_executable or shutil.which("codex")
         if not executable:
             raise CodexProxyError("codex executable was not found on PATH")
-        self.codex_executable = executable
+        self.codex_executable = resolve_codex_executable(executable)
         self.model = model
         self.reasoning_effort = reasoning_effort
         self.verbosity = verbosity
@@ -284,17 +303,36 @@ class CodexSubscriptionProxy:
             while True:
                 attempts += 1
                 output_file.unlink(missing_ok=True)
-                completed = subprocess.run(
-                    command,
-                    input=prompt,
-                    capture_output=True,
-                    text=True,
-                    encoding="utf-8",
-                    errors="replace",
-                    env=environment,
-                    timeout=self.timeout_seconds,
-                    check=False,
-                )
+                try:
+                    completed = subprocess.run(
+                        command,
+                        input=prompt,
+                        capture_output=True,
+                        text=True,
+                        encoding="utf-8",
+                        errors="replace",
+                        env=environment,
+                        timeout=self.timeout_seconds,
+                        check=False,
+                    )
+                except subprocess.TimeoutExpired as exc:
+                    attempt_id = f"{safe_id}-transport-attempt-{attempts}"
+                    if artifact_directory is not None:
+                        artifact_directory.mkdir(parents=True, exist_ok=True)
+                        (artifact_directory / f"{attempt_id}.prompt.txt").write_text(
+                            prompt, encoding="utf-8"
+                        )
+                        (artifact_directory / f"{attempt_id}.timeout.txt").write_text(
+                            f"Timed out after {self.timeout_seconds} seconds.\n",
+                            encoding="utf-8",
+                        )
+                    if attempts <= self.max_transport_retries:
+                        time.sleep(min(2 ** (attempts - 1), 4))
+                        continue
+                    raise CodexProxyError(
+                        "codex exec timed out after "
+                        f"{self.timeout_seconds} seconds on {attempts} attempts"
+                    ) from exc
                 events = parse_jsonl_events(completed.stdout)
                 attempt_usages.append(usage_from_events(events))
                 audit = audit_events(events)
@@ -375,4 +413,29 @@ class CodexSubscriptionProxy:
             events=events,
             codex_cli_version=self.codex_cli_version,
             transport_attempts=attempts,
+            served_model=served_model_from_events(events),
         )
+
+
+def resolve_codex_executable(
+    executable: str,
+    *,
+    platform: str | None = None,
+) -> str:
+    """Prefer the native Codex binary over the Windows CMD/Node launcher.
+
+    Python can time out and kill a CMD launcher while its descendants retain
+    captured stdout/stderr handles, causing ``subprocess.run`` to wait forever.
+    The npm package ships the same-version native binary beside the launcher;
+    invoking it directly makes the timeout apply to the actual process.
+    """
+
+    platform = platform or os.name
+    path = Path(executable)
+    if platform != "nt" or path.suffix.casefold() not in {".cmd", ".bat"}:
+        return executable
+    package_root = path.parent / "node_modules" / "@openai" / "codex"
+    candidates = sorted(
+        package_root.glob("node_modules/@openai/codex-win32-*/vendor/*/bin/codex.exe")
+    )
+    return str(candidates[0]) if candidates else executable
