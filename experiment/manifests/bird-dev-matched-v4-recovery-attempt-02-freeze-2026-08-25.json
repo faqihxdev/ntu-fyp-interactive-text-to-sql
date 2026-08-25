@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "artifact": "bird-dev-matched-v4-error-recovery-attempt-02-freeze",
+  "protocol": "bird-dev-matched-v4",
+  "status": "frozen_before_recovery_model_calls",
+  "frozen_at": "2026-08-25T10:40:00Z",
+  "purpose": "Second score-blind whole-task recovery after the audited first recovery attempt retained protocol errors.",
+  "source_run": {
+    "root": "codebase/experiment/runs/bird-dev-matched-v4-full1534-luna-high-20260824",
+    "status": "invalid_protocol_errors",
+    "run_manifest_sha256": "4aac02ba42f76184827703d6cdd25e42c98358e8fec6432b816a06148c9cb866",
+    "task_records_sha256": "61deb91075556dcc1e9ec003eb313aec0b28b4294ad90e7b2fc82877c6f7530b",
+    "task_errors": 1,
+    "arm_errors": 6,
+    "unresolved_logical_arm_outcomes": 11,
+    "affected_tasks": 6,
+    "unaffected_tasks_reused": 1528
+  },
+  "error_account": {
+    "capacity_or_proxy_error_records": 3,
+    "sql_shaped_simulator_answer_errors": 1,
+    "malformed_open_other_option_errors": 3,
+    "selection_rule": "A task is selected if and only if its attempt-01 record contains task_error or any arm termination equal to arm_error. Scores and other outcomes are not inspected."
+  },
+  "affected_question_ids": [94, 974, 1493, 1498, 1510, 1511],
+  "task_error_question_ids": [1511],
+  "recovery_policy": {
+    "unit": "Entire five-arm task, including a newly sampled shared initial SQL.",
+    "archive": "Preserve the attempt-01 aggregate and all six affected task/artifact directories under recovery/attempt-02/original-invalid-run.",
+    "reuse": "The unchanged runner validates and reuses all 1,528 unaffected task records.",
+    "attempts": "Run one second recovery attempt, then stop and audit. No automatic third attempt is authorized.",
+    "outcome_blinding": "Do not use success, SQL content, user turns, or score when deciding which records to replace."
+  },
+  "frozen_stack": {
+    "full_run_freeze": "codebase/experiment/manifests/bird-dev-matched-v4-full-freeze-2026-08-24.json",
+    "selection": "codebase/experiment/manifests/bird-dev-matched-v4-full1534.json",
+    "selection_sha256": "e1348640903fd63f5bb1287aea5a07a3e9230a675d5077acc2a1ded32cb1a53f",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "workers": 4,
+    "implementation_hashes_match_original_freeze": true
+  }
+}
