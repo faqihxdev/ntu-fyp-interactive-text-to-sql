@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img">
+<title>Execution accuracy over user turns</title>
+<desc>Cumulative official BIRD execution accuracy for five matched arms.</desc>
+<rect width="1600" height="1000" fill="#FFFFFF"/>
+<text x="170.0" y="68.0" font-family="Arial, sans-serif" font-size="42" font-weight="500" text-anchor="start" fill="#17212B">Execution accuracy over user turns</text>
+<text x="170.0" y="111.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#52606D">Original BIRD Dev - 1,534 paired tasks - official execution scorer</text>
+<line x1="170" y1="825.0" x2="1280" y2="825.0" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="833.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">0%</text>
+<line x1="170" y1="749.4" x2="1280" y2="749.4" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="757.4" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">10%</text>
+<line x1="170" y1="673.8" x2="1280" y2="673.8" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="681.8" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">20%</text>
+<line x1="170" y1="598.1" x2="1280" y2="598.1" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="606.1" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">30%</text>
+<line x1="170" y1="522.5" x2="1280" y2="522.5" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="530.5" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">40%</text>
+<line x1="170" y1="446.9" x2="1280" y2="446.9" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="454.9" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">50%</text>
+<line x1="170" y1="371.2" x2="1280" y2="371.2" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="379.2" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">60%</text>
+<line x1="170" y1="295.6" x2="1280" y2="295.6" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="303.6" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">70%</text>
+<line x1="170" y1="220.0" x2="1280" y2="220.0" stroke="#D9DEE3" stroke-width="1"/>
+<text x="150.0" y="228.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="end" fill="#52606D">80%</text>
+<line x1="170.0" y1="220" x2="170.0" y2="825" stroke="#EEF1F4" stroke-width="1"/>
+<text x="170.0" y="867.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle" fill="#17212B">0</text>
+<line x1="447.5" y1="220" x2="447.5" y2="825" stroke="#EEF1F4" stroke-width="1"/>
+<text x="447.5" y="867.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle" fill="#17212B">1</text>
+<line x1="725.0" y1="220" x2="725.0" y2="825" stroke="#EEF1F4" stroke-width="1"/>
+<text x="725.0" y="867.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle" fill="#17212B">2</text>
+<line x1="1002.5" y1="220" x2="1002.5" y2="825" stroke="#EEF1F4" stroke-width="1"/>
+<text x="1002.5" y="867.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle" fill="#17212B">3</text>
+<line x1="1280.0" y1="220" x2="1280.0" y2="825" stroke="#EEF1F4" stroke-width="1"/>
+<text x="1280.0" y="867.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="middle" fill="#17212B">4</text>
+<rect x="170" y="220" width="1110" height="605" fill="none" stroke="#AAB4BE" stroke-width="1.5"/>
+<text x="725.0" y="915.0" font-family="Arial, sans-serif" font-size="24" font-weight="500" text-anchor="middle" fill="#17212B">Maximum user answers received</text>
+<text x="48" y="522.5" font-family="Arial, sans-serif" font-size="24" font-weight="500" text-anchor="middle" fill="#17212B" transform="rotate(-90 48 522.5)">Cumulative execution accuracy (%)</text>
+<polyline points="170.0,498.6 447.5,498.6 725.0,498.6 1002.5,498.6 1280.0,498.6" fill="none" stroke="#6B7280" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="170.0" cy="498.6" r="8" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="447.5" cy="498.6" r="8" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="725.0" cy="498.6" r="8" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="1002.5" cy="498.6" r="8" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="1280.0" cy="498.6" r="8" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1300.0" y="498.6" font-family="Arial, sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#6B7280">43.2%</text>
+<polyline points="170.0,607.6 447.5,399.1 725.0,399.1 1002.5,399.1 1280.0,399.1" fill="none" stroke="#E69F00" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="162.8" y="600.4" width="14.4" height="14.4" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<rect x="440.3" y="391.9" width="14.4" height="14.4" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<rect x="717.8" y="391.9" width="14.4" height="14.4" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<rect x="995.3" y="391.9" width="14.4" height="14.4" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<rect x="1272.8" y="391.9" width="14.4" height="14.4" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1300.0" y="408.1" font-family="Arial, sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#E69F00">56.3%</text>
+<polyline points="170.0,498.6 447.5,386.7 725.0,312.8 1002.5,273.8 1280.0,249.7" fill="none" stroke="#0072B2" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="170.0,490.6 162.0,506.6 178.0,506.6" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="447.5,378.7 439.5,394.7 455.5,394.7" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="725.0,304.8 717.0,320.8 733.0,320.8" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="1002.5,265.8 994.5,281.8 1010.5,281.8" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="1280.0,241.7 1272.0,257.7 1288.0,257.7" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1300.0" y="233.7" font-family="Arial, sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#0072B2">76.1%</text>
+<polyline points="170.0,639.1 447.5,393.1 725.0,326.1 1002.5,283.2 1280.0,250.7" fill="none" stroke="#009E73" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="170.0,631.1 162.0,639.1 170.0,647.1 178.0,639.1" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="447.5,385.1 439.5,393.1 447.5,401.1 455.5,393.1" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="725.0,318.1 717.0,326.1 725.0,334.1 733.0,326.1" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="1002.5,275.2 994.5,283.2 1002.5,291.2 1010.5,283.2" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<polygon points="1280.0,242.7 1272.0,250.7 1280.0,258.7 1288.0,250.7" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1300.0" y="270.7" font-family="Arial, sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#009E73">75.9%</text>
+<polyline points="170.0,498.6 447.5,392.6 725.0,355.7 1002.5,343.3 1280.0,341.4" fill="none" stroke="#CC79A7" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="170.0" cy="498.6" r="8" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="447.5" cy="392.6" r="8" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="725.0" cy="355.7" r="8" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="1002.5" cy="343.3" r="8" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<circle cx="1280.0" cy="341.4" r="8" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1300.0" y="342.4" font-family="Arial, sans-serif" font-size="21" font-weight="500" text-anchor="start" fill="#CC79A7">64.0%</text>
+<line x1="170" y1="148" x2="212" y2="148" stroke="#6B7280" stroke-width="5"/>
+<circle cx="191.0" cy="148.0" r="7" fill="#6B7280" stroke="#FFFFFF" stroke-width="2"/>
+<text x="226.0" y="156.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#17212B">No user</text>
+<line x1="580" y1="148" x2="622" y2="148" stroke="#E69F00" stroke-width="5"/>
+<rect x="594.7" y="141.7" width="12.6" height="12.6" fill="#E69F00" stroke="#FFFFFF" stroke-width="2"/>
+<text x="636.0" y="156.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#17212B">Proactive-only</text>
+<line x1="990" y1="148" x2="1032" y2="148" stroke="#0072B2" stroke-width="5"/>
+<polygon points="1011.0,141.0 1004.0,155.0 1018.0,155.0" fill="#0072B2" stroke="#FFFFFF" stroke-width="2"/>
+<text x="1046.0" y="156.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#17212B">Reactive CQ</text>
+<line x1="170" y1="190" x2="212" y2="190" stroke="#009E73" stroke-width="5"/>
+<polygon points="191.0,183.0 184.0,190.0 191.0,197.0 198.0,190.0" fill="#009E73" stroke="#FFFFFF" stroke-width="2"/>
+<text x="226.0" y="198.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#17212B">Hybrid</text>
+<line x1="580" y1="190" x2="622" y2="190" stroke="#CC79A7" stroke-width="5"/>
+<circle cx="601.0" cy="190.0" r="7" fill="#CC79A7" stroke="#FFFFFF" stroke-width="2"/>
+<text x="636.0" y="198.0" font-family="Arial, sans-serif" font-size="20" font-weight="400" text-anchor="start" fill="#17212B">Reactive CQ with early stop</text>
+<text x="1280.0" y="970.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="end" fill="#52606D">Turn 0 is accuracy before any user answer.</text>
+</svg>
