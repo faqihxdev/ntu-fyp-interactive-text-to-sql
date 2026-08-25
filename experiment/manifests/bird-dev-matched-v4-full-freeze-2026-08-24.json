@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "artifact": "bird-dev-matched-v4-full-freeze",
+  "protocol": "bird-dev-matched-v4",
+  "status": "frozen_before_full_model_calls",
+  "frozen_at": "2026-08-24T02:27:53.0790535Z",
+  "purpose": "Final all-1,534 original-BIRD Dev comparison of proactive-only, reactive CQ, hybrid, and no-user, with CQ&ES isolated as a stopping ablation.",
+  "authorization_boundary": {
+    "user_authorized_full_run": true,
+    "authorized_tasks": 1534,
+    "authorized_arms_per_task": 5,
+    "authorized_logical_arm_outcomes": 7670,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "workers": 4,
+    "sol_or_other_frontier_model_authorized": false,
+    "runner_requirement": "Exact full selection plus --confirm-full-run and this freeze.",
+    "unreviewed_intermediate_selection_sizes": "refused"
+  },
+  "selection": {
+    "path": "codebase/experiment/manifests/bird-dev-matched-v4-full1534.json",
+    "sha256": "e1348640903fd63f5bb1287aea5a07a3e9230a675d5077acc2a1ded32cb1a53f",
+    "tasks": 1534,
+    "all_dataset_ids_exactly_once": true,
+    "development_exposed_ids": 110,
+    "prespecified_unexposed_sensitivity_tasks": 1424,
+    "uses_gold_sql_or_results": false
+  },
+  "shared_stack": {
+    "surface": "codex_subscription_proxy",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "verbosity": "low",
+    "workers": 4,
+    "transport_timeout_seconds": 600,
+    "maximum_transport_retries": 1,
+    "policy_and_user_simulator_use_the_same_requested_model": true,
+    "served_snapshot_immutable_identifier_available": false
+  },
+  "protocol_constraints": {
+    "arms": [
+      "no_user",
+      "proactive_only",
+      "sph_cq",
+      "project_hybrid",
+      "sph_cq_es"
+    ],
+    "main_analysis_arms": [
+      "no_user",
+      "proactive_only",
+      "sph_cq",
+      "project_hybrid"
+    ],
+    "secondary_stopping_ablation": "sph_cq_es",
+    "context": "Natural-language question plus CREATE TABLE schema only; BIRD evidence, values, descriptions, and hidden gold are absent from policy prompts.",
+    "maximum_normal_sql_attempts": 5,
+    "maximum_multiround_user_turns": 4,
+    "maximum_proactive_only_user_turns": 1,
+    "invalid_sql_repairs_per_attempt": 1,
+    "sql_timeout_seconds": 120.0,
+    "maximum_result_rows": 500000,
+    "primary_metric": "Original-BIRD set-of-result-rows execution accuracy.",
+    "secondary_scorer": "Released Sphinteract-compatible execution scorer, reported separately.",
+    "simulator": "Gold-conditioned evaluator-side user simulator; evaluator labels are neutralized and SQL-shaped replies fail closed.",
+    "shared_initial": "No-user and both reactive arms share the same initial SQL. A no-ambiguity proactive decision also reuses it.",
+    "proactive_only": "One pre-SQL SRA opportunity followed by SQL-only self-debug retries; no later user questions.",
+    "sph_cq": "Source-derived non-early-stop clarification loop after rejected SQL.",
+    "project_hybrid": "The proactive checkpoint followed by the exact same non-early-stop reactive loop implementation as sph_cq.",
+    "sph_cq_es": "Reactive source-derived clarification with model-decided no-ambiguity stopping.",
+    "validity_rule": "Any task or arm error invalidates the aggregate accuracy result until repaired by a complete protocol-consistent rerun or documented recovery."
+  },
+  "analysis_plan": {
+    "primary_denominator": "All 1,534 Dev tasks.",
+    "prespecified_sensitivity": "Repeat all paired arm summaries after excluding the 10 smoke and 100 cost-pilot IDs, retaining 1,424 tasks.",
+    "primary_timing_contrasts": [
+      "proactive_only minus sph_cq",
+      "project_hybrid minus proactive_only",
+      "project_hybrid minus sph_cq"
+    ],
+    "stopping_contrast": "sph_cq_es minus sph_cq",
+    "recovery_contrasts": [
+      "sph_cq minus no_user",
+      "proactive_only minus no_user",
+      "project_hybrid minus no_user"
+    ],
+    "statistics": [
+      "Task-bootstrap 95% intervals with 10,000 samples",
+      "Exact two-sided McNemar tests",
+      "Holm adjustment across the three primary timing contrasts",
+      "Database-cluster bootstrap and leave-one-database-out sensitivity",
+      "EX by received user turn, mean turns, SQL attempts, calls, tokens, terminations, and scorer disagreements"
+    ],
+    "published_comparison": "Sphinteract's 32.07/58.93/53.00 values are labelled historical anchors because its GPT-4-Turbo generator stack differs."
+  },
+  "smoke_gate": {
+    "manifest": "codebase/experiment/manifests/bird-dev-matched-v4-smoke10-result-2026-08-24.json",
+    "manifest_sha256": "59e591ae63d554171d1aacd79a4c45644576b05b36f18cd4cf201cc3385fc7a7",
+    "tasks": 10,
+    "task_errors": 0,
+    "arm_errors": 0,
+    "physical_model_calls": 141,
+    "physical_total_tokens": 634628,
+    "role": "Live plumbing gate only; smoke accuracy is not method evidence."
+  },
+  "sphinteract_source": {
+    "repository": "https://github.com/ZhaoFuheng/Sphinteract.git",
+    "commit": "21c6fcdd01f8173b3eaf51df796aee6d18e5fa4b",
+    "notebook": "codebase/experiment/datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb",
+    "notebook_sha256": "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108",
+    "license": "MIT"
+  },
+  "implementation_hashes": {
+    "codebase/experiment/interaction/bird_dev_matched.py": "8b590b904c04edd86d3beaad53a6bc3276d2d56a1b7dff77c0cab72f581343b0",
+    "codebase/experiment/interaction/run_bird_dev_matched.py": "b1978db3fb5136b9d87ee6220e7a1a2d70a8e0995f10f104d34e2be5133788e1",
+    "codebase/experiment/interaction/analyze_bird_dev_matched.py": "a24a589251faa4b977371ad178a1939683d3498fca35440d4a0025e5bcc3b993",
+    "codebase/experiment/interaction/preflight_bird_dev_matched.py": "4d49f99ac15247d8c1208c200725000cbaee0316eddde2a511909480644bbf83",
+    "codebase/experiment/interaction/make_bird_dev_full_selection.py": "42629f4edc917b2bb378239c11a873c85d72eb2ddab5cbf4da8631283f503e09",
+    "codebase/experiment/interaction/sphinteract_source.py": "b933f96562e2d414adabe0bb295da93c2692131efd181614c45ff0d640088dab",
+    "codebase/experiment/interaction/tests/test_bird_dev_matched.py": "fa3d5eaf3e9ff643d27fa57fa9b29629e583b275e3cb868ad195527ffe7113e7",
+    "codebase/experiment/codex_proxy/runner.py": "b3b9db1a18422f3238f5e45bbf9b7b74cd9cbd2caf86e5254d573ebeaa5f3902",
+    "codebase/experiment/pyproject.toml": "5c055ae21b216ab8fb53e99d1a458e388d507412adf259e50984decc56a639c9",
+    "codebase/experiment/uv.lock": "b6a03912eb58bf58021932c8d4544e49da8708313494fd5e3ed926b85ee41d84"
+  },
+  "artifact_hashes": {
+    "codebase/experiment/interaction/codex-policy-instructions.md": "d0eca648e738d4906652cf1cf6107b6d28db2d18ee9a76a0f9c99d4aea953b65",
+    "codebase/experiment/interaction/codex-user-simulator-instructions.md": "f1f9a01e8f50df3bcde6b60569362b208902ee9b1425c0acdccd8c6ed8e6289a",
+    "codebase/experiment/manifests/bird-dev-matched-v4-full1534.json": "e1348640903fd63f5bb1287aea5a07a3e9230a675d5077acc2a1ded32cb1a53f",
+    "codebase/experiment/manifests/bird-dev-matched-v4-smoke10-result-2026-08-24.json": "59e591ae63d554171d1aacd79a4c45644576b05b36f18cd4cf201cc3385fc7a7",
+    "codebase/experiment/notes/bird-dev-matched-v4-timing-protocol-2026-08-24.md": "87b5554db262e536f38484a75790326ee088f745845569df38bb1f4de0c89671",
+    "codebase/experiment/notes/interactive-text-to-sql-comparator-map-2026-08-24.md": "beff5edbd7c93bff9657f2925d7c7eb9bf6662a99575efdb05a9368b55e5bf81",
+    "codebase/experiment/datasets/bird-dev/dev.json": "630272f2b1c44d8cef2c3b246f623355cf0bbc1e832c81061df895530dfc2f06",
+    "codebase/experiment/datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb": "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108",
+    "codebase/experiment/runs/bird-dev-matched-v4-smoke10-luna-high-20260824/run-manifest.json": "bc3140d52fe638fa50513dbe2325e32beadcfb2c0d1a2117a54caa982cb14334",
+    "codebase/experiment/runs/bird-dev-matched-v4-smoke10-luna-high-20260824/task-records.jsonl": "c6c2bb175a9834b98759826ea90deb7e4c5801ee0a08e1cf55cca5f8f9f13406",
+    "codebase/experiment/runs/bird-dev-matched-v4-smoke10-luna-high-20260824/smoke-analysis.json": "0d36f170472c6c0ef8e8d9ebc66d64b5327b3420932160ff47d7d039fd58fb19",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/california_schools/california_schools.sqlite": "986817d793479801ed55133e55aa27e335422c0cd3866b54a3d6317b7c5f09c1",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/card_games/card_games.sqlite": "c98bdb57fe7474da798b407785544b9af0daaad5d61fd21e2a73309493bc1227",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/codebase_community/codebase_community.sqlite": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/debit_card_specializing/debit_card_specializing.sqlite": "b3d149ad05746dbbe5116e229e17e18f09c39db43cf117d9ef3441753608b691",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/european_football_2/european_football_2.sqlite": "e4d361dbeec6591a4b315877c0c481da05c8ff5a3d389b34d6e17b6f15bee4e0",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/financial/financial.sqlite": "d15d89cdb068a202b6f2b99342af44dffc1d52545b39ceaf62efdc0ba570101e",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/formula_1/formula_1.sqlite": "17185981cd747f6cdc374cb02a6096db3130e6ec2ddc582fe1686a28fb4c4c8a",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/student_club/student_club.sqlite": "eb89bcfe97eefa386a27904ec5aa15159811a7eac894ec659a36e48fa9f76b77",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/superhero/superhero.sqlite": "75e94a2c3236ee3bb2c01fb97a1c4b4c1c269bcefd4eab1d04be323d2d0825b1",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/thrombosis_prediction/thrombosis_prediction.sqlite": "e7e16d74b4731b4b8d33fdbe8c29cd5622620788ce8d1f335631f65fc7cf1db9",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/toxicology/toxicology.sqlite": "f5fa7f21af1ad878ff8fef1b0582b8cb2d7ed63dbac65ff16d2ba05667650c5b"
+  },
+  "output": {
+    "root": "codebase/experiment/runs/bird-dev-matched-v4-full1534-luna-high-20260824",
+    "resume_policy": "Per-task records are validated and reused only when protocol and arm set match v4."
+  }
+}

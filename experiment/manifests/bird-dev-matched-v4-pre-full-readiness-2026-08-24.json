@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "artifact": "bird-dev-matched-v4-pre-full-readiness",
+  "protocol": "bird-dev-matched-v4",
+  "status": "superseded_after_live_smoke",
+  "created_at": "2026-08-24T01:34:52.1209466Z",
+  "supersession_note": "This records the pre-smoke code state. A 10-ID live smoke subsequently passed, after which a separately guarded full-run entry point and freeze were prepared.",
+  "model_calls": 0,
+  "evidence_hierarchy": {
+    "planned_primary": "Original BIRD Dev matched clarification-timing comparison.",
+    "completed_secondary": "Mini-Interact controller-bundle comparison and failure analysis; all methods, trajectories, and results are retained unchanged.",
+    "historical_protocol_evidence": "The 100-task v2 pilot remains cost, feasibility, and early-stopping evidence, not a v4 result."
+  },
+  "arms": [
+    "no_user",
+    "proactive_only",
+    "sph_cq",
+    "project_hybrid",
+    "sph_cq_es"
+  ],
+  "main_analysis_arms": [
+    "no_user",
+    "proactive_only",
+    "sph_cq",
+    "project_hybrid"
+  ],
+  "secondary_ablation": "sph_cq_es",
+  "protocol_changes_from_v3": {
+    "proactive_only": "One pre-SQL SRA opportunity followed by SQL-only retries; no later user questions.",
+    "hybrid": "One pre-SQL SRA opportunity followed by the exact non-early-stop reactive loop used by sph_cq.",
+    "early_stopping": "Removed from hybrid and isolated in sph_cq_es.",
+    "legacy_results": "v2 and v3 records remain readable using protocol-specific arm maps."
+  },
+  "shared_limits": {
+    "maximum_normal_sql_attempts": 5,
+    "maximum_user_turns_for_multiround_arms": 4,
+    "maximum_user_turns_for_proactive_only": 1,
+    "invalid_sql_repairs_per_attempt": 1,
+    "sql_timeout_seconds": 120.0,
+    "maximum_result_rows": 500000
+  },
+  "comparison_boundary": {
+    "direct": "Within-model, within-task comparisons among v4 arms after the full run.",
+    "historical_anchor_only": "Published Sphinteract percentages use a different model and stack.",
+    "not_claimed": [
+      "A v4 execution-accuracy result",
+      "An official Sphinteract reproduction",
+      "An official Mini-Interact leaderboard result",
+      "A state-of-the-art score"
+    ]
+  },
+  "authorization_guard": {
+    "full_tasks": 1534,
+    "full_logical_arm_outcomes": 7670,
+    "full_run_started": false,
+    "bounded_runner_hard_limit_tasks": 100,
+    "massive_run_possible_through_current_runner": false
+  },
+  "verification": {
+    "interaction_unittests": {
+      "count": 109,
+      "status": "passed"
+    },
+    "readiness_unittests": {
+      "count": 14,
+      "status": "passed"
+    },
+    "proxy_unittests": {
+      "count": 7,
+      "status": "passed"
+    },
+    "ruff": "passed",
+    "uv_lock_check": "passed",
+    "legacy_v2_analysis": "passed; reproduced 1,443 calls and 6,881,626 tokens",
+    "pilot100_dry_run": {
+      "status": "passed_without_model_or_evaluator_calls",
+      "tasks": 100,
+      "schema_chars": 343532
+    }
+  },
+  "implementation_hashes": {
+    "codebase/experiment/interaction/bird_dev_matched.py": "8b590b904c04edd86d3beaad53a6bc3276d2d56a1b7dff77c0cab72f581343b0",
+    "codebase/experiment/interaction/analyze_bird_dev_matched.py": "2691faadbd7852dbcd9a330c121a361fa438d6a049eeadc7414175c0c49dd41a",
+    "codebase/experiment/interaction/run_bird_dev_matched.py": "c868431ea4ce1c1659a7ca7014b6a2a0e37254f2cbca4c7337ea5b943de205b2",
+    "codebase/experiment/interaction/preflight_bird_dev_matched.py": "4d49f99ac15247d8c1208c200725000cbaee0316eddde2a511909480644bbf83",
+    "codebase/experiment/interaction/tests/test_bird_dev_matched.py": "d7f9925a19ae50dcb1b4df5fc57bfcf2e1ac975b62c70ab897aeeb2f893467ef",
+    "codebase/experiment/interaction/sphinteract_source.py": "b933f96562e2d414adabe0bb295da93c2692131efd181614c45ff0d640088dab"
+  },
+  "input_hashes": {
+    "codebase/experiment/interaction/codex-policy-instructions.md": "d0eca648e738d4906652cf1cf6107b6d28db2d18ee9a76a0f9c99d4aea953b65",
+    "codebase/experiment/interaction/codex-user-simulator-instructions.md": "f1f9a01e8f50df3bcde6b60569362b208902ee9b1425c0acdccd8c6ed8e6289a",
+    "codebase/experiment/manifests/bird-dev-matched-pilot100.json": "bf36ec016d10117fc9269e67279382a953e603cd3ca34033096a9778db8220ec",
+    "codebase/experiment/datasets/bird-dev/dev.json": "630272f2b1c44d8cef2c3b246f623355cf0bbc1e832c81061df895530dfc2f06",
+    "codebase/experiment/datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb": "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108",
+    "codebase/experiment/notes/bird-dev-matched-v4-timing-protocol-2026-08-24.md": "1dfb770515da8a8b73c9580d919d4700e1c7a6b068680d07ee92fd301bba0a53"
+  }
+}
