@@ -28,10 +28,13 @@ including any bounded invalid-SQL repair:
 | Reactive clarification | SRA question, gold-conditioned simulated reply, then SQL regeneration | 5 normal generations, 4 questions |
 
 The two recovery arms use the same normal-generation cap and one invalid-SQL
-repair allowance per normal generation. Their execution order is deterministic SHA-256
-parity by question ID. The policy sees only the natural-language question and
-`CREATE TABLE` schema. BIRD evidence, values, descriptions, and gold SQL remain
-hidden from it.
+repair allowance per normal generation. Their execution order is deterministic
+SHA-256 parity by question ID. The base SQL task context contains only the
+natural-language question and `CREATE TABLE` schema. Recovery prompts
+additionally contain rejected-SQL history; an invalid-SQL repair receives the
+corresponding SQLite error text; and the reactive arm receives its prior
+clarification questions and answers. BIRD evidence, values, descriptions, gold
+SQL, and result rows remain hidden from the policy.
 
 ## Population and analysis
 

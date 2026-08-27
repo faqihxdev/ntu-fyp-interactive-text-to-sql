@@ -26,6 +26,57 @@ COLORS = {
 }
 
 
+def _figure_data(source: dict[str, Any]) -> dict[str, Any]:
+    """Normalize a frozen aggregate or private read-only analysis for plotting."""
+
+    if source.get("artifact") == "bird-dev-clarification-value-v1-full-result":
+        validity = source["validity"]
+        primary_source = source["primary_contrast"]
+        sensitivity_source = source["development_unexposed_sensitivity"]
+        return {
+            "tasks": int(validity["tasks"]),
+            "audit_passed": bool(validity["mechanical_audit_passed"]),
+            "initial_failures": int(
+                validity["initial_failures_available_for_recovery"]
+            ),
+            "arms": source["arms"],
+            "primary": {
+                "difference_percentage_points": float(
+                    primary_source["difference_percentage_points_all_tasks"]
+                ),
+                "task_bootstrap_95_ci_percentage_points": list(
+                    primary_source["task_bootstrap_95_ci_percentage_points"]
+                ),
+            },
+            "sensitivity": {
+                "tasks": int(sensitivity_source["tasks"]),
+                "difference_percentage_points": float(
+                    sensitivity_source[
+                        "reactive_minus_sql_only_percentage_points"
+                    ]
+                ),
+            },
+        }
+
+    return {
+        "tasks": int(source.get("run", {}).get("tasks", 0)),
+        "audit_passed": bool(source.get("mechanical_audit", {}).get("passed")),
+        "initial_failures": int(
+            source.get("initial_sql", {}).get("failures_available_for_recovery", 0)
+        ),
+        "arms": source["arms"],
+        "primary": source["paired_comparisons_all_tasks"][
+            "reactive_minus_sql_only"
+        ],
+        "sensitivity": {
+            "tasks": int(source["development_exposure_sensitivity"]["tasks"]),
+            **source["development_exposure_sensitivity"][
+                "paired_comparisons_all_tasks"
+            ]["reactive_minus_sql_only"],
+        },
+    }
+
+
 def _text(
     x: float,
     y: float,
@@ -73,9 +124,10 @@ def _axis(
 def render(analysis: dict[str, Any]) -> str:
     if analysis.get("protocol") != "bird-dev-clarification-value-v1":
         raise ValueError("Unexpected clarification-value protocol")
-    if int(analysis.get("run", {}).get("tasks", 0)) != 1534:
+    data = _figure_data(analysis)
+    if data["tasks"] != 1534:
         raise ValueError("Expected the complete 1,534-task analysis")
-    if not analysis.get("mechanical_audit", {}).get("passed"):
+    if not data["audit_passed"]:
         raise ValueError("Mechanical audit must pass before plotting")
 
     width, height = 1600, 900
@@ -83,13 +135,19 @@ def render(analysis: dict[str, Any]) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img">',
         "<title>Matched clarification value on BIRD Dev</title>",
-        "<desc>Execution accuracy and recovery after the shared initial SQL for three matched arms.</desc>",
+        "<desc>Execution accuracy and recovery after the shared initial-attempt prefix for three matched arms.</desc>",
         f'<rect width="{width}" height="{height}" fill="#FFFFFF"/>',
-        _text(90, 70, "Matched clarification value on 1,534 BIRD Dev tasks", size=42, weight=500),
+        _text(
+            90,
+            70,
+            f"Matched clarification value on {data['tasks']:,} BIRD Dev tasks",
+            size=42,
+            weight=500,
+        ),
         _text(
             90,
             112,
-            "One physical initial SQL; equal five-attempt cap for both recovery arms.",
+            "One physical initial-attempt prefix; equal five-generation cap for both recovery arms.",
             size=22,
             fill="#52606D",
         ),
@@ -116,7 +174,7 @@ def render(analysis: dict[str, Any]) -> str:
     )
     for index, arm in enumerate(ARMS):
         y = 325 + index * 105
-        summary = analysis["arms"][arm]
+        summary = data["arms"][arm]
         value = 100 * float(summary["official_ex"])
         lower, upper = [100 * float(item) for item in summary["task_bootstrap_95_ci"]]
         value_x = left_a + (right_a - left_a) * value / 80
@@ -138,10 +196,19 @@ def render(analysis: dict[str, Any]) -> str:
         )
 
     # Panel B: recoveries among the shared-initial failures.
+    initial_failures = data["initial_failures"]
+    if initial_failures <= 0:
+        raise ValueError("Expected at least one shared-initial failure")
     parts.extend(
         [
             _text(850, 186, "B  Recovery after initial failure", size=28, weight=600),
-            _text(850, 220, "865 shared-initial failures", size=19, fill="#52606D"),
+            _text(
+                850,
+                220,
+                f"{initial_failures:,} shared-initial failures",
+                size=19,
+                fill="#52606D",
+            ),
         ]
     )
     left_b, right_b, top_b, bottom_b = 1040.0, 1510.0, 270.0, 590.0
@@ -155,15 +222,17 @@ def render(analysis: dict[str, Any]) -> str:
         ticks=(0, 15, 30, 45, 60),
         suffix="%",
     )
+    initial_successes = int(data["arms"]["no_user"]["official_successes"])
     recoveries = {
-        "no_user": 0,
-        "sql_only_recovery": 91,
-        "reactive_clarification": 490,
+        arm: int(data["arms"][arm]["official_successes"]) - initial_successes
+        for arm in ARMS
     }
     for index, arm in enumerate(ARMS):
         y = 325 + index * 105
         count = recoveries[arm]
-        rate = 100 * count / 865
+        if not 0 <= count <= initial_failures:
+            raise ValueError(f"Invalid recovery count for {arm}: {count}")
+        rate = 100 * count / initial_failures
         value_x = left_b + (right_b - left_b) * rate / 60
         label_inside = rate >= 45
         label_x = value_x - 12 if label_inside else value_x + 12
@@ -175,7 +244,7 @@ def render(analysis: dict[str, Any]) -> str:
                 _text(
                     label_x,
                     y + 8,
-                    f"{count}/865 ({rate:.1f}%)",
+                    f"{count}/{initial_failures} ({rate:.1f}%)",
                     size=21,
                     weight=600,
                     anchor="end" if label_inside else "start",
@@ -184,10 +253,8 @@ def render(analysis: dict[str, Any]) -> str:
             ]
         )
 
-    primary = analysis["paired_comparisons_all_tasks"]["reactive_minus_sql_only"]
-    sensitivity = analysis["development_exposure_sensitivity"][
-        "paired_comparisons_all_tasks"
-    ]["reactive_minus_sql_only"]
+    primary = data["primary"]
+    sensitivity = data["sensitivity"]
     lower, upper = primary["task_bootstrap_95_ci_percentage_points"]
     parts.extend(
         [
@@ -205,7 +272,8 @@ def render(analysis: dict[str, Any]) -> str:
             _text(
                 1480,
                 786,
-                f"1,414-task unexposed sensitivity: +{sensitivity['difference_percentage_points']:.2f} points",
+                f"{sensitivity['tasks']:,}-task unexposed sensitivity: "
+                f"+{sensitivity['difference_percentage_points']:.2f} points",
                 size=21,
                 anchor="end",
                 fill="#52606D",
