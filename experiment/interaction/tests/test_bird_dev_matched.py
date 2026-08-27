@@ -29,6 +29,7 @@ from interaction.analyze_bird_dev_matched import (
     _load_records,
     _load_sensitivity_exclusions,
     _paired_specs,
+    _task_outcomes,
 )
 from interaction.sphinteract_source import SphinteractPrompts
 from interaction.run_bird_dev_matched import run_tier, validate_freeze
@@ -401,7 +402,7 @@ class BirdDevMatchedTest(unittest.TestCase):
             ("no_user", "sph_cq", "sph_cq_es", "project_hybrid"),
         )
 
-    def test_v4_analysis_includes_direct_timing_and_stopping_contrasts(self) -> None:
+    def test_v4_analysis_includes_bundle_and_stopping_contrasts(self) -> None:
         specs = set(_paired_specs(PROTOCOL_VERSION))
 
         self.assertIn(
@@ -429,6 +430,62 @@ class BirdDevMatchedTest(unittest.TestCase):
         self.assertEqual(comparisons["b"]["holm_adjusted_p_value"], 0.06)
         self.assertEqual(comparisons["c"]["holm_adjusted_p_value"], 0.06)
         self.assertIsNone(comparisons["secondary"]["holm_adjusted_p_value"])
+
+    def test_exact_mcnemar_retains_tiny_positive_p_values_through_holm(self) -> None:
+        tiny = _exact_mcnemar_p_value(0, 505)
+        self.assertGreater(tiny, 0.0)
+        comparisons = {
+            "tiny": {"exact_mcnemar_p_value": tiny},
+            "medium": {"exact_mcnemar_p_value": 0.02},
+            "large": {"exact_mcnemar_p_value": 0.5},
+        }
+
+        _add_holm_adjustment(comparisons, ("tiny", "medium", "large"))
+
+        adjusted = comparisons["tiny"]["holm_adjusted_p_value"]
+        self.assertGreater(adjusted, 0.0)
+        self.assertLess(adjusted, 1e-100)
+        self.assertIn("e-", json.dumps({"p": adjusted}))
+
+    def test_public_task_outcomes_exclude_private_content(self) -> None:
+        arms = {
+            arm: {
+                "official_success": arm == "no_user",
+                "sph_compatible_success": False,
+                "official_first_success_turn": 0 if arm == "no_user" else None,
+                "sph_compatible_first_success_turn": None,
+                "user_turns": 0,
+                "normal_sql_attempts": 1,
+                "termination": "accepted_initial",
+                "uses_shared_prefix": True,
+                "candidates": [{"sql": "SELECT private_value"}],
+                "question_answers": [["private question", "private answer"]],
+            }
+            for arm in ARMS
+        }
+        records = [
+            {
+                "task": {
+                    "question_id": 7,
+                    "db_id": "demo",
+                    "question": "private task text",
+                },
+                "arms": arms,
+            }
+        ]
+
+        exported = _task_outcomes(
+            records,
+            ARMS,
+            sensitivity_exclusions={"7"},
+        )
+        serialized = json.dumps(exported)
+
+        self.assertIn('"question_id": 7', serialized)
+        self.assertFalse(exported[0]["included_in_unexposed_sensitivity"])
+        self.assertNotIn("private task text", serialized)
+        self.assertNotIn("SELECT private_value", serialized)
+        self.assertNotIn("private answer", serialized)
 
     def test_freeze_rejects_changed_input_artifact(self) -> None:
         selection = self.root / "selection.json"

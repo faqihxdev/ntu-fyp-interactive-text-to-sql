@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "artifact": "bird-dev-matched-v4-recovery-audit",
   "status": "passed",
   "model_calls": 0,
@@ -19,6 +19,7 @@
     "initial_invalid_sha256": "fc921aae2b1dd7e029f168c45d3ab6492a24f57eb0578c3d3eea46f65602ab46",
     "attempt_01_invalid_sha256": "61deb91075556dcc1e9ec003eb313aec0b28b4294ad90e7b2fc82877c6f7530b",
     "final_sha256": "c16732c1e2e54a0ebdc75a0ab589394a3464a5fc5df9317cb7f79223a561d070",
+    "selection_sha256": "e1348640903fd63f5bb1287aea5a07a3e9230a675d5077acc2a1ded32cb1a53f",
     "freeze_01_sha256": "fbcf094b2bb15ca23bf45fe1c969faf503df11d390a6f80f2b38386c10665031",
     "freeze_02_sha256": "4132a06a41e0d9ebc2bb9038d51f3b4a7a17efeb976828eb2230b030d4b7804b"
   },
@@ -79,10 +80,14 @@
   },
   "checks": {
     "same_task_ids_across_generations": true,
+    "task_ids_match_frozen_full_selection": true,
+    "all_records_match_protocol": true,
     "initial_selection_matches_freeze": true,
     "attempt_02_selection_matches_freeze": true,
     "unselected_records_unchanged": true,
+    "selected_records_replaced_in_their_generation": true,
     "selected_unit_is_complete_task_record": true,
+    "final_records_have_exact_five_arm_set": true,
     "final_protocol_errors": 0
   },
   "privacy": "Aggregate counts, public question IDs, and hashes only; no task text, SQL, answers, scores, or trajectories are exported."

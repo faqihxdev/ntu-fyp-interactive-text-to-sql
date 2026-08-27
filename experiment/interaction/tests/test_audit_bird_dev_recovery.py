@@ -5,14 +5,18 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from interaction.bird_dev_matched import ARMS, PROTOCOL_VERSION
 from interaction.audit_bird_dev_recovery import audit_recovery, protocol_error_ids
 
 
 def record(question_id: int, *, error: bool = False, generation: str = "a") -> dict:
     payload = {
-        "protocol": "bird-dev-matched-v4",
+        "protocol": PROTOCOL_VERSION,
         "task": {"question_id": question_id, "question": "private"},
-        "arms": {"no_user": {"termination": "success", "generation": generation}},
+        "arms": {
+            arm: {"termination": "success", "generation": generation}
+            for arm in ARMS
+        },
     }
     if error:
         payload["arms"]["no_user"]["termination"] = "arm_error"
@@ -43,6 +47,11 @@ class RecoveryAuditTest(unittest.TestCase):
         )
         return path
 
+    def write_selection(self, ids: list[int]) -> Path:
+        path = self.root / "selection.json"
+        path.write_text(json.dumps({"question_ids": ids}), encoding="utf-8")
+        return path
+
     def test_score_blind_selection_uses_only_error_fields(self) -> None:
         records = {
             "1": record(1),
@@ -59,7 +68,11 @@ class RecoveryAuditTest(unittest.TestCase):
         )
         attempt_01 = self.write_jsonl(
             "attempt-01.jsonl",
-            [record(1), record(2, generation="b"), record(3, error=True)],
+            [
+                record(1),
+                record(2, generation="b"),
+                record(3, error=True, generation="b"),
+            ],
         )
         final = self.write_jsonl(
             "final.jsonl",
@@ -69,6 +82,7 @@ class RecoveryAuditTest(unittest.TestCase):
             initial_path=initial,
             attempt_01_path=attempt_01,
             final_path=final,
+            selection_path=self.write_selection([1, 2, 3]),
             freeze_01_path=self.write_freeze("freeze-01.json", [2, 3]),
             freeze_02_path=self.write_freeze("freeze-02.json", [3]),
         )
@@ -97,7 +111,27 @@ class RecoveryAuditTest(unittest.TestCase):
                 initial_path=initial,
                 attempt_01_path=attempt_01,
                 final_path=final,
+                selection_path=self.write_selection([1, 2]),
                 freeze_01_path=self.write_freeze("freeze-01.json", [2]),
+                freeze_02_path=self.write_freeze("freeze-02.json", []),
+            )
+
+    def test_audit_rejects_incomplete_five_arm_replacement(self) -> None:
+        initial = self.write_jsonl("initial.jsonl", [record(1, error=True)])
+        attempt_01 = self.write_jsonl(
+            "attempt-01.jsonl", [record(1, generation="b")]
+        )
+        incomplete = record(1, generation="b")
+        incomplete["arms"].pop("project_hybrid")
+        final = self.write_jsonl("final.jsonl", [incomplete])
+
+        with self.assertRaisesRegex(ValueError, "exactly five protocol arms"):
+            audit_recovery(
+                initial_path=initial,
+                attempt_01_path=attempt_01,
+                final_path=final,
+                selection_path=self.write_selection([1]),
+                freeze_01_path=self.write_freeze("freeze-01.json", [1]),
                 freeze_02_path=self.write_freeze("freeze-02.json", []),
             )
 

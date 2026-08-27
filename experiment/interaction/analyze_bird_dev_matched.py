@@ -17,6 +17,8 @@ from .run_support import sha256_file
 
 
 FULL_BIRD_TASKS = 1534
+BOOTSTRAP_SEED = 20260824
+BOOTSTRAP_SAMPLES = 10_000
 LEGACY_ARMS = ("no_user", "sph_cq", "sph_cq_es", "project_hybrid")
 PROTOCOL_ARMS = {
     "bird-dev-matched-v2": LEGACY_ARMS,
@@ -156,7 +158,10 @@ def _quantile(values: list[float], probability: float) -> float:
 
 
 def _bootstrap_mean_ci(
-    values: list[float], *, seed: int = 20260824, samples: int = 10_000
+    values: list[float],
+    *,
+    seed: int = BOOTSTRAP_SEED,
+    samples: int = BOOTSTRAP_SAMPLES,
 ) -> list[float]:
     generator = random.Random(seed)
     estimates = [mean(generator.choice(values) for _ in values) for _ in range(samples)]
@@ -180,8 +185,8 @@ def _exact_mcnemar_p_value(baseline_only: int, candidate_only: int) -> float:
 def _cluster_sensitivity(
     differences_by_database: dict[str, list[float]],
     *,
-    seed: int = 20260824,
-    samples: int = 10_000,
+    seed: int = BOOTSTRAP_SEED,
+    samples: int = BOOTSTRAP_SAMPLES,
 ) -> dict[str, Any]:
     clusters = sorted(differences_by_database)
     if len(clusters) < 2:
@@ -189,6 +194,16 @@ def _cluster_sensitivity(
             "database_clusters": len(clusters),
             "cluster_bootstrap_95_ci_percentage_points": None,
             "leave_one_database_out_range_percentage_points": None,
+            "per_database": {
+                cluster: {
+                    "tasks": len(differences_by_database[cluster]),
+                    "difference_sum": int(sum(differences_by_database[cluster])),
+                    "difference_percentage_points": round(
+                        100 * mean(differences_by_database[cluster]), 4
+                    ),
+                }
+                for cluster in clusters
+            },
         }
     statistics = [
         (sum(differences_by_database[cluster]), len(differences_by_database[cluster]))
@@ -220,6 +235,16 @@ def _cluster_sensitivity(
             round(100 * min(leave_one_out), 4),
             round(100 * max(leave_one_out), 4),
         ],
+        "per_database": {
+            cluster: {
+                "tasks": len(differences_by_database[cluster]),
+                "difference_sum": int(sum(differences_by_database[cluster])),
+                "difference_percentage_points": round(
+                    100 * mean(differences_by_database[cluster]), 4
+                ),
+            }
+            for cluster in clusters
+        },
     }
 
 
@@ -251,6 +276,63 @@ def _arm_summary(records: list[dict[str, Any]], arm_name: str) -> dict[str, Any]
     official_values = [float(bool(arm.get("official_success"))) for arm in arms]
     sph_values = [float(bool(arm.get("sph_compatible_success"))) for arm in arms]
     effective = [_effective_arm_usage(record, arm_name) for record in records]
+    official_turn_successes = [
+        sum(value is not None and int(value) <= turn for value in first_official)
+        for turn in range(5)
+    ]
+    sph_turn_successes = [
+        sum(value is not None and int(value) <= turn for value in first_sph)
+        for turn in range(5)
+    ]
+    normal_attempts = [int(arm.get("normal_sql_attempts", 0)) for arm in arms]
+    arm_scorer_table = Counter(
+        (
+            bool(arm.get("official_success")),
+            bool(arm.get("sph_compatible_success")),
+        )
+        for arm in arms
+    )
+    candidate_scorer_table = Counter(
+        (
+            bool(candidate.get("official_ex")),
+            bool(candidate.get("sph_compatible_ex")),
+        )
+        for arm in arms
+        for candidate in arm.get("candidates", [])
+    )
+    sra_change_counts: Counter[str] = Counter()
+    answer_change_counts: Counter[str] = Counter()
+    sra_calls = 0
+    sra_calls_changed = 0
+    simulator_answer_calls = 0
+    simulator_answers_changed = 0
+    for arm in arms:
+        for event in arm.get("events", []):
+            call_kind = str(event.get("call_kind", ""))
+            if call_kind.endswith("_sra") or "_sra_" in call_kind:
+                sra_calls += 1
+                changes = [
+                    str(value) for value in event.get("normalization_changes", [])
+                ]
+                sra_calls_changed += int(bool(changes))
+                sra_change_counts.update(changes)
+            if call_kind.startswith("user_answer_"):
+                simulator_answer_calls += 1
+                changes = [
+                    str(value)
+                    for value in event.get("answer_normalization_changes", [])
+                ]
+                simulator_answers_changed += int(bool(changes))
+                answer_change_counts.update(changes)
+
+    def scorer_table(table: Counter[tuple[bool, bool]]) -> dict[str, int]:
+        return {
+            "both_match": table[(True, True)],
+            "official_only": table[(True, False)],
+            "sph_only": table[(False, True)],
+            "neither_matches": table[(False, False)],
+        }
+
     return {
         "tasks": len(records),
         "official_successes": sum(bool(arm.get("official_success")) for arm in arms),
@@ -262,16 +344,13 @@ def _arm_summary(records: list[dict[str, Any]], arm_name: str) -> dict[str, Any]
             round(100 * value, 4) for value in _bootstrap_mean_ci(official_values)
         ],
         "official_ex_by_user_turn_percent": [
-            round(
-                100
-                * sum(
-                    value is not None and int(value) <= turn for value in first_official
-                )
-                / len(records),
-                4,
-            )
-            for turn in range(5)
+            round(100 * successes / len(records), 4)
+            for successes in official_turn_successes
         ],
+        "official_ex_by_user_turn_successes": official_turn_successes,
+        "sph_compatible_successes": sum(
+            bool(arm.get("sph_compatible_success")) for arm in arms
+        ),
         "sph_compatible_ex_percent": round(
             100
             * sum(bool(arm.get("sph_compatible_success")) for arm in arms)
@@ -282,28 +361,49 @@ def _arm_summary(records: list[dict[str, Any]], arm_name: str) -> dict[str, Any]
             round(100 * value, 4) for value in _bootstrap_mean_ci(sph_values)
         ],
         "sph_compatible_ex_by_user_turn_percent": [
-            round(
-                100
-                * sum(value is not None and int(value) <= turn for value in first_sph)
-                / len(records),
-                4,
-            )
-            for turn in range(5)
+            round(100 * successes / len(records), 4)
+            for successes in sph_turn_successes
         ],
+        "sph_compatible_ex_by_user_turn_successes": sph_turn_successes,
+        "total_user_turns": sum(int(arm.get("user_turns", 0)) for arm in arms),
         "mean_user_turns": round(
             mean(float(arm.get("user_turns", 0)) for arm in arms), 6
         ),
+        "effective_model_calls": sum(value[0] for value in effective),
         "effective_model_calls_per_task": round(
             mean(float(value[0]) for value in effective), 6
         ),
+        "effective_tokens": sum(value[1]["total_tokens"] for value in effective),
         "effective_tokens_per_task": round(
             mean(float(value[1]["total_tokens"]) for value in effective), 6
         ),
+        "normal_sql_attempts": {
+            "total": sum(normal_attempts),
+            "mean_per_task": round(mean(normal_attempts), 6),
+            "distribution": dict(
+                sorted(Counter(str(value) for value in normal_attempts).items())
+            ),
+        },
         "terminations": dict(
             sorted(
                 Counter(str(arm.get("termination", "missing")) for arm in arms).items()
             )
         ),
+        "uses_shared_prefix_tasks": sum(
+            bool(arm.get("uses_shared_prefix")) for arm in arms
+        ),
+        "arm_success_scorer_2x2": scorer_table(arm_scorer_table),
+        "candidate_scorer_2x2": scorer_table(candidate_scorer_table),
+        "normalization": {
+            "sra_calls": sra_calls,
+            "sra_calls_changed": sra_calls_changed,
+            "sra_change_counts": dict(sorted(sra_change_counts.items())),
+            "simulator_answer_calls": simulator_answer_calls,
+            "simulator_answers_changed": simulator_answers_changed,
+            "simulator_answer_change_counts": dict(
+                sorted(answer_change_counts.items())
+            ),
+        },
         "arm_errors": sum(arm.get("termination") == "arm_error" for arm in arms),
     }
 
@@ -313,8 +413,11 @@ def _paired_difference(
 ) -> dict[str, Any]:
     differences = []
     differences_by_database: dict[str, list[float]] = {}
+    outcomes_by_database: dict[str, Counter[tuple[bool, bool]]] = {}
     baseline_only = 0
     candidate_only = 0
+    both_success = 0
+    both_failure = 0
     for record in records:
         arms = record.get("arms") or {}
         candidate_value = bool((arms.get(candidate) or {}).get("official_success"))
@@ -323,8 +426,21 @@ def _paired_difference(
         differences.append(difference)
         database = str((record.get("task") or {}).get("db_id", "unknown"))
         differences_by_database.setdefault(database, []).append(difference)
+        outcomes_by_database.setdefault(database, Counter()).update(
+            [(baseline_value, candidate_value)]
+        )
         baseline_only += int(baseline_value and not candidate_value)
         candidate_only += int(candidate_value and not baseline_value)
+        both_success += int(baseline_value and candidate_value)
+        both_failure += int(not baseline_value and not candidate_value)
+    database_sensitivity = _cluster_sensitivity(differences_by_database)
+    for database, outcome_counts in outcomes_by_database.items():
+        database_sensitivity["per_database"][database]["paired_outcome_2x2"] = {
+            "both_success": outcome_counts[(True, True)],
+            "baseline_only": outcome_counts[(True, False)],
+            "candidate_only": outcome_counts[(False, True)],
+            "both_failure": outcome_counts[(False, False)],
+        }
     return {
         "candidate": candidate,
         "baseline": baseline,
@@ -336,10 +452,16 @@ def _paired_difference(
             "baseline_only": baseline_only,
             "candidate_only": candidate_only,
         },
-        "exact_mcnemar_p_value": round(
-            _exact_mcnemar_p_value(baseline_only, candidate_only), 8
+        "paired_outcome_2x2": {
+            "both_success": both_success,
+            "baseline_only": baseline_only,
+            "candidate_only": candidate_only,
+            "both_failure": both_failure,
+        },
+        "exact_mcnemar_p_value": _exact_mcnemar_p_value(
+            baseline_only, candidate_only
         ),
-        "database_sensitivity": _cluster_sensitivity(differences_by_database),
+        "database_sensitivity": database_sensitivity,
         "interpretation": (
             "final_matched_protocol_comparison"
             if scope == "full_evaluation"
@@ -365,11 +487,63 @@ def _add_holm_adjustment(
     for rank, label in enumerate(ordered):
         raw = float(comparisons[label]["exact_mcnemar_p_value"])
         running = max(running, min(1.0, (family_size - rank) * raw))
-        comparisons[label]["holm_adjusted_p_value"] = round(running, 8)
+        comparisons[label]["holm_adjusted_p_value"] = running
     for label, comparison in comparisons.items():
         comparison["primary_exact_test_family"] = label in primary_labels
         if label not in primary_labels:
             comparison["holm_adjusted_p_value"] = None
+
+
+def _task_outcomes(
+    records: list[dict[str, Any]],
+    analysis_arms: tuple[str, ...],
+    *,
+    sensitivity_exclusions: set[str],
+) -> list[dict[str, Any]]:
+    """Export outcome-only rows without questions, SQL, prompts, or answers."""
+
+    result: list[dict[str, Any]] = []
+    for record in records:
+        task = record.get("task") or {}
+        question_id = str(task.get("question_id"))
+        arm_outcomes: dict[str, Any] = {}
+        for arm_name in analysis_arms:
+            arm = (record.get("arms") or {}).get(arm_name) or {}
+            arm_outcomes[arm_name] = {
+                "official_success": bool(arm.get("official_success")),
+                "sph_compatible_success": bool(
+                    arm.get("sph_compatible_success")
+                ),
+                "official_first_success_turn": arm.get(
+                    "official_first_success_turn"
+                ),
+                "sph_compatible_first_success_turn": arm.get(
+                    "sph_compatible_first_success_turn"
+                ),
+                "user_turns": int(arm.get("user_turns", 0)),
+                "normal_sql_attempts": int(arm.get("normal_sql_attempts", 0)),
+                "termination": str(arm.get("termination", "missing")),
+                "uses_shared_prefix": bool(arm.get("uses_shared_prefix")),
+            }
+        result.append(
+            {
+                "question_id": int(question_id),
+                "db_id": str(task.get("db_id", "unknown")),
+                "included_in_unexposed_sensitivity": (
+                    question_id not in sensitivity_exclusions
+                ),
+                "arms": arm_outcomes,
+            }
+        )
+    return result
+
+
+def _source_label(path: Path) -> str:
+    project_root = Path(__file__).resolve().parents[3]
+    try:
+        return str(path.resolve().relative_to(project_root)).replace("\\", "/")
+    except ValueError:
+        return path.name
 
 
 def _price_projection(
@@ -457,8 +631,10 @@ def main() -> int:
         _primary_exact_test_labels(record_protocol),
     )
     sensitivity: dict[str, Any] | None = None
+    sensitivity_exclusion_ids: set[str] = set()
     if args.sensitivity_exclusions is not None:
         excluded_ids = _load_sensitivity_exclusions(args.sensitivity_exclusions)
+        sensitivity_exclusion_ids = excluded_ids
         observed_ids = {
             str((record.get("task") or {}).get("question_id")) for record in records
         }
@@ -530,7 +706,7 @@ def main() -> int:
     }
     point_tokens = {key: int(projected[key]) for key in token_keys}
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "artifact": "bird-dev-matched-run-analysis",
         "protocol": record_protocol,
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -542,8 +718,27 @@ def main() -> int:
             "full_logical_arm_outcomes": FULL_BIRD_TASKS * len(analysis_arms),
         },
         "source": {
-            "task_records": str(records_path.resolve()),
+            "task_records": _source_label(records_path),
             "sha256": sha256_file(records_path),
+        },
+        "analysis_settings": {
+            "paired_bootstrap_seed": BOOTSTRAP_SEED,
+            "paired_bootstrap_samples": BOOTSTRAP_SAMPLES,
+            "bootstrap_interval": "percentile_95_percent",
+            "exact_test": "two_sided_exact_mcnemar",
+            "multiplicity_adjustment": (
+                "Holm across the protocol's primary exact-test family"
+            ),
+        },
+        "privacy": {
+            "included": (
+                "public question IDs, database IDs, binary scorer outcomes, "
+                "turn/attempt counts, termination labels, and aggregates"
+            ),
+            "excluded": (
+                "question text, SQL, result rows, prompts, simulator answers, "
+                "and trajectory artifacts"
+            ),
         },
         "protocol_health": {
             "task_errors": task_error_count,
@@ -565,6 +760,11 @@ def main() -> int:
         "arm_summaries": {arm: _arm_summary(records, arm) for arm in analysis_arms},
         "paired_differences": paired_differences,
         "prespecified_sensitivity": sensitivity,
+        "task_outcomes": _task_outcomes(
+            records,
+            analysis_arms,
+            sensitivity_exclusions=sensitivity_exclusion_ids,
+        ),
         "observed_physical_usage": {
             "tasks": len(records),
             "model_calls": sum(value[0] for value in physical),

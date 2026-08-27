@@ -133,7 +133,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             _text(
                 left,
                 111,
-                "Original BIRD Dev - 1,534 paired tasks - official execution scorer",
+                "Cumulative by received answers; SQL-only retries do not advance the x-axis.",
                 size=22,
                 fill="#52606D",
             ),
@@ -165,7 +165,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             _text(
                 left + plot_width / 2,
                 top + plot_height + 90,
-                "Maximum user answers received",
+                "User-answer threshold (cumulative)",
                 size=24,
                 weight=500,
                 anchor="middle",
@@ -227,8 +227,8 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
         _text(
             width - right,
             970,
-            "Turn 0 is accuracy before any user answer.",
-            size=18,
+            "Turn 0 is accuracy before any user answer; all scores use official BIRD EX.",
+            size=20,
             anchor="end",
             fill="#52606D",
         )
@@ -360,8 +360,8 @@ def _write_tradeoff(output: Path, analysis: dict[str, Any]) -> None:
         _text(
             left,
             955,
-            "Hybrid is statistically indistinguishable from reactive CQ but uses more turns and model calls.",
-            size=19,
+            "Hybrid showed no detectable EX difference from reactive CQ and used more turns and calls.",
+            size=20,
             fill="#52606D",
         )
     )
