@@ -112,6 +112,7 @@ def _empty_usage() -> dict[str, int]:
     return {
         "input_tokens": 0,
         "cached_input_tokens": 0,
+        "cache_write_input_tokens": 0,
         "output_tokens": 0,
         "reasoning_tokens": 0,
         "total_tokens": 0,
@@ -558,10 +559,15 @@ def _price_projection(
         return None
     input_tokens = projected["input_tokens"]
     cached_tokens = min(input_tokens, projected["cached_input_tokens"])
-    uncached_tokens = input_tokens - cached_tokens
+    cache_write_tokens = min(
+        input_tokens - cached_tokens,
+        projected.get("cache_write_input_tokens", 0),
+    )
+    uncached_tokens = input_tokens - cached_tokens - cache_write_tokens
     dollars = (
         uncached_tokens * input_price
         + cached_tokens * cached_price
+        + cache_write_tokens * input_price * 1.25
         + projected["output_tokens"] * output_price
     ) / 1_000_000
     return {
@@ -569,12 +575,13 @@ def _price_projection(
         "rates_usd_per_million_tokens": {
             "uncached_input": input_price,
             "cached_input": cached_price,
+            "cache_write_input": input_price * 1.25,
             "output_including_reasoning": output_price,
         },
         "estimated_usd": round(dollars, 2),
         "warning": (
-            "Illustrative API-equivalent arithmetic only. ChatGPT-authenticated "
-            "Codex subscription usage has no token-to-dollar conversion."
+            "Local estimate from recorded token counts and the supplied API "
+            "rates; the provider invoice remains authoritative."
         ),
     }
 

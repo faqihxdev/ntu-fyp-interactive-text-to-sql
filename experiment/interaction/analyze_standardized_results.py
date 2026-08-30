@@ -9,6 +9,7 @@ output.
 from __future__ import annotations
 
 import argparse
+from datetime import date
 import hashlib
 import json
 import math
@@ -37,7 +38,7 @@ ARM_ORDER = (
 )
 ARM_LABELS = {
     "mini_react_port": "Local reference port",
-    "sphinteract_cq": "Sph CQs&ES-derived",
+    "sphinteract_cq": "Reactive",
     "proactive": "Proactive-only",
     "hybrid": "Hybrid",
 }
@@ -1071,15 +1072,16 @@ def _write_terminal_figure(output: Path, analysis: dict[str, Any]) -> None:
 
 
 def _write_audit_markdown(output: Path, analysis: dict[str, Any]) -> None:
+    analysis_date = date.fromisoformat(str(analysis["analysis_date"]))
     lines = [
-        "# Read-only audit of the standardized Mini-Interact result",
+        "# Read-only audit of the standardised Mini-Interact result",
         "",
-        "**Date:** 23 August 2026  ",
+        f"**Date:** {analysis_date.day} {analysis_date.strftime('%B %Y')}  ",
         "**Boundary:** existing trajectories and metrics only; no model, simulator, or evaluator calls.",
         "",
         "## Verified arm summaries",
         "",
-        "| Local controller bundle | Success | Coins/task | Questions/task | Total calls/task | Proxy tokens/task |",
+        "| Local controller bundle | Success | Coins/task | Questions/task | Total calls/task | Total tokens/task |",
         "|---|---:|---:|---:|---:|---:|",
     ]
     total = int(analysis["integrity"]["tasks_per_arm"])
@@ -1126,11 +1128,11 @@ def _write_audit_markdown(output: Path, analysis: dict[str, Any]) -> None:
     lines.extend(
         [
             "",
-            "The bootstrap resamples the 240 realized task differences. It does not include new model or simulator draws. The exact test conditions on discordant task pairs; disagreement at a threshold is therefore reported rather than resolved in favour of one method.",
+            "The bootstrap resamples the 240 realised task differences. It does not include new model or simulator draws. The exact test conditions on discordant task pairs; disagreement at a threshold is therefore reported rather than resolved in favour of one method.",
             "",
-            "## Raw versus normalized SRA compliance",
+            "## Raw versus normalised SRA compliance",
             "",
-            "| Bundle | Raw SRA decisions | Raw compliant | Post-normalization compliant | Normalizer events | Success when activated |",
+            "| Bundle | Raw SRA decisions | Raw compliant | Post-normalisation compliant | Normaliser events | Success when activated |",
             "|---|---:|---:|---:|---:|---:|",
         ]
     )
@@ -1154,8 +1156,8 @@ def _write_audit_markdown(output: Path, analysis: dict[str, Any]) -> None:
     lines.extend(
         [
             "",
-            "Normalizer outcome strata are observational: activation was not randomized and may identify harder or less format-compliant trajectories.",
-            "The normalizer is part of the SRA bundles; this table does not establish that it is causally neutral.",
+            "Normaliser outcome strata are observational: activation was not randomised and may identify harder or less format-compliant trajectories.",
+            "The normaliser is part of the SRA bundles; this table does not establish that it is causally neutral.",
             "",
             "## Forced rejected endpoints",
             "",
@@ -1183,28 +1185,33 @@ def _write_audit_markdown(output: Path, analysis: dict[str, Any]) -> None:
                 for bits, count in overlap["cells"].items()
                 if count
             ),
-            "",
-            "## Six-ID exclusion sensitivity",
-            "",
-            "| Bundle | Success | Coins/task | Questions/task | All calls/task | AUC | Proxy tokens/task |",
-            "|---|---:|---:|---:|---:|---:|---:|",
         ]
     )
     sensitivity = analysis.get("aborted_v1_sensitivity") or {}
-    for arm in ARM_ORDER:
-        values = (sensitivity.get("all_reported_arm_metrics") or {}).get(arm)
-        if not values:
-            continue
-        lines.append(
-            f"| {ARM_LABELS[arm]} | {values['successes']}/"
-            f"{sensitivity['included_tasks']} "
-            f"({100 * values['success_rate']:.2f}%) | "
-            f"{values['mean_bird_coins']:.3f} | "
-            f"{values['mean_user_questions']:.3f} | "
-            f"{values['mean_total_inference_calls']:.3f} | "
-            f"{values['normalized_ex_user_turn_auc']:.4f} | "
-            f"{values['mean_total_tokens']:.0f} |"
+    if sensitivity.get("all_reported_arm_metrics"):
+        lines.extend(
+            [
+                "",
+                "## Preliminary-ID exclusion sensitivity",
+                "",
+                "| Bundle | Success | Coins/task | Questions/task | All calls/task | AUC | Total tokens/task |",
+                "|---|---:|---:|---:|---:|---:|---:|",
+            ]
         )
+        for arm in ARM_ORDER:
+            values = sensitivity["all_reported_arm_metrics"].get(arm)
+            if not values:
+                continue
+            lines.append(
+                f"| {ARM_LABELS[arm]} | {values['successes']}/"
+                f"{sensitivity['included_tasks']} "
+                f"({100 * values['success_rate']:.2f}%) | "
+                f"{values['mean_bird_coins']:.3f} | "
+                f"{values['mean_user_questions']:.3f} | "
+                f"{values['mean_total_inference_calls']:.3f} | "
+                f"{values['normalized_ex_user_turn_auc']:.4f} | "
+                f"{values['mean_total_tokens']:.0f} |"
+            )
     lines.extend(
         [
             "",
@@ -1224,15 +1231,19 @@ def _write_audit_markdown(output: Path, analysis: dict[str, Any]) -> None:
             f"leave-one-database-out direction reversals: "
             f"{len(values['leave_one_database_out_direction_reversals'])}."
         )
+    if sensitivity.get("all_reported_arm_metrics"):
+        lines.append(
+            "- The preliminary-ID exclusion is post hoc and does not undo "
+            "protocol changes learned during development."
+        )
     lines.extend(
         [
-            "- The six-ID exclusion is a post hoc sensitivity after a full V2 restart; it does not undo the protocol correction learned from partial V1 runs.",
             "- Shared failure and terminal labels are descriptive endpoints, not semantic diagnoses of SQL reasoning or answer incorporation.",
             "- The model alias is mutable, policy and simulator use independent stochastic calls, and the gold-conditioned simulator is protected by lexical rather than semantic leakage checks.",
             "",
             "## Rejected-SQL repetition observation",
             "",
-            "The final standardized controller did not structurally block repeated rejected SQL. The counts below are observations from retained history, not enforced invariants:",
+            "The final standardised controller did not structurally block repeated rejected SQL. The counts below are observations from retained history, not enforced invariants:",
             "",
             "| Bundle | Exact repeat events after rejection | Trajectories affected |",
             "|---|---:|---:|",
@@ -1360,9 +1371,9 @@ def analyze(
     result = {
         "schema_version": 3,
         "record_type": "standardized_result_read_only_audit",
-        "analysis_date": "2026-08-23",
+        "analysis_date": date.today().isoformat(),
         "scope": (
-            "Read-only aggregate analysis of the completed standardized local "
+            "Read-only aggregate analysis of the completed standardised local "
             "Mini-Interact Stress adaptation; no model calls or task content exported."
         ),
         "integrity": {

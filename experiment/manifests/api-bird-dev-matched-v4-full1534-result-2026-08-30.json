@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "artifact": "openai-api-bird-dev-matched-v4-result",
+  "created_at": "2026-08-30",
+  "protocol": "bird-dev-matched-v4",
+  "scope": {
+    "tasks": 1534,
+    "logical_outcomes": 7670,
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "surface": "openai_responses_api"
+  },
+  "validity": {
+    "accuracy_estimates_valid": true,
+    "task_errors": 0,
+    "arm_errors": 0
+  },
+  "arms": {
+    "no_user": {"successes": 685, "execution_accuracy_percent": 44.6545, "mean_user_turns": 0.0, "mean_model_calls": 1.2790},
+    "proactive_only": {"successes": 890, "execution_accuracy_percent": 58.0183, "mean_user_turns": 0.5489, "mean_model_calls": 5.3794},
+    "reactive": {"successes": 1201, "execution_accuracy_percent": 78.2920, "mean_user_turns": 1.5098, "mean_model_calls": 6.6982},
+    "hybrid": {"successes": 1202, "execution_accuracy_percent": 78.3572, "mean_user_turns": 1.6767, "mean_model_calls": 7.4074},
+    "reactive_with_early_stop": {"successes": 997, "execution_accuracy_percent": 64.9935, "mean_user_turns": 0.7053, "mean_model_calls": 4.2816}
+  },
+  "key_contrasts": {
+    "proactive_minus_reactive": {"difference_percentage_points": -20.2738, "task_bootstrap_95_ci_percentage_points": [-22.5554, -17.9922]},
+    "hybrid_minus_reactive": {"difference_percentage_points": 0.0652, "task_bootstrap_95_ci_percentage_points": [-1.7601, 1.8905], "hybrid_only_successes": 102, "reactive_only_successes": 101, "exact_two_sided_mcnemar_p": 1.0},
+    "early_stop_minus_reactive": {"difference_percentage_points": -13.2986, "task_bootstrap_95_ci_percentage_points": [-15.2542, -11.3429]}
+  },
+  "retained_physical_usage": {
+    "model_calls": 32698,
+    "input_tokens": 53967398,
+    "cached_input_tokens": 6266200,
+    "cache_write_input_tokens": 44247562,
+    "output_tokens": 12828961,
+    "reasoning_tokens": 10245297,
+    "total_tokens": 66796359,
+    "estimated_cost_usd": 27.2726949
+  },
+  "hashes": {
+    "freeze_sha256": "51855a273f2a46c1d4b8bfd60ef93d38c7f65492935df250f187711d32b6b299",
+    "run_manifest_sha256": "4f3d1b47317b2e3849a735a7cf77223020f71f41c4172f118b908ad4d283705a",
+    "task_records_sha256": "b9f8505d6252dcc1aae5b77af1c7d5090872baa538afe99ad698c2e05ab1f4db",
+    "analysis_sha256": "b7696d5016d16b0a27cecef4a45f23851ec5d042da603056a911e3f8cd5cff60",
+    "public_analysis_sha256": "b9fdcd1371162cfeb170770d00af019f54f10b0bdb321b10b2282b27a9dee34a"
+  },
+  "claim_boundary": "This supporting study compares complete controller configurations. It does not isolate question timing because budgets, evidence, retry paths, and stopping also vary."
+}

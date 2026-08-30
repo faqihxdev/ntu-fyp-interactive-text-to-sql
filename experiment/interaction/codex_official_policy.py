@@ -6,9 +6,8 @@ import importlib.util
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Any
 from uuid import uuid4
-
-from codex_proxy.runner import CodexSubscriptionProxy
 
 from .official_protocol import (
     OFFICIAL_ACTION_COSTS,
@@ -201,12 +200,14 @@ class CodexOfficialPolicyModel:
     def __init__(
         self,
         *,
-        proxy: CodexSubscriptionProxy,
+        proxy: Any,
         artifact_directory: Path | None = None,
+        surface: str = "codex_subscription_proxy",
     ) -> None:
         self.proxy = proxy
         self.artifact_directory = artifact_directory
-        self.requested_model = f"codex_subscription_proxy:{proxy.model}"
+        self.surface = surface
+        self.requested_model = f"{surface}:{proxy.model}"
         self.reasoning_effort = proxy.reasoning_effort
         self._call_index = 0
 
@@ -236,7 +237,7 @@ class CodexOfficialPolicyModel:
             options=tuple(str(value).strip() for value in payload.get("options") or []),
         )
         return OfficialPolicyTurn(
-            response_id=f"codex-proxy-{uuid4().hex}",
+            response_id=f"structured-inference-{uuid4().hex}",
             action=action,
             raw_output=result.output_text,
             usage=result.usage,

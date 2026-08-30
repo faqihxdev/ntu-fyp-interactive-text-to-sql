@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "comparison_version": "official-mini-stress-comparison-v2",
+  "status": "frozen_before_model_calls",
+  "frozen_at": "2026-08-30T01:38:39.035630+00:00",
+  "question": "Under one Mini-Interact Stress adaptation, how do the reactive, proactive, hybrid, and structured reference policies compare when the task set, model, simulator, scorer, costs, and budgets are fixed?",
+  "claim_boundary": "Matched local Mini-Interact Stress adaptation; not an official leaderboard submission or cross-protocol ranking.",
+  "approval": {
+    "explicit_large_run_approval": true,
+    "approved_scope": "All 240 reserve IDs x four arms using Luna/high",
+    "approved_trajectories": 960,
+    "approval_date": "2026-08-30",
+    "maximum_spend_usd_across_children": 80.0
+  },
+  "selection": {
+    "path": "codebase/experiment/manifests/mini-interact-reserve-240.json",
+    "sha256": "a6fb96c6690f4a1352d54448e0fd18de2f6a74f59a84de18bccc9775e29ddee7",
+    "tasks": 240,
+    "selection_uses_private_fields": false
+  },
+  "arms": [
+    "mini_react_port",
+    "sphinteract_cq",
+    "proactive",
+    "hybrid"
+  ],
+  "shared_stack": {
+    "surface": "openai_responses_api",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "verbosity": "low",
+    "service_tier": "default",
+    "store": false,
+    "same_model_for_policy_and_simulator": true,
+    "user_patience_budget": 6,
+    "max_action_turns": 60,
+    "metric_horizon": 4,
+    "max_output_tokens": 8192,
+    "maximum_transport_retries": 3,
+    "maximum_spend_usd_per_child": 2.5
+  },
+  "execution": {
+    "output_root": "codebase/experiment/runs/api-official-mini-stress-comparison-v2-luna-high-reserve240-20260830",
+    "trajectories": 960,
+    "shard_count": 8,
+    "tasks_per_shard": 30,
+    "maximum_concurrent_children": 32,
+    "sharding": "Round-robin by frozen reserve-manifest order.",
+    "resume": "Each child skips completed task IDs."
+  },
+  "analysis": {
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 20260822,
+    "success_noninferiority_margin": 0.05
+  },
+  "dataset_hashes": {
+    "public_mini_interact_sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0",
+    "private_merge_sha256": "af60beaec040fbb5d0891141e97efb24d148c57aaa9dfe13fc4a97f2d70c5fcb",
+    "official_reference_prompt_source_sha256": "113e1dc06085b7a3e027ab8dcb12334d846e0c26ed107529dccaee406bfdf15e"
+  },
+  "implementation_hashes": {
+    "codebase/experiment/interaction/official_comparison.py": "ecaa12b620375de2009b41d378b7a4997d607e29154ae95ea4e682846650e05a",
+    "codebase/experiment/interaction/run_official_mini_interact.py": "f12ad2fce55c7442f47a43f83a8e7436d43982098ef50663da8399b9f032d6b3",
+    "codebase/experiment/interaction/official_protocol.py": "20a7eef1b4d0d9b7bb91c4048d11d0a54fdf8d069b057ecb1ea2af46b40de470",
+    "codebase/experiment/interaction/codex_official_policy.py": "4a59812082f9f19ec3f403509d18d59fdff44c43525dd771084beaffbfdec47a",
+    "codebase/experiment/interaction/mini_interact.py": "6dfa4d95956964167219dfbdcd8e71e0813b0fbf95780c88e0b42656b22f9f74",
+    "codebase/experiment/interaction/oracles.py": "97386b7901c88dab622acd4caecb485b4d129268d293bfbc1dafb281570baf02",
+    "codebase/experiment/interaction/metrics.py": "211dd21aeeb918e9f3896c0bdf55f8c547bb19c59f23952f8be529ecc561b7e5",
+    "codebase/experiment/interaction/compare_policy_metrics.py": "1bd36f5b19c614ee0974469e34db6bb87f9fa9952d65a42900fd5507d39b4b9f",
+    "codebase/experiment/interaction/trajectory.py": "33e30c1e09b90db112b24a39b4426cd336b42348960a1aca9500d59d38652dd4",
+    "codebase/experiment/interaction/run_support.py": "5f9890f3ea0b30cce05ace46a87aa374fc77c66ed21937c55a087835223e457e",
+    "codebase/experiment/interaction/inference_runtime.py": "021447970d467e295e533f87bce8cfe99d9c70a64a49977c7bc859ea13756db3",
+    "codebase/experiment/interaction/openai_structured.py": "63d9fd34e5b4b94a276497d058fb6854c1378586255bb4c4a730d83271feeb59",
+    "codebase/experiment/interaction/model.py": "15e2d47ef3803998a4846996db01716dbfdebad26b9322a7983974c2916dac54",
+    "codebase/experiment/readiness/mini_interact_live_eval.py": "f6727429c2f3b3c6fdda4fb44154ff04d4b02fc0dc997d4d8319e95e1875cfb2",
+    "codebase/experiment/pyproject.toml": "5c055ae21b216ab8fb53e99d1a458e388d507412adf259e50984decc56a639c9",
+    "codebase/experiment/uv.lock": "b6a03912eb58bf58021932c8d4544e49da8708313494fd5e3ed926b85ee41d84"
+  },
+  "artifact_hashes": {
+    "codebase/experiment/manifests/mini-interact-reserve-240.json": "a6fb96c6690f4a1352d54448e0fd18de2f6a74f59a84de18bccc9775e29ddee7",
+    "codebase/experiment/datasets/mini-interact/mini_interact.jsonl": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0",
+    "codebase/experiment/datasets/private/mini-interact/mini_interact_merged_20251112.jsonl": "af60beaec040fbb5d0891141e97efb24d148c57aaa9dfe13fc4a97f2d70c5fcb",
+    "codebase/experiment/datasets/bird-interact-evaluator/mini_interact/knowledge_based/mini_interact_agent/experiments/utils/prompts.py": "113e1dc06085b7a3e027ab8dcb12334d846e0c26ed107529dccaee406bfdf15e",
+    "codebase/experiment/interaction/codex-policy-instructions.md": "d0eca648e738d4906652cf1cf6107b6d28db2d18ee9a76a0f9c99d4aea953b65",
+    "codebase/experiment/interaction/codex-user-simulator-instructions.md": "f1f9a01e8f50df3bcde6b60569362b208902ee9b1425c0acdccd8c6ed8e6289a"
+  }
+}

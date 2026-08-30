@@ -1,0 +1,1472 @@
+{
+  "schema_version": 3,
+  "record_type": "standardized_result_read_only_audit",
+  "analysis_date": "2026-08-30",
+  "scope": "Read-only aggregate analysis of the completed standardised local Mini-Interact Stress adaptation; no model calls or task content exported.",
+  "integrity": {
+    "arms": 4,
+    "tasks_per_arm": 240,
+    "identical_paired_id_sets": true,
+    "task_ids_withheld_from_output": true,
+    "input_metric_sha256": {
+      "mini_react_port": "79fce92982a424391e6f4113e017ffe44dad2c72668bfd044b7d3ecf49722336",
+      "sphinteract_cq": "5c021a6718c7a701dd9d167c609235cca4dfa003af70e90447663e7478989408",
+      "proactive": "0d854a3b7ff68566459c44004e74f5b1137d045fbd5d6c966951ae45e9305773",
+      "hybrid": "42be8cefb15a126ef621c62f090d61912fe3d9616607bfc6ec19500ccfe7d07f"
+    },
+    "input_trajectory_sha256": {
+      "mini_react_port": "8362de6a3649361adc3513bb8403fe104bc72adbba7af0ca8561ab949b273d95",
+      "sphinteract_cq": "e4fd7edbe392008cc21a72c4435263ff09e47d755ffa0c2ca6fc1e66a4f73dfb",
+      "proactive": "40c546dd7012d5f620357ae4f93117ceb8e261e699485458c3373dfc2a29fe6c",
+      "hybrid": "a2c35f733dad55b84d0275ff59e38fc7dbf55e8bbf5eac8290e828e9abfcc02c"
+    },
+    "public_data_sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0"
+  },
+  "arms": {
+    "mini_react_port": {
+      "label": "Local reference port",
+      "successes": 92,
+      "success_rate": 0.38333333,
+      "success_by_user_turn": [
+        {
+          "user_turn": 0,
+          "successes": 24,
+          "success_rate_percent": 10.0
+        },
+        {
+          "user_turn": 1,
+          "successes": 64,
+          "success_rate_percent": 26.6667
+        },
+        {
+          "user_turn": 2,
+          "successes": 82,
+          "success_rate_percent": 34.1667
+        },
+        {
+          "user_turn": 3,
+          "successes": 90,
+          "success_rate_percent": 37.5
+        },
+        {
+          "user_turn": 4,
+          "successes": 92,
+          "success_rate_percent": 38.3333
+        }
+      ],
+      "normalized_ex_user_turn_auc": 0.30625,
+      "mean_user_questions": 1.32083333,
+      "mean_bird_coins": 16.75625,
+      "mean_submissions": 2.9125,
+      "mean_policy_model_calls": 10.19166667,
+      "mean_simulator_model_calls": 2.64166667,
+      "mean_total_inference_calls": 12.83333333,
+      "mean_total_tokens": 164971.3375,
+      "terminal_outcomes": {
+        "raw": {
+          "accepted_submission": 92,
+          "forced_submission_rejected": 148
+        },
+        "grouped": {
+          "accepted": 92,
+          "forced_rejected": 148,
+          "sra_no_ambiguity": 0,
+          "budget_or_attempt_limit": 0,
+          "model_or_protocol_error": 0,
+          "oracle_error": 0
+        }
+      }
+    },
+    "sphinteract_cq": {
+      "label": "Reactive",
+      "successes": 53,
+      "success_rate": 0.22083333,
+      "success_by_user_turn": [
+        {
+          "user_turn": 0,
+          "successes": 25,
+          "success_rate_percent": 10.4167
+        },
+        {
+          "user_turn": 1,
+          "successes": 43,
+          "success_rate_percent": 17.9167
+        },
+        {
+          "user_turn": 2,
+          "successes": 52,
+          "success_rate_percent": 21.6667
+        },
+        {
+          "user_turn": 3,
+          "successes": 53,
+          "success_rate_percent": 22.0833
+        },
+        {
+          "user_turn": 4,
+          "successes": 53,
+          "success_rate_percent": 22.0833
+        }
+      ],
+      "normalized_ex_user_turn_auc": 0.19479167,
+      "mean_user_questions": 1.54583333,
+      "mean_bird_coins": 16.54791667,
+      "mean_submissions": 2.5625,
+      "mean_policy_model_calls": 11.08333333,
+      "mean_simulator_model_calls": 3.09166667,
+      "mean_total_inference_calls": 14.175,
+      "mean_total_tokens": 151365.75,
+      "terminal_outcomes": {
+        "raw": {
+          "accepted_submission": 53,
+          "forced_submission_rejected": 90,
+          "sra_no_ambiguity_after_rejection": 97
+        },
+        "grouped": {
+          "accepted": 53,
+          "forced_rejected": 90,
+          "sra_no_ambiguity": 97,
+          "budget_or_attempt_limit": 0,
+          "model_or_protocol_error": 0,
+          "oracle_error": 0
+        }
+      }
+    },
+    "proactive": {
+      "label": "Proactive-only",
+      "successes": 55,
+      "success_rate": 0.22916667,
+      "success_by_user_turn": [
+        {
+          "user_turn": 0,
+          "successes": 2,
+          "success_rate_percent": 0.8333
+        },
+        {
+          "user_turn": 1,
+          "successes": 55,
+          "success_rate_percent": 22.9167
+        },
+        {
+          "user_turn": 2,
+          "successes": 55,
+          "success_rate_percent": 22.9167
+        },
+        {
+          "user_turn": 3,
+          "successes": 55,
+          "success_rate_percent": 22.9167
+        },
+        {
+          "user_turn": 4,
+          "successes": 55,
+          "success_rate_percent": 22.9167
+        }
+      ],
+      "normalized_ex_user_turn_auc": 0.2015625,
+      "mean_user_questions": 0.9875,
+      "mean_bird_coins": 17.71875,
+      "mean_submissions": 3.56666667,
+      "mean_policy_model_calls": 10.11666667,
+      "mean_simulator_model_calls": 1.975,
+      "mean_total_inference_calls": 12.09166667,
+      "mean_total_tokens": 126029.85833333,
+      "terminal_outcomes": {
+        "raw": {
+          "accepted_submission": 55,
+          "forced_submission_rejected": 177,
+          "normal_submission_limit_exhausted": 8
+        },
+        "grouped": {
+          "accepted": 55,
+          "forced_rejected": 177,
+          "sra_no_ambiguity": 0,
+          "budget_or_attempt_limit": 8,
+          "model_or_protocol_error": 0,
+          "oracle_error": 0
+        }
+      }
+    },
+    "hybrid": {
+      "label": "Hybrid",
+      "successes": 75,
+      "success_rate": 0.3125,
+      "success_by_user_turn": [
+        {
+          "user_turn": 0,
+          "successes": 0,
+          "success_rate_percent": 0.0
+        },
+        {
+          "user_turn": 1,
+          "successes": 45,
+          "success_rate_percent": 18.75
+        },
+        {
+          "user_turn": 2,
+          "successes": 65,
+          "success_rate_percent": 27.0833
+        },
+        {
+          "user_turn": 3,
+          "successes": 74,
+          "success_rate_percent": 30.8333
+        },
+        {
+          "user_turn": 4,
+          "successes": 75,
+          "success_rate_percent": 31.25
+        }
+      ],
+      "normalized_ex_user_turn_auc": 0.23072917,
+      "mean_user_questions": 2.325,
+      "mean_bird_coins": 15.86666667,
+      "mean_submissions": 2.35416667,
+      "mean_policy_model_calls": 9.56666667,
+      "mean_simulator_model_calls": 4.65,
+      "mean_total_inference_calls": 14.21666667,
+      "mean_total_tokens": 125238.97083333,
+      "terminal_outcomes": {
+        "raw": {
+          "accepted_submission": 75,
+          "forced_submission_rejected": 96,
+          "sra_no_ambiguity_after_rejection": 67,
+          "user_question_limit_exhausted": 2
+        },
+        "grouped": {
+          "accepted": 75,
+          "forced_rejected": 96,
+          "sra_no_ambiguity": 67,
+          "budget_or_attempt_limit": 2,
+          "model_or_protocol_error": 0,
+          "oracle_error": 0
+        }
+      }
+    }
+  },
+  "paired_statistical_audit": {
+    "bootstrap": {
+      "samples": 10000,
+      "seed": 20260822
+    },
+    "paired_comparisons": {
+      "hybrid_minus_mini_react_port": {
+        "task_success": {
+          "baseline_mean": 0.38333333,
+          "candidate_mean": 0.3125,
+          "paired_difference": -0.07083333,
+          "paired_bootstrap_95_ci_low": -0.125,
+          "paired_bootstrap_95_ci_high": -0.02083333
+        },
+        "bird_coins": {
+          "baseline_mean": 16.75625,
+          "candidate_mean": 15.86666667,
+          "paired_difference": -0.88958333,
+          "paired_bootstrap_95_ci_low": -1.53333333,
+          "paired_bootstrap_95_ci_high": -0.22494792
+        },
+        "user_questions": {
+          "baseline_mean": 1.32083333,
+          "candidate_mean": 2.325,
+          "paired_difference": 1.00416667,
+          "paired_bootstrap_95_ci_low": 0.8625,
+          "paired_bootstrap_95_ci_high": 1.14166667
+        },
+        "submissions": {
+          "baseline_mean": 2.9125,
+          "candidate_mean": 2.35416667,
+          "paired_difference": -0.55833333,
+          "paired_bootstrap_95_ci_low": -0.72083333,
+          "paired_bootstrap_95_ci_high": -0.39583333
+        },
+        "total_tokens": {
+          "baseline_mean": 164971.3375,
+          "candidate_mean": 125238.97083333,
+          "paired_difference": -39732.36666667,
+          "paired_bootstrap_95_ci_low": -47833.420625,
+          "paired_bootstrap_95_ci_high": -31631.75802083
+        },
+        "secondary_ex_user_turn_auc": {
+          "baseline_mean": 0.30625,
+          "candidate_mean": 0.23072917,
+          "paired_difference": -0.07552083,
+          "paired_bootstrap_95_ci_low": -0.11614583,
+          "paired_bootstrap_95_ci_high": -0.03645833
+        },
+        "discordant_success": {
+          "baseline_only": 30,
+          "hybrid_only": 13,
+          "exact_mcnemar_two_sided_p": 0.01371819,
+          "holm_adjusted_primary_p": 0.01371819,
+          "hybrid_win_share_exact_95_ci": [
+            0.17182499,
+            0.46125331
+          ],
+          "conditional_paired_difference_exact_95_ci": [
+            -0.11759604,
+            -0.01388423
+          ]
+        },
+        "predeclared_interpretation": {
+          "success_superiority": false,
+          "success_noninferior": false,
+          "fewer_coins": true,
+          "efficiency_advantage": false
+        }
+      },
+      "hybrid_minus_sphinteract_cq": {
+        "task_success": {
+          "baseline_mean": 0.22083333,
+          "candidate_mean": 0.3125,
+          "paired_difference": 0.09166667,
+          "paired_bootstrap_95_ci_low": 0.0375,
+          "paired_bootstrap_95_ci_high": 0.14583333
+        },
+        "bird_coins": {
+          "baseline_mean": 16.54791667,
+          "candidate_mean": 15.86666667,
+          "paired_difference": -0.68125,
+          "paired_bootstrap_95_ci_low": -1.275,
+          "paired_bootstrap_95_ci_high": -0.09791667
+        },
+        "user_questions": {
+          "baseline_mean": 1.54583333,
+          "candidate_mean": 2.325,
+          "paired_difference": 0.77916667,
+          "paired_bootstrap_95_ci_low": 0.675,
+          "paired_bootstrap_95_ci_high": 0.88333333
+        },
+        "submissions": {
+          "baseline_mean": 2.5625,
+          "candidate_mean": 2.35416667,
+          "paired_difference": -0.20833333,
+          "paired_bootstrap_95_ci_low": -0.31666667,
+          "paired_bootstrap_95_ci_high": -0.1
+        },
+        "total_tokens": {
+          "baseline_mean": 151365.75,
+          "candidate_mean": 125238.97083333,
+          "paired_difference": -26126.77916667,
+          "paired_bootstrap_95_ci_low": -34737.93041667,
+          "paired_bootstrap_95_ci_high": -17490.24729167
+        },
+        "secondary_ex_user_turn_auc": {
+          "baseline_mean": 0.19479167,
+          "candidate_mean": 0.23072917,
+          "paired_difference": 0.0359375,
+          "paired_bootstrap_95_ci_low": -0.00625,
+          "paired_bootstrap_95_ci_high": 0.078125
+        },
+        "discordant_success": {
+          "baseline_only": 13,
+          "hybrid_only": 35,
+          "exact_mcnemar_two_sided_p": 0.00208811,
+          "holm_adjusted_primary_p": 0.00417622,
+          "hybrid_win_share_exact_95_ci": [
+            0.58154363,
+            0.84721813
+          ],
+          "conditional_paired_difference_exact_95_ci": [
+            0.03261745,
+            0.13888725
+          ]
+        },
+        "predeclared_interpretation": {
+          "success_superiority": true,
+          "success_noninferior": true,
+          "fewer_coins": true,
+          "efficiency_advantage": true
+        }
+      },
+      "hybrid_minus_proactive": {
+        "task_success": {
+          "baseline_mean": 0.22916667,
+          "candidate_mean": 0.3125,
+          "paired_difference": 0.08333333,
+          "paired_bootstrap_95_ci_low": 0.03333333,
+          "paired_bootstrap_95_ci_high": 0.13333333
+        },
+        "bird_coins": {
+          "baseline_mean": 17.71875,
+          "candidate_mean": 15.86666667,
+          "paired_difference": -1.85208333,
+          "paired_bootstrap_95_ci_low": -2.45833333,
+          "paired_bootstrap_95_ci_high": -1.27916667
+        },
+        "user_questions": {
+          "baseline_mean": 0.9875,
+          "candidate_mean": 2.325,
+          "paired_difference": 1.3375,
+          "paired_bootstrap_95_ci_low": 1.22083333,
+          "paired_bootstrap_95_ci_high": 1.45
+        },
+        "submissions": {
+          "baseline_mean": 3.56666667,
+          "candidate_mean": 2.35416667,
+          "paired_difference": -1.2125,
+          "paired_bootstrap_95_ci_low": -1.35,
+          "paired_bootstrap_95_ci_high": -1.07083333
+        },
+        "total_tokens": {
+          "baseline_mean": 126029.85833333,
+          "candidate_mean": 125238.97083333,
+          "paired_difference": -790.8875,
+          "paired_bootstrap_95_ci_low": -7808.076875,
+          "paired_bootstrap_95_ci_high": 6257.4934375
+        },
+        "secondary_ex_user_turn_auc": {
+          "baseline_mean": 0.2015625,
+          "candidate_mean": 0.23072917,
+          "paired_difference": 0.02916667,
+          "paired_bootstrap_95_ci_low": -0.00522135,
+          "paired_bootstrap_95_ci_high": 0.0640625
+        },
+        "discordant_success": {
+          "baseline_only": 9,
+          "hybrid_only": 29,
+          "exact_mcnemar_two_sided_p": 0.00165805,
+          "hybrid_win_share_exact_95_ci": [
+            0.59758764,
+            0.8855583
+          ],
+          "conditional_paired_difference_exact_95_ci": [
+            0.03090275,
+            0.12209346
+          ]
+        },
+        "predeclared_interpretation": {
+          "success_superiority": true,
+          "success_noninferior": true,
+          "fewer_coins": true,
+          "efficiency_advantage": true
+        }
+      }
+    },
+    "primary_exact_test_family": {
+      "method": "Holm",
+      "comparisons": [
+        "hybrid_minus_mini_react_port",
+        "hybrid_minus_sphinteract_cq"
+      ],
+      "raw_p": {
+        "hybrid_minus_mini_react_port": 0.01371819,
+        "hybrid_minus_sphinteract_cq": 0.00208811
+      },
+      "adjusted_p": {
+        "hybrid_minus_mini_react_port": 0.01371819,
+        "hybrid_minus_sphinteract_cq": 0.00417622
+      }
+    },
+    "proactive_margin_sensitivity": [
+      {
+        "success_noninferiority_margin": 0.0,
+        "success_lower_bound_passes": true,
+        "fewer_coins_passes": true,
+        "combined_efficiency_gate_passes": true
+      },
+      {
+        "success_noninferiority_margin": 0.025,
+        "success_lower_bound_passes": true,
+        "fewer_coins_passes": true,
+        "combined_efficiency_gate_passes": true
+      },
+      {
+        "success_noninferiority_margin": 0.05,
+        "success_lower_bound_passes": true,
+        "fewer_coins_passes": true,
+        "combined_efficiency_gate_passes": true
+      }
+    ],
+    "input_metric_sha256": {
+      "mini_react_port": "79fce92982a424391e6f4113e017ffe44dad2c72668bfd044b7d3ecf49722336",
+      "sphinteract_cq": "5c021a6718c7a701dd9d167c609235cca4dfa003af70e90447663e7478989408",
+      "proactive": "0d854a3b7ff68566459c44004e74f5b1137d045fbd5d6c966951ae45e9305773",
+      "hybrid": "42be8cefb15a126ef621c62f090d61912fe3d9616607bfc6ec19500ccfe7d07f"
+    }
+  },
+  "paired_hybrid_outcomes": {
+    "mini_react_port": {
+      "both_succeed": 62,
+      "baseline_only_succeeds": 30,
+      "hybrid_only_succeeds": 13,
+      "neither_succeeds": 135,
+      "hybrid_only_baseline_terminal_reasons": {
+        "forced_submission_rejected": 13
+      },
+      "baseline_only_hybrid_terminal_reasons": {
+        "forced_submission_rejected": 17,
+        "sra_no_ambiguity_after_rejection": 13
+      }
+    },
+    "sphinteract_cq": {
+      "both_succeed": 40,
+      "baseline_only_succeeds": 13,
+      "hybrid_only_succeeds": 35,
+      "neither_succeeds": 152,
+      "hybrid_only_baseline_terminal_reasons": {
+        "forced_submission_rejected": 15,
+        "sra_no_ambiguity_after_rejection": 20
+      },
+      "baseline_only_hybrid_terminal_reasons": {
+        "forced_submission_rejected": 5,
+        "sra_no_ambiguity_after_rejection": 8
+      }
+    },
+    "proactive": {
+      "both_succeed": 46,
+      "baseline_only_succeeds": 9,
+      "hybrid_only_succeeds": 29,
+      "neither_succeeds": 156,
+      "hybrid_only_baseline_terminal_reasons": {
+        "forced_submission_rejected": 27,
+        "normal_submission_limit_exhausted": 2
+      },
+      "baseline_only_hybrid_terminal_reasons": {
+        "forced_submission_rejected": 4,
+        "sra_no_ambiguity_after_rejection": 5
+      }
+    }
+  },
+  "shared_outcomes": {
+    "all_four_succeed": 33,
+    "at_least_one_arm_succeeds": 111,
+    "all_four_fail": 129,
+    "hybrid_failures": 165,
+    "hybrid_failures_shared_by_all_four": 129
+  },
+  "four_arm_success_overlap": {
+    "arm_bit_order": [
+      "mini_react_port",
+      "sphinteract_cq",
+      "proactive",
+      "hybrid"
+    ],
+    "bit_meaning": "1=task success; 0=task failure",
+    "cells": {
+      "0000": 129,
+      "0001": 8,
+      "0010": 2,
+      "0011": 3,
+      "0100": 3,
+      "0101": 1,
+      "0110": 1,
+      "0111": 1,
+      "1000": 19,
+      "1001": 15,
+      "1010": 2,
+      "1011": 9,
+      "1100": 5,
+      "1101": 5,
+      "1110": 4,
+      "1111": 33
+    },
+    "tasks": 240
+  },
+  "aborted_v1_sensitivity": null,
+  "raw_trajectory_audit": {
+    "mini_react_port": {
+      "trajectories": 240,
+      "successes": 92,
+      "sra": {
+        "raw_decisions": 0,
+        "raw_compliant": 0,
+        "raw_compliance_rate": null,
+        "post_normalization_compliant": 0,
+        "post_normalization_compliance_rate": null,
+        "normalization_events": 0,
+        "normalization_change_counts": {},
+        "user_answers": 317
+      },
+      "normalizer_outcome_strata": {
+        "activated": {
+          "trajectories": 0,
+          "successes": 0,
+          "success_rate": null
+        },
+        "not_activated": {
+          "trajectories": 240,
+          "successes": 92,
+          "success_rate": 0.38333333
+        },
+        "interpretation": "Observational only: normalizer activation is not randomized and may mark harder or less compliant trajectories."
+      },
+      "protocol_error_categories": {},
+      "rejected_sql_repeat_observation": {
+        "exact_repeat_events": 17,
+        "trajectories_with_exact_repeat": 17,
+        "enforced_by_controller": false,
+        "scope": "Exact stripped-string repeats after a prior scorer rejection; not semantic SQL equivalence and not answer incorporation."
+      },
+      "forced_rejected_endpoint_execution": {
+        "trajectories": 148,
+        "executable": 145,
+        "status_counts": {
+          "ok": 145,
+          "sql_error": 3
+        },
+        "definition": "Execution status of the final SQL execution in trajectories terminating with forced_submission_rejected."
+      }
+    },
+    "sphinteract_cq": {
+      "trajectories": 240,
+      "successes": 53,
+      "sra": {
+        "raw_decisions": 468,
+        "raw_compliant": 453,
+        "raw_compliance_rate": 0.96794872,
+        "post_normalization_compliant": 468,
+        "post_normalization_compliance_rate": 1.0,
+        "normalization_events": 15,
+        "normalization_change_counts": {
+          "appended_open_option": 5,
+          "defaulted_reviews:AmbColumn": 2,
+          "defaulted_reviews:AmbColumn,AmbOutput": 1,
+          "defaulted_reviews:AmbColumn,AmbOutput,AmbValue": 1,
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbOutput": 1,
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbOutput,AmbValue": 1,
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbValue": 2,
+          "defaulted_reviews:AmbQuestion,AmbOutput,AmbValue": 2
+        },
+        "user_answers": 371
+      },
+      "normalizer_outcome_strata": {
+        "activated": {
+          "trajectories": 15,
+          "successes": 1,
+          "success_rate": 0.06666667
+        },
+        "not_activated": {
+          "trajectories": 225,
+          "successes": 52,
+          "success_rate": 0.23111111
+        },
+        "interpretation": "Observational only: normalizer activation is not randomized and may mark harder or less compliant trajectories."
+      },
+      "protocol_error_categories": {},
+      "rejected_sql_repeat_observation": {
+        "exact_repeat_events": 13,
+        "trajectories_with_exact_repeat": 13,
+        "enforced_by_controller": false,
+        "scope": "Exact stripped-string repeats after a prior scorer rejection; not semantic SQL equivalence and not answer incorporation."
+      },
+      "forced_rejected_endpoint_execution": {
+        "trajectories": 90,
+        "executable": 90,
+        "status_counts": {
+          "ok": 90
+        },
+        "definition": "Execution status of the final SQL execution in trajectories terminating with forced_submission_rejected."
+      }
+    },
+    "proactive": {
+      "trajectories": 240,
+      "successes": 55,
+      "sra": {
+        "raw_decisions": 240,
+        "raw_compliant": 237,
+        "raw_compliance_rate": 0.9875,
+        "post_normalization_compliant": 240,
+        "post_normalization_compliance_rate": 1.0,
+        "normalization_events": 3,
+        "normalization_change_counts": {
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbOutput": 1,
+          "defaulted_reviews:AmbQuestion,AmbOutput,AmbValue": 2
+        },
+        "user_answers": 237
+      },
+      "normalizer_outcome_strata": {
+        "activated": {
+          "trajectories": 3,
+          "successes": 2,
+          "success_rate": 0.66666667
+        },
+        "not_activated": {
+          "trajectories": 237,
+          "successes": 53,
+          "success_rate": 0.22362869
+        },
+        "interpretation": "Observational only: normalizer activation is not randomized and may mark harder or less compliant trajectories."
+      },
+      "protocol_error_categories": {},
+      "rejected_sql_repeat_observation": {
+        "exact_repeat_events": 18,
+        "trajectories_with_exact_repeat": 15,
+        "enforced_by_controller": false,
+        "scope": "Exact stripped-string repeats after a prior scorer rejection; not semantic SQL equivalence and not answer incorporation."
+      },
+      "forced_rejected_endpoint_execution": {
+        "trajectories": 177,
+        "executable": 176,
+        "status_counts": {
+          "ok": 176,
+          "sql_error": 1
+        },
+        "definition": "Execution status of the final SQL execution in trajectories terminating with forced_submission_rejected."
+      }
+    },
+    "hybrid": {
+      "trajectories": 240,
+      "successes": 75,
+      "sra": {
+        "raw_decisions": 625,
+        "raw_compliant": 611,
+        "raw_compliance_rate": 0.9776,
+        "post_normalization_compliant": 625,
+        "post_normalization_compliance_rate": 1.0,
+        "normalization_events": 14,
+        "normalization_change_counts": {
+          "appended_open_option": 5,
+          "defaulted_reviews:AmbQuestion": 2,
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbOutput": 3,
+          "defaulted_reviews:AmbQuestion,AmbColumn,AmbValue": 3,
+          "defaulted_reviews:AmbQuestion,AmbOutput,AmbValue": 1
+        },
+        "user_answers": 558
+      },
+      "normalizer_outcome_strata": {
+        "activated": {
+          "trajectories": 14,
+          "successes": 4,
+          "success_rate": 0.28571429
+        },
+        "not_activated": {
+          "trajectories": 226,
+          "successes": 71,
+          "success_rate": 0.31415929
+        },
+        "interpretation": "Observational only: normalizer activation is not randomized and may mark harder or less compliant trajectories."
+      },
+      "protocol_error_categories": {},
+      "rejected_sql_repeat_observation": {
+        "exact_repeat_events": 13,
+        "trajectories_with_exact_repeat": 13,
+        "enforced_by_controller": false,
+        "scope": "Exact stripped-string repeats after a prior scorer rejection; not semantic SQL equivalence and not answer incorporation."
+      },
+      "forced_rejected_endpoint_execution": {
+        "trajectories": 96,
+        "executable": 96,
+        "status_counts": {
+          "ok": 96
+        },
+        "definition": "Execution status of the final SQL execution in trajectories terminating with forced_submission_rejected."
+      }
+    }
+  },
+  "success_by_public_stratum": {
+    "high:1-2": {
+      "tasks": 19,
+      "arms": {
+        "mini_react_port": {
+          "successes": 9,
+          "success_rate": 0.47368421
+        },
+        "sphinteract_cq": {
+          "successes": 7,
+          "success_rate": 0.36842105
+        },
+        "proactive": {
+          "successes": 5,
+          "success_rate": 0.26315789
+        },
+        "hybrid": {
+          "successes": 8,
+          "success_rate": 0.42105263
+        }
+      }
+    },
+    "high:3-4": {
+      "tasks": 89,
+      "arms": {
+        "mini_react_port": {
+          "successes": 28,
+          "success_rate": 0.31460674
+        },
+        "sphinteract_cq": {
+          "successes": 16,
+          "success_rate": 0.17977528
+        },
+        "proactive": {
+          "successes": 14,
+          "success_rate": 0.15730337
+        },
+        "hybrid": {
+          "successes": 24,
+          "success_rate": 0.26966292
+        }
+      }
+    },
+    "high:5+": {
+      "tasks": 18,
+      "arms": {
+        "mini_react_port": {
+          "successes": 6,
+          "success_rate": 0.33333333
+        },
+        "sphinteract_cq": {
+          "successes": 4,
+          "success_rate": 0.22222222
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.11111111
+        },
+        "hybrid": {
+          "successes": 5,
+          "success_rate": 0.27777778
+        }
+      }
+    },
+    "low:1-2": {
+      "tasks": 20,
+      "arms": {
+        "mini_react_port": {
+          "successes": 13,
+          "success_rate": 0.65
+        },
+        "sphinteract_cq": {
+          "successes": 9,
+          "success_rate": 0.45
+        },
+        "proactive": {
+          "successes": 12,
+          "success_rate": 0.6
+        },
+        "hybrid": {
+          "successes": 11,
+          "success_rate": 0.55
+        }
+      }
+    },
+    "low:3-4": {
+      "tasks": 79,
+      "arms": {
+        "mini_react_port": {
+          "successes": 33,
+          "success_rate": 0.41772152
+        },
+        "sphinteract_cq": {
+          "successes": 16,
+          "success_rate": 0.20253165
+        },
+        "proactive": {
+          "successes": 22,
+          "success_rate": 0.27848101
+        },
+        "hybrid": {
+          "successes": 25,
+          "success_rate": 0.3164557
+        }
+      }
+    },
+    "low:5+": {
+      "tasks": 15,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.2
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.06666667
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.13333333
+        }
+      }
+    }
+  },
+  "success_by_database": {
+    "alien": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "sphinteract_cq": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 0,
+          "success_rate": 0.0
+        }
+      }
+    },
+    "archeology": {
+      "tasks": 7,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.42857143
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 0,
+          "success_rate": 0.0
+        }
+      }
+    },
+    "cold_chain_pharma_compliance": {
+      "tasks": 11,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.27272727
+        },
+        "sphinteract_cq": {
+          "successes": 4,
+          "success_rate": 0.36363636
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.18181818
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.18181818
+        }
+      }
+    },
+    "credit": {
+      "tasks": 7,
+      "arms": {
+        "mini_react_port": {
+          "successes": 1,
+          "success_rate": 0.14285714
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.14285714
+        },
+        "proactive": {
+          "successes": 1,
+          "success_rate": 0.14285714
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        }
+      }
+    },
+    "cross_db": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.5
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "proactive": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "hybrid": {
+          "successes": 3,
+          "success_rate": 0.375
+        }
+      }
+    },
+    "crypto": {
+      "tasks": 7,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.57142857
+        },
+        "sphinteract_cq": {
+          "successes": 3,
+          "success_rate": 0.42857143
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        }
+      }
+    },
+    "cybermarket": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 5,
+          "success_rate": 0.55555556
+        },
+        "sphinteract_cq": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.22222222
+        }
+      }
+    },
+    "disaster": {
+      "tasks": 7,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.57142857
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        }
+      }
+    },
+    "exchange_traded_funds": {
+      "tasks": 10,
+      "arms": {
+        "mini_react_port": {
+          "successes": 6,
+          "success_rate": 0.6
+        },
+        "sphinteract_cq": {
+          "successes": 5,
+          "success_rate": 0.5
+        },
+        "proactive": {
+          "successes": 5,
+          "success_rate": 0.5
+        },
+        "hybrid": {
+          "successes": 7,
+          "success_rate": 0.7
+        }
+      }
+    },
+    "fake": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 2,
+          "success_rate": 0.25
+        },
+        "sphinteract_cq": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "proactive": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "hybrid": {
+          "successes": 0,
+          "success_rate": 0.0
+        }
+      }
+    },
+    "gaming": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.44444444
+        },
+        "sphinteract_cq": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        },
+        "proactive": {
+          "successes": 1,
+          "success_rate": 0.11111111
+        },
+        "hybrid": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        }
+      }
+    },
+    "households": {
+      "tasks": 12,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.25
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.16666667
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.16666667
+        },
+        "hybrid": {
+          "successes": 3,
+          "success_rate": 0.25
+        }
+      }
+    },
+    "hulushows": {
+      "tasks": 14,
+      "arms": {
+        "mini_react_port": {
+          "successes": 9,
+          "success_rate": 0.64285714
+        },
+        "sphinteract_cq": {
+          "successes": 6,
+          "success_rate": 0.42857143
+        },
+        "proactive": {
+          "successes": 6,
+          "success_rate": 0.42857143
+        },
+        "hybrid": {
+          "successes": 9,
+          "success_rate": 0.64285714
+        }
+      }
+    },
+    "insider": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.44444444
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.22222222
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.22222222
+        },
+        "hybrid": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        }
+      }
+    },
+    "labor_certification_applications": {
+      "tasks": 10,
+      "arms": {
+        "mini_react_port": {
+          "successes": 2,
+          "success_rate": 0.2
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.2
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.2
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.2
+        }
+      }
+    },
+    "mental": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        },
+        "sphinteract_cq": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 1,
+          "success_rate": 0.11111111
+        }
+      }
+    },
+    "museum": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 2,
+          "success_rate": 0.25
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.25
+        },
+        "hybrid": {
+          "successes": 1,
+          "success_rate": 0.125
+        }
+      }
+    },
+    "news": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 5,
+          "success_rate": 0.55555556
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.22222222
+        },
+        "proactive": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        },
+        "hybrid": {
+          "successes": 5,
+          "success_rate": 0.55555556
+        }
+      }
+    },
+    "organ_transplant": {
+      "tasks": 10,
+      "arms": {
+        "mini_react_port": {
+          "successes": 1,
+          "success_rate": 0.1
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.2
+        },
+        "proactive": {
+          "successes": 1,
+          "success_rate": 0.1
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.2
+        }
+      }
+    },
+    "planets_data": {
+      "tasks": 13,
+      "arms": {
+        "mini_react_port": {
+          "successes": 5,
+          "success_rate": 0.38461538
+        },
+        "sphinteract_cq": {
+          "successes": 5,
+          "success_rate": 0.38461538
+        },
+        "proactive": {
+          "successes": 6,
+          "success_rate": 0.46153846
+        },
+        "hybrid": {
+          "successes": 4,
+          "success_rate": 0.30769231
+        }
+      }
+    },
+    "polar": {
+      "tasks": 9,
+      "arms": {
+        "mini_react_port": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.11111111
+        },
+        "proactive": {
+          "successes": 2,
+          "success_rate": 0.22222222
+        },
+        "hybrid": {
+          "successes": 3,
+          "success_rate": 0.33333333
+        }
+      }
+    },
+    "reverse_logistics": {
+      "tasks": 15,
+      "arms": {
+        "mini_react_port": {
+          "successes": 11,
+          "success_rate": 0.73333333
+        },
+        "sphinteract_cq": {
+          "successes": 5,
+          "success_rate": 0.33333333
+        },
+        "proactive": {
+          "successes": 12,
+          "success_rate": 0.8
+        },
+        "hybrid": {
+          "successes": 10,
+          "success_rate": 0.66666667
+        }
+      }
+    },
+    "robot": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 4,
+          "success_rate": 0.5
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.25
+        }
+      }
+    },
+    "solar": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 2,
+          "success_rate": 0.25
+        },
+        "sphinteract_cq": {
+          "successes": 2,
+          "success_rate": 0.25
+        },
+        "proactive": {
+          "successes": 4,
+          "success_rate": 0.5
+        },
+        "hybrid": {
+          "successes": 5,
+          "success_rate": 0.625
+        }
+      }
+    },
+    "vaccine": {
+      "tasks": 8,
+      "arms": {
+        "mini_react_port": {
+          "successes": 1,
+          "success_rate": 0.125
+        },
+        "sphinteract_cq": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 0,
+          "success_rate": 0.0
+        }
+      }
+    },
+    "virtual": {
+      "tasks": 7,
+      "arms": {
+        "mini_react_port": {
+          "successes": 1,
+          "success_rate": 0.14285714
+        },
+        "sphinteract_cq": {
+          "successes": 1,
+          "success_rate": 0.14285714
+        },
+        "proactive": {
+          "successes": 0,
+          "success_rate": 0.0
+        },
+        "hybrid": {
+          "successes": 2,
+          "success_rate": 0.28571429
+        }
+      }
+    }
+  },
+  "database_robustness": {
+    "hybrid_minus_mini_react_port": {
+      "paired_difference": -0.07083333,
+      "database_cluster_bootstrap_95_ci": [
+        -0.12946429,
+        -0.0124987
+      ],
+      "clusters": 26,
+      "leave_one_database_out_min": -0.0862069,
+      "leave_one_database_out_max": -0.06008584,
+      "leave_one_database_out_direction_reversals": []
+    },
+    "hybrid_minus_sphinteract_cq": {
+      "paired_difference": 0.09166667,
+      "database_cluster_bootstrap_95_ci": [
+        0.02829998,
+        0.15294227
+      ],
+      "clusters": 26,
+      "leave_one_database_out_min": 0.07555556,
+      "leave_one_database_out_max": 0.10480349,
+      "leave_one_database_out_direction_reversals": []
+    },
+    "hybrid_minus_proactive": {
+      "paired_difference": 0.08333333,
+      "database_cluster_bootstrap_95_ci": [
+        0.02755906,
+        0.13865546
+      ],
+      "clusters": 26,
+      "leave_one_database_out_min": 0.07522124,
+      "leave_one_database_out_max": 0.09777778,
+      "leave_one_database_out_direction_reversals": []
+    }
+  },
+  "figures": {
+    "success_vs_user_turns": "official-mini-interact-success-vs-user-turns.svg",
+    "terminal_outcomes": "official-mini-interact-terminal-outcomes.svg"
+  },
+  "interpretation_boundary": "Terminal labels show where a controller stopped, not the semantic root cause of a wrong SQL query. Paired arms also contain independent stochastic model and simulator calls. Task/bootstrap intervals do not include that run-to-run variation."
+}

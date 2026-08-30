@@ -13,8 +13,6 @@ import re
 from pathlib import Path
 from typing import Any
 
-from codex_proxy.runner import CodexSubscriptionProxy
-
 try:
     from sqlglot import tokenize
     from sqlglot.tokens import TokenType
@@ -236,13 +234,15 @@ class CodexMiniInteractUserSimulator:
     def __init__(
         self,
         *,
-        proxy: CodexSubscriptionProxy,
+        proxy: Any,
         dataset_root: Path,
         artifact_directory: Path | None = None,
+        surface: str = "codex_subscription_proxy",
     ) -> None:
         self.proxy = proxy
         self.dataset_root = dataset_root.resolve()
         self.artifact_directory = artifact_directory
+        self.surface = surface
 
     def answer(
         self,
@@ -321,7 +321,7 @@ ACTION
             text=answer,
             metadata={
                 "adapter": SIMULATOR_ADAPTER_VERSION,
-                "surface": "codex_subscription_proxy",
+                "surface": self.surface,
                 "model": self.proxy.model,
                 "served_models": [
                     value

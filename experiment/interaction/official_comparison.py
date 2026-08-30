@@ -121,6 +121,10 @@ def validate_freeze(freeze_path: Path) -> dict[str, Any]:
         path = _resolve_workspace_path(relative_path)
         if sha256_file(path) != expected:
             raise ValueError(f"Implementation hash changed after freeze: {path}")
+    for relative_path, expected in freeze.get("artifact_hashes", {}).items():
+        path = _resolve_workspace_path(relative_path)
+        if sha256_file(path) != expected:
+            raise ValueError(f"Input artifact changed after freeze: {path}")
     return freeze
 
 
@@ -175,7 +179,9 @@ def build_jobs(
 
 def child_command(job: ComparisonJob, freeze: dict[str, Any]) -> list[str]:
     shared = freeze["shared_stack"]
-    return [
+    surface = str(shared.get("surface", "codex_subscription_proxy"))
+    provider = "openai" if surface == "openai_responses_api" else "codex"
+    command = [
         sys.executable,
         "-m",
         "interaction.run_official_mini_interact",
@@ -188,6 +194,8 @@ def child_command(job: ComparisonJob, freeze: dict[str, Any]) -> list[str]:
         str(shared["model"]),
         "--reasoning-effort",
         str(shared["reasoning_effort"]),
+        "--provider",
+        provider,
         "--user-patience-budget",
         str(shared["user_patience_budget"]),
         "--max-action-turns",
@@ -197,6 +205,18 @@ def child_command(job: ComparisonJob, freeze: dict[str, Any]) -> list[str]:
         "--output",
         str(job.output.resolve()),
     ]
+    if provider == "openai":
+        command.extend(
+            [
+                "--max-output-tokens",
+                str(shared["max_output_tokens"]),
+                "--max-transport-retries",
+                str(shared["maximum_transport_retries"]),
+                "--max-spend-usd",
+                str(shared["maximum_spend_usd_per_child"]),
+            ]
+        )
+    return command
 
 
 def count_trajectory_lines(path: Path) -> int:
@@ -650,6 +670,16 @@ def main() -> int:
                 freeze["analysis"]["success_noninferiority_margin"]
             ),
         )
+        system_errors = {
+            policy: int(summary["system_error_terminations"])
+            for policy, summary in analysis["policy_summaries"].items()
+            if int(summary["system_error_terminations"])
+        }
+        if system_errors:
+            raise RuntimeError(
+                "Score-blind system-error trajectories require a resumable rerun: "
+                f"{system_errors}"
+            )
         analysis_path = output_root / "comparison.json"
         analysis_path.write_text(
             json.dumps(analysis, indent=2, ensure_ascii=False) + "\n",

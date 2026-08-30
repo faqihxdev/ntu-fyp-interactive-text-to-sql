@@ -17,12 +17,16 @@ from statistics import mean
 import time
 from typing import Any
 
-from codex_proxy.runner import CodexSubscriptionProxy
-
 from .bird_dev_clarification_value import (
     ARMS,
     PROTOCOL_VERSION,
     BirdDevClarificationValueController,
+)
+from .inference_runtime import (
+    CODEX_SURFACE,
+    OPENAI_SURFACE,
+    PROVIDERS,
+    create_structured_runtime,
 )
 from .bird_dev_matched import (
     BirdDevMatchedConfig,
@@ -62,6 +66,7 @@ RUN_CONTRACT_FILENAME = "run-contract.json"
 FREEZE_STATUS = "frozen_before_smoke_and_pilot_model_calls"
 PILOT_FREEZE_STATUS = "frozen_before_pilot_model_calls_after_smoke"
 FULL_FREEZE_STATUS = "frozen_before_full_model_calls_after_pilot"
+OPENAI_FREEZE_STATUS = "frozen_before_openai_api_model_calls"
 
 
 def run_tier(task_count: int) -> str:
@@ -118,16 +123,23 @@ def validate_freeze(
     model: str,
     reasoning_effort: str,
     workers: int,
+    provider: str = "codex",
+    max_output_tokens: int = 8_192,
+    max_transport_retries: int = 1,
+    max_spend_usd: float | None = None,
 ) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     if payload.get("protocol") != PROTOCOL_VERSION:
         raise ValueError("Freeze protocol does not match the runner")
-    expected_status_by_tier = {
-        "smoke20": FREEZE_STATUS,
-        "pilot100": PILOT_FREEZE_STATUS,
-        "full1534": FULL_FREEZE_STATUS,
-    }
-    expected_status = expected_status_by_tier[tier]
+    expected_status = (
+        OPENAI_FREEZE_STATUS
+        if provider == "openai"
+        else {
+            "smoke20": FREEZE_STATUS,
+            "pilot100": PILOT_FREEZE_STATUS,
+            "full1534": FULL_FREEZE_STATUS,
+        }[tier]
+    )
     if payload.get("status") != expected_status:
         raise ValueError(f"Freeze status must be {expected_status!r}")
     selection = (payload.get("selections") or {}).get(tier) or {}
@@ -142,6 +154,21 @@ def validate_freeze(
         raise ValueError("Reasoning effort changed after freeze")
     if int(shared.get("workers", -1)) != workers:
         raise ValueError("Worker count changed after freeze")
+    expected_surface = OPENAI_SURFACE if provider == "openai" else CODEX_SURFACE
+    if shared.get("surface") not in (
+        {expected_surface} if provider == "openai" else {None, expected_surface}
+    ):
+        raise ValueError("Inference surface changed after freeze")
+    if provider == "openai":
+        if int(shared.get("max_output_tokens", -1)) != max_output_tokens:
+            raise ValueError("Maximum output tokens changed after freeze")
+        if (
+            int(shared.get("maximum_transport_retries", -1))
+            != max_transport_retries
+        ):
+            raise ValueError("Transport retry limit changed after freeze")
+        if float(shared.get("maximum_spend_usd", -1)) != float(max_spend_usd or -1):
+            raise ValueError("Maximum spend changed after freeze")
     if (
         payload.get("sphinteract_source", {}).get("notebook_sha256")
         != SPHINTERACT_NOTEBOOK_SHA256
@@ -173,16 +200,29 @@ def build_run_contract(
     reasoning_effort: str,
     workers: int,
     config: BirdDevMatchedConfig,
+    provider: str = "codex",
+    max_output_tokens: int = 8_192,
+    max_transport_retries: int = 1,
+    max_spend_usd: float | None = None,
 ) -> dict[str, Any]:
     implementation_paths = [
         Path(__file__),
         Path(__file__).with_name("bird_dev_clarification_value.py"),
         Path(__file__).with_name("bird_dev_matched.py"),
         Path(__file__).with_name("sphinteract_source.py"),
-        EXPERIMENT_ROOT / "codex_proxy" / "runner.py",
         DEFAULT_POLICY_INSTRUCTIONS,
         DEFAULT_SIMULATOR_INSTRUCTIONS,
     ]
+    if provider == "openai":
+        implementation_paths.extend(
+            [
+                Path(__file__).with_name("inference_runtime.py"),
+                Path(__file__).with_name("openai_structured.py"),
+                Path(__file__).with_name("model.py"),
+            ]
+        )
+    else:
+        implementation_paths.append(EXPERIMENT_ROOT / "codex_proxy" / "runner.py")
     database_hashes = {
         task.db_id: sha256_file(database_path(database_root, task)) for task in tasks
     }
@@ -212,11 +252,13 @@ def build_run_contract(
             "sha256": sha256_file(freeze_manifest),
         },
         "model": {
-            "surface": "codex_subscription_proxy",
+            "surface": OPENAI_SURFACE if provider == "openai" else CODEX_SURFACE,
             "requested": model,
             "reasoning_effort": reasoning_effort,
             "verbosity": "low",
-            "maximum_transport_retries": 1,
+            "maximum_transport_retries": max_transport_retries,
+            "max_output_tokens": max_output_tokens,
+            "maximum_spend_usd": max_spend_usd,
         },
         "workers": workers,
         "controller_config": asdict(config),
@@ -312,7 +354,7 @@ def _arm_console_status(value: dict[str, Any]) -> str:
     return "ok" if value.get("official_success") else "miss"
 
 
-def _usage_totals(records: list[dict[str, Any]]) -> dict[str, int]:
+def _usage_totals(records: list[dict[str, Any]]) -> dict[str, int | float]:
     totals = {
         "model_calls": 0,
         "input_tokens": 0,
@@ -320,6 +362,7 @@ def _usage_totals(records: list[dict[str, Any]]) -> dict[str, int]:
         "output_tokens": 0,
         "reasoning_tokens": 0,
         "total_tokens": 0,
+        "estimated_cost_usd": 0.0,
     }
     for record in records:
         shared = record.get("shared_initial") or {}
@@ -330,8 +373,13 @@ def _usage_totals(records: list[dict[str, Any]]) -> dict[str, int]:
             usage_blocks.append(arm.get("arm_specific_usage") or {})
         for usage in usage_blocks:
             for key in totals:
-                if key != "model_calls":
+                if key == "model_calls":
+                    continue
+                if key == "estimated_cost_usd":
+                    totals[key] += float(usage.get(key, 0))
+                else:
                     totals[key] += int(usage.get(key, 0))
+    totals["estimated_cost_usd"] = round(float(totals["estimated_cost_usd"]), 8)
     return totals
 
 
@@ -364,6 +412,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", default="gpt-5.6-luna")
     parser.add_argument("--reasoning-effort")
     parser.add_argument("--workers", type=int, default=4)
+    parser.add_argument("--provider", choices=PROVIDERS, default="codex")
+    parser.add_argument("--max-output-tokens", type=int, default=8_192)
+    parser.add_argument("--max-transport-retries", type=int, default=3)
+    parser.add_argument("--max-spend-usd", type=float)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
@@ -376,6 +428,10 @@ def main() -> int:
         tier = run_tier(len(ids))
         if args.workers < 1:
             raise ValueError("--workers must be positive")
+        if args.max_output_tokens < 1:
+            raise ValueError("--max-output-tokens must be positive")
+        if args.max_transport_retries < 0:
+            raise ValueError("--max-transport-retries cannot be negative")
         if not args.dry_run:
             if not (args.reasoning_effort or "").strip():
                 raise ValueError("--reasoning-effort is required for model calls")
@@ -394,6 +450,10 @@ def main() -> int:
                 model=args.model,
                 reasoning_effort=str(args.reasoning_effort),
                 workers=args.workers,
+                provider=args.provider,
+                max_output_tokens=args.max_output_tokens,
+                max_transport_retries=args.max_transport_retries,
+                max_spend_usd=args.max_spend_usd,
             )
         tasks = _select_tasks(load_original_bird_tasks(args.dataset), ids)
         rows = load_original_bird_rows(args.dataset)
@@ -405,7 +465,7 @@ def main() -> int:
     print(
         f"Protocol={PROTOCOL_VERSION}; tier={tier}; tasks={len(tasks)}; "
         f"model={args.model}; effort={args.reasoning_effort or 'unset (dry-run)'}; "
-        f"workers={args.workers}"
+        f"provider={args.provider}; workers={args.workers}"
     )
     print(f"Selection={args.selection_manifest}")
     print(f"Output root={args.output_root}")
@@ -443,6 +503,10 @@ def main() -> int:
             reasoning_effort=str(args.reasoning_effort),
             workers=args.workers,
             config=config,
+            provider=args.provider,
+            max_output_tokens=args.max_output_tokens,
+            max_transport_retries=args.max_transport_retries,
+            max_spend_usd=args.max_spend_usd,
         )
         run_contract_path = args.output_root / RUN_CONTRACT_FILENAME
         run_contract_sha256 = ensure_run_contract(
@@ -460,20 +524,22 @@ def main() -> int:
         timeout_seconds=config.sql_timeout_seconds,
         max_rows=config.max_result_rows,
     )
-    policy_proxy = CodexSubscriptionProxy(
-        model=args.model,
-        reasoning_effort=str(args.reasoning_effort),
-        verbosity="low",
-        instructions_file=DEFAULT_POLICY_INSTRUCTIONS,
-        max_transport_retries=1,
-    )
-    simulator_proxy = CodexSubscriptionProxy(
-        model=args.model,
-        reasoning_effort=str(args.reasoning_effort),
-        verbosity="low",
-        instructions_file=DEFAULT_SIMULATOR_INSTRUCTIONS,
-        max_transport_retries=1,
-    )
+    try:
+        runtime = create_structured_runtime(
+            provider=args.provider,
+            experiment_root=EXPERIMENT_ROOT,
+            model=args.model,
+            reasoning_effort=str(args.reasoning_effort),
+            policy_instructions=DEFAULT_POLICY_INSTRUCTIONS,
+            simulator_instructions=DEFAULT_SIMULATOR_INSTRUCTIONS,
+            max_output_tokens=args.max_output_tokens,
+            max_transport_retries=args.max_transport_retries,
+            max_spend_usd=args.max_spend_usd,
+            spend_ledger_path=args.output_root / "api-spend-ledger.jsonl",
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        print(f"CLARIFICATION VALUE RUN REFUSED: {exc}")
+        return 2
 
     completed: dict[str, dict[str, Any]] = {}
     pending = []
@@ -497,8 +563,8 @@ def main() -> int:
 
     def run_one(task):
         controller = BirdDevClarificationValueController(
-            policy_invoker=policy_proxy,
-            simulator_invoker=simulator_proxy,
+            policy_invoker=runtime.policy_invoker,
+            simulator_invoker=runtime.simulator_invoker,
             evaluator=evaluator,
             prompts=prompts,
             database_root=args.database_root,
@@ -579,14 +645,14 @@ def main() -> int:
             "sha256": sha256_file(args.freeze_manifest),
         },
         "model": {
-            "surface": "codex_subscription_proxy",
-            "requested": args.model,
-            "reasoning_effort": args.reasoning_effort,
-            "verbosity": "low",
-            "codex_cli_version": policy_proxy.codex_cli_version,
+            **runtime.model_manifest(
+                model=args.model,
+                reasoning_effort=str(args.reasoning_effort),
+            ),
             "served_model_ids_if_emitted": _served_models(ordered),
-            "immutable_served_snapshot_available": False,
-            "monetary_cost_available": False,
+            "immutable_served_snapshot_available": bool(_served_models(ordered)),
+            "max_output_tokens": args.max_output_tokens,
+            "maximum_transport_retries": args.max_transport_retries,
         },
         "workers": args.workers,
         "branch_order_rule": (
@@ -612,7 +678,8 @@ def main() -> int:
     print(f"Run manifest: {manifest_path}")
     print(
         f"Physical usage: calls={usage['model_calls']:,}; "
-        f"tokens={usage['total_tokens']:,}"
+        f"tokens={usage['total_tokens']:,}; "
+        f"estimated_cost=${float(usage['estimated_cost_usd']):.4f}"
     )
     if task_error_count or arm_error_count:
         print(

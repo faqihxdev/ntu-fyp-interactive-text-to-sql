@@ -6,7 +6,7 @@
 <text x="90.0" y="112.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#52606D">One physical initial-attempt prefix; equal five-generation cap for both recovery arms.</text>
 <line x1="800" y1="160" x2="800" y2="690" stroke="#D8DEE4" stroke-width="2"/>
 <text x="90.0" y="186.0" font-family="Arial, sans-serif" font-size="28" font-weight="600" text-anchor="start" fill="#17212B">A  Final execution accuracy</text>
-<text x="90.0" y="220.0" font-family="Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#52606D">Official BIRD set-of-rows equality</text>
+<text x="90.0" y="220.0" font-family="Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#52606D">BIRD&#x27;s released set-of-rows scorer</text>
 <line x1="280.0" y1="270.0" x2="280.0" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
 <text x="280.0" y="624.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#52606D">0%</text>
 <line x1="393.8" y1="270.0" x2="393.8" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
@@ -19,25 +19,25 @@
 <text x="735.0" y="624.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#52606D">80%</text>
 <line x1="280.0" y1="590.0" x2="735.0" y2="590.0" stroke="#8A96A3" stroke-width="1.5"/>
 <text x="262.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">No user</text>
-<rect x="280.0" y="303" width="248.0" height="44" rx="4" fill="#6B7280" fill-opacity="0.88"/>
-<line x1="513.6" y1="325" x2="541.8" y2="325" stroke="#17212B" stroke-width="3"/>
-<line x1="513.6" y1="315" x2="513.6" y2="335" stroke="#17212B" stroke-width="3"/>
-<line x1="541.8" y1="315" x2="541.8" y2="335" stroke="#17212B" stroke-width="3"/>
-<text x="540.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#6B7280">43.61%</text>
+<rect x="280.0" y="303" width="245.4" height="44" rx="4" fill="#6B7280" fill-opacity="0.88"/>
+<line x1="511.0" y1="325" x2="539.2" y2="325" stroke="#17212B" stroke-width="3"/>
+<line x1="511.0" y1="315" x2="511.0" y2="335" stroke="#17212B" stroke-width="3"/>
+<line x1="539.2" y1="315" x2="539.2" y2="335" stroke="#17212B" stroke-width="3"/>
+<text x="551.2" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#6B7280">43.16%</text>
 <text x="262.0" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">SQL-only recovery</text>
-<rect x="280.0" y="408" width="281.8" height="44" rx="4" fill="#E69F00" fill-opacity="0.88"/>
-<line x1="547.3" y1="430" x2="575.9" y2="430" stroke="#17212B" stroke-width="3"/>
-<line x1="547.3" y1="420" x2="547.3" y2="440" stroke="#17212B" stroke-width="3"/>
-<line x1="575.9" y1="420" x2="575.9" y2="440" stroke="#17212B" stroke-width="3"/>
-<text x="573.8" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#E69F00">49.54%</text>
+<rect x="280.0" y="408" width="285.1" height="44" rx="4" fill="#E69F00" fill-opacity="0.88"/>
+<line x1="551.0" y1="430" x2="579.2" y2="430" stroke="#17212B" stroke-width="3"/>
+<line x1="551.0" y1="420" x2="551.0" y2="440" stroke="#17212B" stroke-width="3"/>
+<line x1="579.2" y1="420" x2="579.2" y2="440" stroke="#17212B" stroke-width="3"/>
+<text x="591.2" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#E69F00">50.13%</text>
 <text x="262.0" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">Reactive clarification</text>
-<rect x="280.0" y="513" width="429.7" height="44" rx="4" fill="#0072B2" fill-opacity="0.88"/>
-<line x1="697.1" y1="535" x2="721.9" y2="535" stroke="#17212B" stroke-width="3"/>
-<line x1="697.1" y1="525" x2="697.1" y2="545" stroke="#17212B" stroke-width="3"/>
-<line x1="721.9" y1="525" x2="721.9" y2="545" stroke="#17212B" stroke-width="3"/>
-<text x="721.7" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#0072B2">75.55%</text>
+<rect x="280.0" y="513" width="440.8" height="44" rx="4" fill="#0072B2" fill-opacity="0.88"/>
+<line x1="709.0" y1="535" x2="732.7" y2="535" stroke="#17212B" stroke-width="3"/>
+<line x1="709.0" y1="525" x2="709.0" y2="545" stroke="#17212B" stroke-width="3"/>
+<line x1="732.7" y1="525" x2="732.7" y2="545" stroke="#17212B" stroke-width="3"/>
+<text x="704.8" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="end" fill="#FFFFFF">77.51%</text>
 <text x="850.0" y="186.0" font-family="Arial, sans-serif" font-size="28" font-weight="600" text-anchor="start" fill="#17212B">B  Recovery after initial failure</text>
-<text x="850.0" y="220.0" font-family="Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#52606D">865 shared-initial failures</text>
+<text x="850.0" y="220.0" font-family="Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#52606D">872 shared-initial failures</text>
 <line x1="1040.0" y1="270.0" x2="1040.0" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
 <text x="1040.0" y="624.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#52606D">0%</text>
 <line x1="1157.5" y1="270.0" x2="1157.5" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
@@ -51,16 +51,16 @@
 <line x1="1040.0" y1="590.0" x2="1510.0" y2="590.0" stroke="#8A96A3" stroke-width="1.5"/>
 <text x="1022.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">No user</text>
 <rect x="1040.0" y="303" width="2.0" height="44" rx="4" fill="#6B7280" fill-opacity="0.88"/>
-<text x="1052.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#6B7280">0/865 (0.0%)</text>
+<text x="1052.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#6B7280">0/872 (0.0%)</text>
 <text x="1022.0" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">SQL-only recovery</text>
-<rect x="1040.0" y="408" width="82.4" height="44" rx="4" fill="#E69F00" fill-opacity="0.88"/>
-<text x="1134.4" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#E69F00">91/865 (10.5%)</text>
+<rect x="1040.0" y="408" width="96.1" height="44" rx="4" fill="#E69F00" fill-opacity="0.88"/>
+<text x="1148.1" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#E69F00">107/872 (12.3%)</text>
 <text x="1022.0" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">Reactive clarification</text>
-<rect x="1040.0" y="513" width="443.7" height="44" rx="4" fill="#0072B2" fill-opacity="0.88"/>
-<text x="1471.7" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="end" fill="#FFFFFF">490/865 (56.6%)</text>
+<rect x="1040.0" y="513" width="473.4" height="44" rx="4" fill="#0072B2" fill-opacity="0.88"/>
+<text x="1501.4" y="543.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="end" fill="#FFFFFF">527/872 (60.4%)</text>
 <rect x="90" y="700" width="1420" height="115" rx="8" fill="#F2F5F7"/>
 <text x="120.0" y="748.0" font-family="Arial, sans-serif" font-size="22" font-weight="600" text-anchor="start" fill="#52606D">Primary paired effect</text>
-<text x="120.0" y="788.0" font-family="Arial, sans-serif" font-size="29" font-weight="600" text-anchor="start" fill="#0072B2">Reactive - SQL-only: +26.01 points (95% CI +23.73 to +28.36)</text>
-<text x="1480.0" y="786.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#52606D">1,414-task unexposed sensitivity: +26.45 points</text>
+<text x="120.0" y="788.0" font-family="Arial, sans-serif" font-size="29" font-weight="600" text-anchor="start" fill="#0072B2">Reactive - SQL-only: +27.38 points (95% CI +25.03 to +29.73)</text>
+<text x="1480.0" y="786.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#52606D">1,414-task unexposed sensitivity: +28.08 points</text>
 <text x="1510.0" y="860.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="end" fill="#6B7280">Bars show retained final trajectories; whiskers are task-bootstrap 95% intervals.</text>
 </svg>

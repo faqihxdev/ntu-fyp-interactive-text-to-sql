@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "artifact": "openai-api-original-bird-run-freeze-v1",
+  "experiment": "clarification_value",
+  "protocol": "bird-dev-clarification-value-v1",
+  "status": "frozen_before_openai_api_model_calls",
+  "frozen_at": "2026-08-30T01:28:25.027643+00:00",
+  "purpose": "Direct Responses API replication under the same frozen controller and selected BIRD tasks.",
+  "authorization": {
+    "explicit_paid_api_run_approval": true,
+    "approval_recorded_on": "2026-08-30",
+    "maximum_spend_usd": 25.0
+  },
+  "selections": {
+    "full1534": {
+      "path": "codebase/experiment/manifests/bird-dev-clarification-value-full1534.json",
+      "sha256": "eb3b55546428948528456b6aa6b2672a542e679b6c17b5dca66b1f786e64759a",
+      "tasks": 1534,
+      "selection_declared_tasks": 1534
+    }
+  },
+  "shared_stack": {
+    "surface": "openai_responses_api",
+    "model": "gpt-5.6-luna",
+    "reasoning_effort": "high",
+    "verbosity": "low",
+    "service_tier": "default",
+    "store": false,
+    "workers": 128,
+    "max_output_tokens": 8192,
+    "maximum_transport_retries": 3,
+    "maximum_spend_usd": 25.0
+  },
+  "sphinteract_source": {
+    "notebook_sha256": "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108"
+  },
+  "implementation_hashes": {
+    "codebase/experiment/interaction/bird_dev_clarification_value.py": "9dc436cff35048549b667ec518cad72df2214a93d6557093d1d6d727f26f5b44",
+    "codebase/experiment/interaction/run_bird_dev_clarification_value.py": "5efca58168878a310f16b85619232975e18cb4b46208f2c126c3149561604c54",
+    "codebase/experiment/interaction/bird_dev_matched.py": "8b590b904c04edd86d3beaad53a6bc3276d2d56a1b7dff77c0cab72f581343b0",
+    "codebase/experiment/interaction/sphinteract_source.py": "b933f96562e2d414adabe0bb295da93c2692131efd181614c45ff0d640088dab",
+    "codebase/experiment/interaction/sqlite_env.py": "11de1d4bff3de3c77f4930b5a73d1ba4c4db3552d74e3ee26ac37cbad69c6904",
+    "codebase/experiment/interaction/trajectory.py": "33e30c1e09b90db112b24a39b4426cd336b42348960a1aca9500d59d38652dd4",
+    "codebase/experiment/interaction/run_support.py": "5f9890f3ea0b30cce05ace46a87aa374fc77c66ed21937c55a087835223e457e",
+    "codebase/experiment/interaction/inference_runtime.py": "021447970d467e295e533f87bce8cfe99d9c70a64a49977c7bc859ea13756db3",
+    "codebase/experiment/interaction/openai_structured.py": "63d9fd34e5b4b94a276497d058fb6854c1378586255bb4c4a730d83271feeb59",
+    "codebase/experiment/interaction/model.py": "15e2d47ef3803998a4846996db01716dbfdebad26b9322a7983974c2916dac54",
+    "codebase/experiment/pyproject.toml": "5c055ae21b216ab8fb53e99d1a458e388d507412adf259e50984decc56a639c9",
+    "codebase/experiment/uv.lock": "b6a03912eb58bf58021932c8d4544e49da8708313494fd5e3ed926b85ee41d84"
+  },
+  "artifact_hashes": {
+    "codebase/experiment/manifests/bird-dev-clarification-value-full1534.json": "eb3b55546428948528456b6aa6b2672a542e679b6c17b5dca66b1f786e64759a",
+    "codebase/experiment/datasets/bird-dev/dev.json": "630272f2b1c44d8cef2c3b246f623355cf0bbc1e832c81061df895530dfc2f06",
+    "codebase/experiment/datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb": "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108",
+    "codebase/experiment/interaction/codex-policy-instructions.md": "d0eca648e738d4906652cf1cf6107b6d28db2d18ee9a76a0f9c99d4aea953b65",
+    "codebase/experiment/interaction/codex-user-simulator-instructions.md": "f1f9a01e8f50df3bcde6b60569362b208902ee9b1425c0acdccd8c6ed8e6289a",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/california_schools/california_schools.sqlite": "986817d793479801ed55133e55aa27e335422c0cd3866b54a3d6317b7c5f09c1",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/card_games/card_games.sqlite": "c98bdb57fe7474da798b407785544b9af0daaad5d61fd21e2a73309493bc1227",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/codebase_community/codebase_community.sqlite": "92101be6d2a9f6adceea59d38f6d1c556087f9eea1432432a21268cb1348036d",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/debit_card_specializing/debit_card_specializing.sqlite": "b3d149ad05746dbbe5116e229e17e18f09c39db43cf117d9ef3441753608b691",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/european_football_2/european_football_2.sqlite": "e4d361dbeec6591a4b315877c0c481da05c8ff5a3d389b34d6e17b6f15bee4e0",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/financial/financial.sqlite": "d15d89cdb068a202b6f2b99342af44dffc1d52545b39ceaf62efdc0ba570101e",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/formula_1/formula_1.sqlite": "17185981cd747f6cdc374cb02a6096db3130e6ec2ddc582fe1686a28fb4c4c8a",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/student_club/student_club.sqlite": "eb89bcfe97eefa386a27904ec5aa15159811a7eac894ec659a36e48fa9f76b77",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/superhero/superhero.sqlite": "75e94a2c3236ee3bb2c01fb97a1c4b4c1c269bcefd4eab1d04be323d2d0825b1",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/thrombosis_prediction/thrombosis_prediction.sqlite": "e7e16d74b4731b4b8d33fdbe8c29cd5622620788ce8d1f335631f65fc7cf1db9",
+    "codebase/experiment/datasets/bird-dev/dev_databases/dev_databases/toxicology/toxicology.sqlite": "f5fa7f21af1ad878ff8fef1b0582b8cb2d7ed63dbac65ff16d2ba05667650c5b"
+  },
+  "planned_output": "codebase/experiment/runs/api-bird-dev-clarification-value-v1-full1534-luna-high-20260830"
+}

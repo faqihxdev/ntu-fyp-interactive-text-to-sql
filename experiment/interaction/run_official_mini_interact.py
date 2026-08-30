@@ -15,12 +15,11 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from codex_proxy.runner import CodexSubscriptionProxy
-
 from .codex_official_policy import (
     OFFICIAL_REFERENCE_PROMPT_SOURCE,
     CodexOfficialPolicyModel,
 )
+from .inference_runtime import PROVIDERS, create_structured_runtime
 from .metrics import summarize_trajectories
 from .mini_interact import (
     SANITIZED_SIMULATOR_ADAPTER_VERSION,
@@ -44,9 +43,14 @@ from .run_support import (
     select_explicit_tasks,
     sha256_file,
 )
-from .trajectory import append_trajectory, load_trajectories
+from .trajectory import append_trajectory, load_trajectories, stable_json
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
+RETRYABLE_SYSTEM_TERMINATIONS = {
+    "model_error",
+    "model_protocol_error",
+    "oracle_error",
+}
 DEFAULT_DATASET_ROOT = EXPERIMENT_ROOT / "datasets" / "mini-interact"
 DEFAULT_PUBLIC_DATA = DEFAULT_DATASET_ROOT / "mini_interact.jsonl"
 DEFAULT_PRIVATE_MERGE = (
@@ -75,6 +79,7 @@ def validate_existing_trajectories(
     progress_guard: bool,
     guard_fingerprint: str,
     max_guard_retries: int,
+    surface: str = "codex_subscription_proxy",
 ) -> None:
     """Refuse to resume into output created under a different configuration."""
 
@@ -88,7 +93,7 @@ def validate_existing_trajectories(
         checks = {
             "policy": trajectory.policy == f"{PROTOCOL_VERSION}:{policy}",
             "requested_model": str(config.get("requested_model", ""))
-            == f"codex_subscription_proxy:{model}",
+            == f"{surface}:{model}",
             "reasoning_effort": config.get("reasoning_effort") == reasoning_effort,
             "user_patience_budget": float(
                 config.get("user_patience_budget", -1)
@@ -138,6 +143,10 @@ def parse_args() -> argparse.Namespace:
         help="Secondary project success-by-user-turn horizon.",
     )
     parser.add_argument("--model", default="gpt-5.6-luna")
+    parser.add_argument("--provider", choices=PROVIDERS, default="codex")
+    parser.add_argument("--max-output-tokens", type=int, default=8_192)
+    parser.add_argument("--max-transport-retries", type=int, default=3)
+    parser.add_argument("--max-spend-usd", type=float)
     parser.add_argument(
         "--reasoning-effort",
         help="Required for a real model run; omitted safely for --dry-run.",
@@ -194,7 +203,8 @@ def main() -> int:
     )
     print(
         f"Protocol={PROTOCOL_VERSION}, policy={args.policy}, model={args.model}, "
-        f"effort={args.reasoning_effort or 'unset (dry-run)'}"
+        f"effort={args.reasoning_effort or 'unset (dry-run)'}, "
+        f"provider={args.provider}"
     )
     print(
         "Official-formula bird-coin totals: "
@@ -206,28 +216,39 @@ def main() -> int:
 
     output = args.output or default_output(args.policy)
     artifact_root = output.with_suffix("").with_name(output.stem + "-artifacts")
-    policy_proxy = CodexSubscriptionProxy(
-        model=args.model,
-        reasoning_effort=args.reasoning_effort,
-        verbosity="low",
-        instructions_file=Path(__file__).with_name("codex-policy-instructions.md"),
-    )
-    simulator_proxy = CodexSubscriptionProxy(
-        model=args.model,
-        reasoning_effort=args.reasoning_effort,
-        verbosity="low",
-        instructions_file=Path(__file__).with_name(
-            "codex-user-simulator-instructions.md"
-        ),
-    )
+    if args.max_output_tokens < 1 or args.max_transport_retries < 0:
+        print("OFFICIAL MINI-INTERACT RUN REFUSED: invalid API limits")
+        return 2
+    try:
+        runtime = create_structured_runtime(
+            provider=args.provider,
+            experiment_root=EXPERIMENT_ROOT,
+            model=args.model,
+            reasoning_effort=str(args.reasoning_effort),
+            policy_instructions=Path(__file__).with_name(
+                "codex-policy-instructions.md"
+            ),
+            simulator_instructions=Path(__file__).with_name(
+                "codex-user-simulator-instructions.md"
+            ),
+            max_output_tokens=args.max_output_tokens,
+            max_transport_retries=args.max_transport_retries,
+            max_spend_usd=args.max_spend_usd,
+            spend_ledger_path=output.with_suffix(".api-spend-ledger.jsonl"),
+        )
+    except (OSError, TypeError, ValueError, RuntimeError) as exc:
+        print(f"OFFICIAL MINI-INTERACT RUN REFUSED: {exc}")
+        return 2
     model = CodexOfficialPolicyModel(
-        proxy=policy_proxy,
+        proxy=runtime.policy_invoker,
         artifact_directory=artifact_root / "policy",
+        surface=runtime.surface,
     )
     simulator = SanitizedCodexMiniInteractUserSimulator(
-        proxy=simulator_proxy,
+        proxy=runtime.simulator_invoker,
         dataset_root=args.database_root,
         artifact_directory=artifact_root / "user-simulator-private",
+        surface=runtime.surface,
     )
     oracle = OfficialMiniInteractLiveOracle.from_file(
         args.private_merge,
@@ -265,7 +286,32 @@ def main() -> int:
         progress_guard=args.progress_guard,
         guard_fingerprint=args.guard_fingerprint,
         max_guard_retries=args.max_guard_retries,
+        surface=runtime.surface,
     )
+    retryable = [
+        trajectory
+        for trajectory in existing
+        if trajectory.termination in RETRYABLE_SYSTEM_TERMINATIONS
+    ]
+    if retryable:
+        retained = [
+            trajectory
+            for trajectory in existing
+            if trajectory.termination not in RETRYABLE_SYSTEM_TERMINATIONS
+        ]
+        temporary = output.with_suffix(output.suffix + ".tmp")
+        temporary.write_text(
+            "".join(
+                stable_json(trajectory.to_dict()) + "\n" for trajectory in retained
+            ),
+            encoding="utf-8",
+            newline="\n",
+        )
+        temporary.replace(output)
+        existing = retained
+        print(
+            f"Retrying {len(retryable)} score-blind system-error trajectory(ies)."
+        )
     completed = {str(trajectory.task.question_id) for trajectory in existing}
     for task in selected:
         if str(task.question_id) in completed:
@@ -299,7 +345,7 @@ def main() -> int:
     )
     manifest = {
         "schema_version": 1,
-        "status": "provisional_official_protocol_compatibility",
+        "status": "complete_local_official_protocol_compatibility",
         "created_at": datetime.now(timezone.utc).isoformat(),
         "protocol": {
             "version": PROTOCOL_VERSION,
@@ -320,7 +366,7 @@ def main() -> int:
             "known_adaptations": [
                 "Structured JSON actions replace the reference XML/thought parser.",
                 "Sphinteract timing/SRA is mapped into Mini actions and scoring.",
-                "The simulator uses the Codex proxy plus deterministic leakage checks.",
+                "The simulator uses the same model plus deterministic leakage checks.",
                 "The live scorer runs on an ephemeral copy with a parent timeout.",
                 "Read-only SELECT/WITH is enforced for the public Query-only release.",
                 "Malformed structured actions terminate without the release's 0.2-coin penalty.",
@@ -339,21 +385,14 @@ def main() -> int:
         "policy": args.policy,
         "config": asdict(config),
         "model": {
-            "surface": "codex_subscription_proxy",
-            "id": args.model,
-            "reasoning_effort": args.reasoning_effort,
-            "verbosity": "low",
-            "codex_cli_version": policy_proxy.codex_cli_version,
-            "authentication": "chatgpt",
-            "service_tier": "default",
-            "ephemeral_per_call": True,
-            "user_config_ignored": True,
-            "tools_expected": False,
-            "max_transport_retries": policy_proxy.max_transport_retries,
-            "monetary_cost_available": False,
-            "known_mismatch": (
-                "Codex subscription proxy, not a direct Responses API call."
+            **runtime.model_manifest(
+                model=args.model,
+                reasoning_effort=str(args.reasoning_effort),
             ),
+            "id": args.model,
+            "max_output_tokens": args.max_output_tokens,
+            "max_transport_retries": args.max_transport_retries,
+            "tools_expected": False,
         },
         "simulator": {
             "adapter_version": SANITIZED_SIMULATOR_ADAPTER_VERSION,

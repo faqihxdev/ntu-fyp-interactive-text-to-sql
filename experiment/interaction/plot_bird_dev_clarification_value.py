@@ -158,7 +158,7 @@ def render(analysis: dict[str, Any]) -> str:
     parts.extend(
         [
             _text(90, 186, "A  Final execution accuracy", size=28, weight=600),
-            _text(90, 220, "Official BIRD set-of-rows equality", size=19, fill="#52606D"),
+            _text(90, 220, "BIRD's released set-of-rows scorer", size=19, fill="#52606D"),
         ]
     )
     left_a, right_a, top_a, bottom_a = 280.0, 735.0, 270.0, 590.0
@@ -180,6 +180,8 @@ def render(analysis: dict[str, Any]) -> str:
         value_x = left_a + (right_a - left_a) * value / 80
         lower_x = left_a + (right_a - left_a) * lower / 80
         upper_x = left_a + (right_a - left_a) * upper / 80
+        label_inside = value >= 70
+        label_x = value_x - 16 if label_inside else upper_x + 12
         parts.extend(
             [
                 _text(left_a - 18, y + 8, LABELS[arm], size=21, anchor="end"),
@@ -191,7 +193,15 @@ def render(analysis: dict[str, Any]) -> str:
                 'stroke="#17212B" stroke-width="3"/>',
                 f'<line x1="{upper_x:.1f}" y1="{y - 10}" x2="{upper_x:.1f}" y2="{y + 10}" '
                 'stroke="#17212B" stroke-width="3"/>',
-                _text(value_x + 12, y + 8, f"{value:.2f}%", size=21, weight=600, fill=COLORS[arm]),
+                _text(
+                    label_x,
+                    y + 8,
+                    f"{value:.2f}%",
+                    size=21,
+                    weight=600,
+                    anchor="end" if label_inside else "start",
+                    fill="#FFFFFF" if label_inside else COLORS[arm],
+                ),
             ]
         )
 

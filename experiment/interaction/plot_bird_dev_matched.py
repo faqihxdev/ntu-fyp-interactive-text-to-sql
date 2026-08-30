@@ -125,7 +125,8 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
         width,
         height,
         "Execution accuracy over user turns",
-        "Cumulative official BIRD execution accuracy for five matched arms.",
+        "Cumulative BIRD execution accuracy for five controller configurations. "
+        "Ask-first tasks remain unresolved at turn zero until an answer is received.",
     )
     parts.extend(
         [
@@ -133,7 +134,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             _text(
                 left,
                 111,
-                "Cumulative by received answers; SQL-only retries do not advance the x-axis.",
+                "Cumulative by received answers; ask-first tasks have no SQL at turn 0.",
                 size=22,
                 fill="#52606D",
             ),
@@ -165,7 +166,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             _text(
                 left + plot_width / 2,
                 top + plot_height + 90,
-                "User-answer threshold (cumulative)",
+                "Maximum simulated-user answers received",
                 size=24,
                 weight=500,
                 anchor="middle",
@@ -210,6 +211,43 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             )
         )
 
+    proactive_turn_zero_y = y_scale(
+        float(summaries["proactive_only"]["official_ex_by_user_turn_percent"][0])
+    )
+    hybrid_turn_zero_y = y_scale(
+        float(summaries["project_hybrid"]["official_ex_by_user_turn_percent"][0])
+    )
+    callout_y = 690
+    parts.extend(
+        [
+            (
+                f'<line x1="{x_scale(0) + 8:.1f}" '
+                f'y1="{(proactive_turn_zero_y + hybrid_turn_zero_y) / 2:.1f}" '
+                f'x2="230" y2="{callout_y - 10}" stroke="#9A6700" '
+                'stroke-width="2"/>'
+            ),
+            (
+                f'<rect x="220" y="{callout_y - 24}" width="430" height="68" '
+                'rx="8" fill="#FFF7E6" stroke="#D39E00" stroke-width="1.5"/>'
+            ),
+            _text(
+                240,
+                callout_y + 3,
+                "Proactive and hybrid at turn 0:",
+                size=19,
+                weight=500,
+                fill="#694D00",
+            ),
+            _text(
+                240,
+                callout_y + 29,
+                "ask-first tasks have no SQL yet.",
+                size=19,
+                fill="#694D00",
+            ),
+        ]
+    )
+
     legend_y = 148
     for index, arm in enumerate(ARM_ORDER):
         column = index % 3
@@ -227,7 +265,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
         _text(
             width - right,
             970,
-            "Turn 0 is accuracy before any user answer; all scores use official BIRD EX.",
+            "Turn 0 is a policy-budget point, not a shared initial-SQL comparison.",
             size=20,
             anchor="end",
             fill="#52606D",
