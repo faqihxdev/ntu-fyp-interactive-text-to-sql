@@ -2,7 +2,7 @@
 
 **Status:** implemented and completed on all 1,534 tasks. The frozen protocol
 below remains unchanged; final results are recorded in
-`bird-dev-matched-v4-full-result-2026-08-25.md`.
+`api-bird-dev-matched-v4-full-result-2026-08-30.md`.
 
 ## Purpose
 
