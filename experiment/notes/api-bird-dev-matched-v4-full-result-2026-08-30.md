@@ -6,11 +6,14 @@ run requested GPT-5.6 Luna with high reasoning.
 
 | Controller | BIRD EX | Mean user turns | Mean model calls |
 |---|---:|---:|---:|
-| No user | 44.65% | 0.00 | 1.28 |
+| Initial-attempt baseline | 44.65% | 0.00 | 1.28 |
 | Proactive-only | 58.02% | 0.55 | 5.38 |
 | Reactive | 78.29% | 1.51 | 6.70 |
 | Hybrid | 78.36% | 1.68 | 7.41 |
 | Reactive with early stop | 64.99% | 0.71 | 4.28 |
+
+Per-method call counts include the shared initial attempt for each method,
+although the experiment makes that initial attempt only once per task.
 
 Adding a proactive opportunity before the reactive loop changes EX by only
 +0.07 points (95% task-bootstrap interval -1.76 to +1.89) while using more

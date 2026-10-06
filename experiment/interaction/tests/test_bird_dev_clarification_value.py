@@ -498,7 +498,9 @@ class ClarificationValueControllerTest(unittest.TestCase):
         self.assertIn("900 shared-initial failures", svg)
         self.assertIn("100/900 (11.1%)", svg)
         self.assertIn("500/900 (55.6%)", svg)
-        self.assertIn("1,400-task unexposed sensitivity", svg)
+        self.assertIn("Excluding 134 development tasks", svg)
+        self.assertIn("+26.50 points on 1,400 tasks", svg)
+        self.assertNotIn("unexposed", svg)
         self.assertNotIn("865 shared-initial failures", svg)
 
     def test_public_projection_replays_outcomes_without_private_fields(self) -> None:

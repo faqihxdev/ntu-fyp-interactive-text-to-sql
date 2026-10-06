@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img">
 <title>Matched clarification value on BIRD Dev</title>
-<desc>Execution accuracy and recovery after the shared initial-attempt prefix for three matched arms.</desc>
+<desc>Execution accuracy and recovery after a shared initial attempt for three methods.</desc>
 <rect width="1600" height="900" fill="#FFFFFF"/>
 <text x="90.0" y="70.0" font-family="Arial, sans-serif" font-size="42" font-weight="500" text-anchor="start" fill="#17212B">Matched clarification value on 1,534 BIRD Dev tasks</text>
-<text x="90.0" y="112.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#52606D">One physical initial-attempt prefix; equal five-generation cap for both recovery arms.</text>
+<text x="90.0" y="112.0" font-family="Arial, sans-serif" font-size="22" font-weight="400" text-anchor="start" fill="#52606D">One shared initial attempt. Both recovery methods allow five normal SQL generations.</text>
 <line x1="800" y1="160" x2="800" y2="690" stroke="#D8DEE4" stroke-width="2"/>
 <text x="90.0" y="186.0" font-family="Arial, sans-serif" font-size="28" font-weight="600" text-anchor="start" fill="#17212B">A  Final execution accuracy</text>
 <text x="90.0" y="220.0" font-family="Arial, sans-serif" font-size="19" font-weight="400" text-anchor="start" fill="#52606D">BIRD&#x27;s released set-of-rows scorer</text>
@@ -18,7 +18,7 @@
 <line x1="735.0" y1="270.0" x2="735.0" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
 <text x="735.0" y="624.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#52606D">80%</text>
 <line x1="280.0" y1="590.0" x2="735.0" y2="590.0" stroke="#8A96A3" stroke-width="1.5"/>
-<text x="262.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">No user</text>
+<text x="262.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">Initial-attempt baseline</text>
 <rect x="280.0" y="303" width="245.4" height="44" rx="4" fill="#6B7280" fill-opacity="0.88"/>
 <line x1="511.0" y1="325" x2="539.2" y2="325" stroke="#17212B" stroke-width="3"/>
 <line x1="511.0" y1="315" x2="511.0" y2="335" stroke="#17212B" stroke-width="3"/>
@@ -49,7 +49,7 @@
 <line x1="1510.0" y1="270.0" x2="1510.0" y2="590.0" stroke="#E3E7EB" stroke-width="1"/>
 <text x="1510.0" y="624.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="middle" fill="#52606D">60%</text>
 <line x1="1040.0" y1="590.0" x2="1510.0" y2="590.0" stroke="#8A96A3" stroke-width="1.5"/>
-<text x="1022.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">No user</text>
+<text x="1022.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">Initial-attempt baseline</text>
 <rect x="1040.0" y="303" width="2.0" height="44" rx="4" fill="#6B7280" fill-opacity="0.88"/>
 <text x="1052.0" y="333.0" font-family="Arial, sans-serif" font-size="21" font-weight="600" text-anchor="start" fill="#6B7280">0/872 (0.0%)</text>
 <text x="1022.0" y="438.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#17212B">SQL-only recovery</text>
@@ -61,6 +61,7 @@
 <rect x="90" y="700" width="1420" height="115" rx="8" fill="#F2F5F7"/>
 <text x="120.0" y="748.0" font-family="Arial, sans-serif" font-size="22" font-weight="600" text-anchor="start" fill="#52606D">Primary paired effect</text>
 <text x="120.0" y="788.0" font-family="Arial, sans-serif" font-size="29" font-weight="600" text-anchor="start" fill="#0072B2">Reactive - SQL-only: +27.38 points (95% CI +25.03 to +29.73)</text>
-<text x="1480.0" y="786.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#52606D">1,414-task unexposed sensitivity: +28.08 points</text>
-<text x="1510.0" y="860.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="end" fill="#6B7280">Bars show retained final trajectories; whiskers are task-bootstrap 95% intervals.</text>
+<text x="1480.0" y="748.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#52606D">Excluding 120 development tasks</text>
+<text x="1480.0" y="786.0" font-family="Arial, sans-serif" font-size="21" font-weight="400" text-anchor="end" fill="#52606D">+28.08 points on 1,414 tasks</text>
+<text x="1510.0" y="860.0" font-family="Arial, sans-serif" font-size="18" font-weight="400" text-anchor="end" fill="#6B7280">EX error bars show 95% intervals from task-level bootstrap resampling.</text>
 </svg>

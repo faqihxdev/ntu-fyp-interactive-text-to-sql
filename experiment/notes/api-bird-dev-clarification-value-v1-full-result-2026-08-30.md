@@ -6,14 +6,16 @@ high reasoning.
 
 | Controller | BIRD EX | Recovery after 872 initial failures | Mean user turns |
 |---|---:|---:|---:|
-| No user | 662/1,534 (43.16%) | 0 | 0.00 |
+| Initial-attempt baseline | 662/1,534 (43.16%) | 0 | 0.00 |
 | SQL-only recovery | 769/1,534 (50.13%) | 107 (12.3%) | 0.00 |
 | Reactive clarification | 1,189/1,534 (77.51%) | 527 (60.4%) | 1.57 |
 
 Reactive clarification exceeds equally capped SQL-only recovery by **27.38
 percentage points** (95% task-bootstrap interval **+25.03 to +29.73**). It
 succeeds alone on 437 tasks; SQL-only recovery succeeds alone on 17. Excluding
-the 120 smoke and pilot IDs gives a similar +28.08-point difference.
+the 120 smoke and pilot IDs gives a similar +28.08-point difference. This
+removes the primary protocol's development tasks, but the project had already
+evaluated full BIRD Dev in an earlier study.
 
 This establishes the value of the complete target-aware clarification process
 over retry under the tested hidden rejection oracle. It does not isolate

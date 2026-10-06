@@ -15,7 +15,7 @@ from typing import Any
 
 ARMS = ("no_user", "sql_only_recovery", "reactive_clarification")
 LABELS = {
-    "no_user": "No user",
+    "no_user": "Initial-attempt baseline",
     "sql_only_recovery": "SQL-only recovery",
     "reactive_clarification": "Reactive clarification",
 }
@@ -135,7 +135,7 @@ def render(analysis: dict[str, Any]) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img">',
         "<title>Matched clarification value on BIRD Dev</title>",
-        "<desc>Execution accuracy and recovery after the shared initial-attempt prefix for three matched arms.</desc>",
+        "<desc>Execution accuracy and recovery after a shared initial attempt for three methods.</desc>",
         f'<rect width="{width}" height="{height}" fill="#FFFFFF"/>',
         _text(
             90,
@@ -147,7 +147,7 @@ def render(analysis: dict[str, Any]) -> str:
         _text(
             90,
             112,
-            "One physical initial-attempt prefix; equal five-generation cap for both recovery arms.",
+            "One shared initial attempt. Both recovery methods allow five normal SQL generations.",
             size=22,
             fill="#52606D",
         ),
@@ -281,9 +281,17 @@ def render(analysis: dict[str, Any]) -> str:
             ),
             _text(
                 1480,
+                748,
+                f"Excluding {data['tasks'] - sensitivity['tasks']:,} development tasks",
+                size=21,
+                anchor="end",
+                fill="#52606D",
+            ),
+            _text(
+                1480,
                 786,
-                f"{sensitivity['tasks']:,}-task unexposed sensitivity: "
-                f"+{sensitivity['difference_percentage_points']:.2f} points",
+                f"+{sensitivity['difference_percentage_points']:.2f} points "
+                f"on {sensitivity['tasks']:,} tasks",
                 size=21,
                 anchor="end",
                 fill="#52606D",
@@ -291,7 +299,7 @@ def render(analysis: dict[str, Any]) -> str:
             _text(
                 1510,
                 860,
-                "Bars show retained final trajectories; whiskers are task-bootstrap 95% intervals.",
+                "EX error bars show 95% intervals from task-level bootstrap resampling.",
                 size=18,
                 anchor="end",
                 fill="#6B7280",

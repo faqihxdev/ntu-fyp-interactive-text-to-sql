@@ -21,7 +21,7 @@ ARM_ORDER = (
     "sph_cq_es",
 )
 ARM_LABELS = {
-    "no_user": "No user",
+    "no_user": "Initial-attempt baseline",
     "proactive_only": "Proactive-only",
     "sph_cq": "Reactive CQ",
     "project_hybrid": "Hybrid",
@@ -134,7 +134,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
             _text(
                 left,
                 111,
-                "Cumulative by received answers; ask-first tasks have no SQL at turn 0.",
+                "Cumulative success after each answer. Ask-first tasks await their first scored SQL.",
                 size=22,
                 fill="#52606D",
             ),
@@ -265,7 +265,7 @@ def _write_turn_curve(output: Path, analysis: dict[str, Any]) -> None:
         _text(
             width - right,
             970,
-            "Turn 0 is a policy-budget point, not a shared initial-SQL comparison.",
+            "At turn 0, methods are at different stages of their work.",
             size=20,
             anchor="end",
             fill="#52606D",
