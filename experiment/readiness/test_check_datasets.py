@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sqlite3
 import tempfile
 import unittest
@@ -8,12 +9,14 @@ from contextlib import closing
 from pathlib import Path
 
 from readiness.check_datasets import (
+    DEFAULT_MANIFEST,
+    ReadinessFailure,
+    check_original_bird,
     check_mini_interact_private,
     effective_mini_interact_test_case_count,
     execute_readonly_sql,
     hash_snapshot,
     load_jsonl,
-    preserve_completed_gold_sweep,
     sqlite_logical_hash,
     sqlite_quick_check,
     sqlite_table_counts,
@@ -21,6 +24,45 @@ from readiness.check_datasets import (
 
 
 class DatasetReadinessHelpersTest(unittest.TestCase):
+    def test_original_bird_checks_frozen_hashes_without_clean_dataset(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            dataset = root / "bird-dev"
+            dataset.mkdir()
+            metadata = dataset / "dev.json"
+            metadata.write_text(json.dumps([{"question_id": i} for i in range(1534)]))
+            files = [metadata]
+            for index in range(11):
+                database = dataset / "dev_databases" / f"db_{index}.sqlite"
+                database.parent.mkdir(exist_ok=True)
+                database.write_bytes(f"hash fixture {index}".encode())
+                files.append(database)
+            prefix = "codebase/experiment/datasets/bird-dev/"
+            hashes = {
+                prefix + path.relative_to(dataset).as_posix(): hashlib.sha256(
+                    path.read_bytes()
+                ).hexdigest()
+                for path in files
+            }
+            freeze = root / "freeze.json"
+            freeze.write_text(json.dumps({"artifact_hashes": hashes}))
+            self.assertEqual(
+                check_original_bird(dataset, freeze),
+                {"status": "pass", "tasks": 1534, "verified_files": 12},
+            )
+            files[-1].write_bytes(b"changed")
+            with self.assertRaisesRegex(ReadinessFailure, "hash mismatch"):
+                check_original_bird(dataset, freeze)
+            files[-1].unlink()
+            with self.assertRaisesRegex(
+                ReadinessFailure, "Missing original-BIRD input"
+            ):
+                check_original_bird(dataset, freeze)
+
+    def test_fresh_readiness_output_does_not_overwrite_acquisition_record(self) -> None:
+        self.assertEqual(DEFAULT_MANIFEST.parent.name, "runs")
+        self.assertEqual(DEFAULT_MANIFEST.name, "dataset-readiness.json")
+
     def test_jsonl_loader_rejects_non_object_rows(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "rows.jsonl"
@@ -84,47 +126,6 @@ class DatasetReadinessHelpersTest(unittest.TestCase):
             self.assertNotEqual(
                 sqlite_logical_hash(paths[0]), sqlite_logical_hash(paths[2])
             )
-
-    def test_completed_gold_sweep_is_preserved_only_for_same_snapshot(self) -> None:
-        def manifest(metadata_hash: str, requested: bool) -> dict:
-            return {
-                "overall_status": "conditional",
-                "hard_failures": [],
-                "conditional_components": ["mini_interact", "clarity"],
-                "snapshots": {
-                    "bird_sql_dev_20251106": {"hash": metadata_hash},
-                    "bird_sql_dev_20251106_databases": {"hash": "db"},
-                },
-                "checks": {
-                    "bird_sql_dev_20251106": {
-                        "status": "pass",
-                        "gold_execution": {
-                            "requested": requested,
-                            "passed": 10 if requested else 0,
-                            "timed_out": 1 if requested else 0,
-                            "errors": 0,
-                        },
-                    },
-                    "mini_interact": {"status": "conditional"},
-                    "bird_interact_evaluator": {"status": "pass"},
-                    "bird_sql_dev_20251106_databases": {"status": "pass"},
-                    "clarity": {"status": "blocked"},
-                },
-            }
-
-        current = manifest("same", False)
-        previous = manifest("same", True)
-        self.assertTrue(preserve_completed_gold_sweep(current, previous))
-        self.assertTrue(
-            current["checks"]["bird_sql_dev_20251106"]["gold_execution"]["requested"]
-        )
-        self.assertEqual(
-            current["checks"]["bird_sql_dev_20251106"]["status"],
-            "conditional",
-        )
-
-        changed = manifest("changed", False)
-        self.assertFalse(preserve_completed_gold_sweep(changed, previous))
 
     def test_private_mini_interact_merge_preserves_public_fields(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

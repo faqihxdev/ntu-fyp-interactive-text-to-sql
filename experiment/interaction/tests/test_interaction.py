@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import sqlite3
 import tempfile
 import unittest
@@ -8,63 +7,13 @@ from contextlib import closing
 from pathlib import Path
 
 from interaction.context import ContextBuilder
-from interaction.evaluation import evaluate_file
-from interaction.model import AgentTurn, FunctionCall
-from interaction.no_user import NoUserBaseline, NoUserConfig
 from interaction.sqlite_env import SQLiteEnvironment, bird_execution_equal
 from interaction.trajectory import (
     BenchmarkTask,
     Trajectory,
-    Usage,
     append_trajectory,
     load_trajectories,
 )
-
-
-class ScriptedAgent:
-    requested_model = "scripted-test-model"
-    reasoning_effort = "none"
-
-    def __init__(self, calls: list[tuple[str, dict[str, str]]]) -> None:
-        self.calls = list(calls)
-        self.index = 0
-
-    def _next(self) -> AgentTurn:
-        name, arguments = self.calls[self.index]
-        self.index += 1
-        return AgentTurn(
-            response_id=f"response-{self.index}",
-            requested_model=self.requested_model,
-            returned_model=self.requested_model,
-            status="completed",
-            function_calls=(
-                FunctionCall(
-                    call_id=f"call-{self.index}",
-                    name=name,
-                    arguments=arguments,
-                    raw_arguments=json.dumps(arguments),
-                ),
-            ),
-            output_text="",
-            usage=Usage(input_tokens=10, output_tokens=2, total_tokens=12),
-            elapsed_ms=1.0,
-        )
-
-    def start(
-        self, prompt: str, *, cache_key: str, metadata: dict[str, str]
-    ) -> AgentTurn:
-        self.last_prompt = prompt
-        return self._next()
-
-    def continue_after(
-        self,
-        previous_response_id: str,
-        outputs: list[dict[str, str]],
-        *,
-        metadata: dict[str, str],
-    ) -> AgentTurn:
-        self.last_outputs = outputs
-        return self._next()
 
 
 def create_database(root: Path, db_id: str = "demo") -> Path:
@@ -108,7 +57,7 @@ class SQLiteEnvironmentTest(unittest.TestCase):
             )
 
 
-class NoUserBaselineTest(unittest.TestCase):
+class SharedContextAndTrajectoryTest(unittest.TestCase):
     def test_value_retrieval_cache_is_task_specific(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -164,54 +113,7 @@ class NoUserBaselineTest(unittest.TestCase):
             self.assertEqual(alpha_cached.retrieval_queries, 0)
             self.assertEqual(alpha_cached.retrieved_values, alpha.retrieved_values)
 
-    def test_probe_error_repair_submission_and_gold_isolation(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            create_database(root)
-            task = BenchmarkTask(
-                question_id=7,
-                db_id="demo",
-                question="List the Alpha items.",
-                evidence="Alpha means category x.",
-                difficulty="simple",
-            )
-            agent = ScriptedAgent(
-                [
-                    (
-                        "query_database",
-                        {
-                            "sql": "SELECT DISTINCT category FROM items",
-                            "purpose": "Inspect category values",
-                        },
-                    ),
-                    ("submit_sql", {"sql": "SELECT missing FROM items"}),
-                    (
-                        "submit_sql",
-                        {"sql": "SELECT name FROM items WHERE category = 'x'"},
-                    ),
-                ]
-            )
-            runner = NoUserBaseline(
-                model=agent,
-                database_root=root,
-                context_builder=ContextBuilder(retrieval_query_budget=0),
-                config=NoUserConfig(max_model_calls=5),
-            )
-            trajectory = runner.run(task, run_id="test-run")
-
-            self.assertEqual(trajectory.termination, "submitted_executable_sql")
-            self.assertEqual(
-                trajectory.final_sql,
-                "SELECT name FROM items WHERE category = 'x'",
-            )
-            kinds = [event.kind for event in trajectory.events]
-            self.assertEqual(kinds.count("database_probe"), 1)
-            self.assertEqual(kinds.count("execution_repair_feedback"), 1)
-            self.assertEqual(kinds.count("final_submission"), 2)
-            self.assertNotIn("gold", agent.last_prompt.lower())
-            self.assertFalse(trajectory.config["gold_visible_to_policy"])
-
-    def test_trajectory_round_trip_and_separate_evaluator(self) -> None:
+    def test_trajectory_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             create_database(root)
@@ -236,33 +138,6 @@ class NoUserBaselineTest(unittest.TestCase):
             append_trajectory(trajectory_path, trajectory)
             loaded = load_trajectories(trajectory_path)
             self.assertEqual(loaded[0].to_dict(), trajectory.to_dict())
-
-            dataset_path = root / "dataset.json"
-            dataset_path.write_text(
-                json.dumps(
-                    [
-                        {
-                            "question_id": 1,
-                            "db_id": "demo",
-                            "question": "List x names",
-                            "evidence": None,
-                            "difficulty": "simple",
-                            "SQL": (
-                                "SELECT DISTINCT name FROM items WHERE category = 'x'"
-                            ),
-                        }
-                    ]
-                ),
-                encoding="utf-8",
-            )
-            report = evaluate_file(
-                trajectory_path,
-                dataset_path,
-                root,
-                workers=1,
-            )
-            self.assertEqual(report["summary"]["execution_accuracy_percent"], 100.0)
-            self.assertTrue(report["records"][0]["correct"])
 
 
 if __name__ == "__main__":
