@@ -14,10 +14,10 @@ from typing import Any
 
 from .bird_dev_clarification_value import ARMS, PROTOCOL_VERSION
 from .run_support import sha256_file
+from .artifact_paths import resolve_recorded_path
 
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_ROOT = EXPERIMENT_ROOT.parents[1]
 BOOTSTRAP_SEED = 20260825
 BOOTSTRAP_SAMPLES = 10_000
 PILOT_MINIMUM_INITIAL_FAILURES = 30
@@ -278,12 +278,7 @@ def _development_exposure_sensitivity(
     records: list[dict[str, Any]],
     manifest: dict[str, Any],
 ) -> dict[str, Any]:
-    recorded_path = Path(str(manifest["selection"]["path"]))
-    selection_path = (
-        recorded_path
-        if recorded_path.is_absolute()
-        else WORKSPACE_ROOT / recorded_path
-    )
+    selection_path = resolve_recorded_path(manifest["selection"]["path"], EXPERIMENT_ROOT)
     if sha256_file(selection_path) != manifest["selection"]["sha256"]:
         raise ValueError("Full selection hash does not match the run manifest")
     selection = json.loads(selection_path.read_text(encoding="utf-8"))

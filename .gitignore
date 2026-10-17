@@ -1,0 +1,38 @@
+# Local environments, dependencies and build outputs
+.venv/
+node_modules/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.py[oc]
+*.egg-info/
+build/
+dist/
+wheels/
+*.tsbuildinfo
+test-results/
+playwright-report/
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+
+# Local data, trajectories and demo sessions
+/experiment/datasets/
+/experiment/runs/
+.local/
+tmp/
+*.sqlite
+*.sqlite-*
+*.zip
+*.pid
+*.log
+
+# Editor and operating-system files
+.agents/
+.cursor/
+skills-lock.json
+.DS_Store
+__MACOSX/
+Thumbs.db

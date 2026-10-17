@@ -40,3 +40,9 @@ catch { $blocked = $_.Exception.Message -match 'unrelated or unrecognised proces
 Assert $blocked 'An unrelated listener must block startup.'
 Assert ($script:stopCalls -eq 0) 'Preflight must inspect both ports before stopping anything.'
 Write-Host 'Eight dev-process safety checks passed. No real processes were stopped.'
+
+# Windows locks Vite's native modules. Stop the owned servers before npm ci.
+$launcher = Get-Content -LiteralPath (Join-Path (Split-Path $demoRoot -Parent) 'run-demo.dev.ps1') -Raw
+$startup = $launcher.Substring($launcher.IndexOf('$localRoot ='))
+Assert ($startup.IndexOf('Clear-DemoPorts -Ports') -lt $startup.IndexOf('            npm ci')) 'Stop owned dev servers before replacing installed native modules.'
+Write-Host 'Launcher dependency-order check passed.'

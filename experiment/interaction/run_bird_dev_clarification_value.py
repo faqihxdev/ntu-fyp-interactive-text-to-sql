@@ -37,6 +37,7 @@ from .bird_dev_matched import (
     load_original_bird_tasks,
 )
 from .run_support import sha256_file
+from .artifact_paths import resolve_recorded_path, workspace_root
 from .sphinteract_source import (
     SPHINTERACT_NOTEBOOK_SHA256,
     load_sphinteract_prompts,
@@ -44,7 +45,7 @@ from .sphinteract_source import (
 
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_ROOT = EXPERIMENT_ROOT.parents[1]
+WORKSPACE_ROOT = workspace_root(EXPERIMENT_ROOT)
 DEFAULT_DATASET = EXPERIMENT_ROOT / "datasets" / "bird-dev" / "dev.json"
 DEFAULT_DATABASE_ROOT = (
     EXPERIMENT_ROOT / "datasets" / "bird-dev" / "dev_databases" / "dev_databases"
@@ -143,7 +144,10 @@ def validate_freeze(
     if payload.get("status") != expected_status:
         raise ValueError(f"Freeze status must be {expected_status!r}")
     selection = (payload.get("selections") or {}).get(tier) or {}
-    if selection.get("path") != _relative(selection_path):
+    if (
+        resolve_recorded_path(selection.get("path", ""), EXPERIMENT_ROOT)
+        != selection_path.resolve()
+    ):
         raise ValueError("Selection path does not match the frozen tier")
     if selection.get("sha256") != sha256_file(selection_path):
         raise ValueError("Selection hash changed after freeze")
@@ -180,7 +184,7 @@ def validate_freeze(
     }
     for label, hashes in frozen_files.items():
         for relative_path, expected in hashes.items():
-            frozen_file = WORKSPACE_ROOT / relative_path
+            frozen_file = resolve_recorded_path(relative_path, EXPERIMENT_ROOT)
             if not frozen_file.is_file():
                 raise ValueError(f"{label} is missing after freeze: {relative_path}")
             if sha256_file(frozen_file) != expected:

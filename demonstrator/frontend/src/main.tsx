@@ -24,9 +24,10 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import hljs from "highlight.js/lib/core";
-import sql from "highlight.js/lib/languages/sql";
 import { api } from "./api";
+import { Sql, SqlChange, PreviewTable } from "./query-view";
+import { Sandbox } from "./sandbox";
+import { StudyDetails } from "./study-details";
 import type {
   Branch,
   CaseData,
@@ -38,14 +39,13 @@ import type {
   Step,
 } from "./types";
 import "./style.css";
-hljs.registerLanguage("sql", sql);
 const methods: Method[] = [
   "no_user",
   "sql_only_recovery",
   "reactive_clarification",
 ];
 const outcomeLabels: Record<Method, string> = {
-  no_user: "No user",
+  no_user: "Initial-attempt baseline",
   sql_only_recovery: "SQL-only recovery",
   reactive_clarification: "Reactive clarification",
 };
@@ -96,14 +96,14 @@ function CaseLegend() {
       <div className="case-legend-panel">
         <strong>Indicators, left to right</strong>
         <ol>
-          <li>No user</li>
+          <li>Initial-attempt baseline</li>
           <li>SQL-only recovery</li>
           <li>Reactive clarification</li>
         </ol>
         <div className="case-legend-key">
           <span>
             <Check size={14} className="text-success" aria-hidden="true" />
-            Gold match
+            BIRD match
           </span>
           <span>
             <X size={14} className="text-miss" aria-hidden="true" />
@@ -115,19 +115,6 @@ function CaseLegend() {
   );
 }
 
-function Sql({ text }: { text: string }) {
-  return (
-    <div className="sql-frame">
-      <pre className="sql" tabIndex={0} aria-label="SQL query">
-        <code
-          dangerouslySetInnerHTML={{
-            __html: hljs.highlight(text, { language: "sql" }).value,
-          }}
-        />
-      </pre>
-    </div>
-  );
-}
 function Badge({ match }: { match: boolean | null }) {
   return (
     <span
@@ -140,10 +127,10 @@ function Badge({ match }: { match: boolean | null }) {
       ) : match ? (
         <>
           <Check size={13} />
-          Gold match
+          BIRD match
         </>
       ) : (
-        <>No gold match</>
+        <>No BIRD match</>
       )}
     </span>
   );
@@ -189,62 +176,12 @@ function ReviewSummary({ value }: { value: unknown }) {
     </section>
   );
 }
-function PreviewTable({ data }: { data: Preview }) {
-  return (
-    <div className="preview">
-      <div
-        className="table-scroll"
-        tabIndex={0}
-        role="region"
-        aria-label="Query result rows"
-      >
-        <table>
-          <thead>
-            <tr>
-              {data.columns.map((c, i) => (
-                <th key={i}>{c}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.preview.map((r, i) => (
-              <tr key={i}>
-                {r.map((c, j) => (
-                  <td key={j}>
-                    {c === null ? (
-                      <em>NULL</em>
-                    ) : typeof c === "object" ? (
-                      JSON.stringify(c)
-                    ) : (
-                      String(c)
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <p>
-        {data.error ||
-          `${data.row_count.toLocaleString()} ${data.row_count === 1 ? "row" : "rows"}${data.truncated ? " (row limit reached)" : ""}. Showing up to 8.`}
-      </p>
-      {data.source && (
-        <details>
-          <summary>
-            <DisclosureTitle>Preview source</DisclosureTitle>
-          </summary>
-          <p>{data.source}</p>
-        </details>
-      )}
-    </div>
-  );
-}
-
 function App() {
+  const [view, setView] = useState<"saved" | "custom">("saved");
+  const [customBusy, setCustomBusy] = useState(false);
   const [catalogue, setCatalogue] = useState<Catalogue>();
   const [status, setStatus] = useState<Status>();
-  const [caseId, setCaseId] = useState(1389);
+  const [caseId, setCaseId] = useState(780);
   const [data, setData] = useState<CaseData>();
   const [method, setMethod] = useState<Method>("reactive_clarification");
   const [cursor, setCursor] = useState(1);
@@ -440,20 +377,47 @@ function App() {
 
   return (
     <>
-      <a className="skip" href="#main">
-        Skip to the replay
+      <a className="skip" href={view === "saved" ? "#main" : "#custom-main"}>
+        Skip to the content
       </a>
       <header className="topbar">
-        <div className="mx-auto flex h-16 max-w-7xl items-center px-4 lg:px-6">
+        <div className="app-heading">
           <div className="brand">
             <span className="brand-icon">
               <Layers3 size={20} />
             </span>
             <span>SQL interaction explorer</span>
           </div>
+          <nav className="view-switch" aria-label="Explorer mode">
+            <button
+              aria-current={view === "saved" ? "page" : undefined}
+              disabled={isLiveBusy || customBusy}
+              onClick={() => {
+                setView("saved");
+                setPlaying(false);
+              }}
+            >
+              <FileText size={16} />
+              Saved cases
+            </button>
+            <button
+              aria-current={view === "custom" ? "page" : undefined}
+              disabled={isLiveBusy || customBusy}
+              onClick={() => {
+                setView("custom");
+                setPlaying(false);
+              }}
+            >
+              <MessageSquare size={16} />
+              Try a question
+            </button>
+          </nav>
         </div>
       </header>
-      <div className="workspace">
+      <div hidden={view !== "custom"}>
+        <Sandbox status={status} onBusy={setCustomBusy} />
+      </div>
+      <div className="workspace" hidden={view !== "saved"}>
         <aside className="library" aria-label="Case library">
           <div className="library-heading">
             <h2>Case library</h2>
@@ -508,7 +472,7 @@ function App() {
                         <span className="case-outcomes">
                           {methods.map((m) => {
                             const matched = c.outcomes[m];
-                            const label = `${outcomeLabels[m]}: ${matched ? "gold match" : "no gold match"}`;
+                            const label = `${outcomeLabels[m]}: ${matched ? "BIRD match" : "no BIRD match"}`;
                             return (
                               <span
                                 key={m}
@@ -627,7 +591,7 @@ function App() {
                           private: false,
                           prompt: data.schema,
                           description:
-                            "The original question and database schema. No gold SQL, gold result or BIRD evidence field. Recovery also receives previous rejected SQL and, for clarification, the question/reply history.",
+                            "The SQL model receives the question and CREATE TABLE definitions, without sampled values or BIRD evidence hints. Recovery adds previous rejected SQL and, for clarification, earlier questions and replies. Result previews in this app are for you; they were not supplied to the SQL model. The evaluator and simulator alone can read the gold SQL.",
                         },
                       });
                       setShowContext(true);
@@ -695,8 +659,8 @@ function App() {
                                 s.kind === "question"
                                   ? "Clarification question"
                                   : s.candidate?.official_ex
-                                    ? "Gold result matched"
-                                    : "Gold result not matched"
+                                    ? "BIRD result matched"
+                                    : "BIRD result not matched"
                               }
                             >
                               {s.kind === "question" ? (
@@ -730,8 +694,10 @@ function App() {
                 </summary>
                 <div>
                   <p>
-                    All three methods share the first SQL. A match means the
-                    result passed the official BIRD result-set comparison.
+                    All three methods share the initial SQL and any immediate
+                    repair. BIRD compares sets of result rows, ignoring row
+                    order and duplicate rows. This score determines whether the
+                    controller stops or tries again.
                   </p>
                   <dl className="space-y-2">
                     {methods.map((m) => (
@@ -750,13 +716,13 @@ function App() {
                     aria-label="Trajectory diagram legend"
                   >
                     <span>
-                      <X size={12} /> SQL result not matched
+                      <X size={12} /> No BIRD match
                     </span>
                     <span>
                       <MessageSquare size={12} /> Clarification question
                     </span>
                     <span>
-                      <Check size={12} /> Gold result matched
+                      <Check size={12} /> BIRD match
                     </span>
                   </div>
                 </div>
@@ -920,13 +886,54 @@ function App() {
                                 <span className="live-tag">Live</span>
                               )}
                             </div>
-                            {s.kind === "sql" && (
-                              <Badge match={s.candidate!.official_ex} />
-                            )}
+                            {s.kind === "sql" &&
+                              (s.candidate!.status !== "ok" ? (
+                                <span className="badge miss">
+                                  Execution error
+                                </span>
+                              ) : (
+                                <Badge match={s.candidate!.official_ex} />
+                              ))}
                           </div>
                           {s.kind === "sql" ? (
                             <>
                               <Sql text={s.candidate!.sql} />
+                              <SqlChange
+                                before={
+                                  visible
+                                    .slice(0, i)
+                                    .filter((step) => step.kind === "sql")
+                                    .at(-1)?.candidate?.sql
+                                }
+                                after={s.candidate!.sql}
+                              />
+                              {s.source === "saved" && (
+                                <details className="scoring-details">
+                                  <summary>
+                                    Scoring details{" "}
+                                    <ChevronDown
+                                      size={14}
+                                      className="disclosure-chevron"
+                                    />
+                                  </summary>
+                                  <p>
+                                    BIRD:{" "}
+                                    {s.candidate!.official_ex
+                                      ? "match"
+                                      : "no match"}
+                                    . Sphinteract-compatible:{" "}
+                                    {s.candidate!.sph_compatible_ex
+                                      ? "match"
+                                      : "no match"}
+                                    .
+                                  </p>
+                                  <p>
+                                    The second score checks this saved query
+                                    only. BIRD controlled the recorded
+                                    continuation.
+                                  </p>
+                                </details>
+                              )}
                               {s.candidate!.error && (
                                 <p className="inline-error">
                                   {s.candidate!.error}
@@ -1050,8 +1057,8 @@ function App() {
                     <div>
                       <strong>
                         {data.methods[method].success
-                          ? "The result matched the gold target."
-                          : "The run ended without a gold-result match."}
+                          ? "The result matched the BIRD target."
+                          : "The run ended without a BIRD match."}
                       </strong>
                       <details>
                         <summary>
@@ -1064,6 +1071,14 @@ function App() {
                           )}{" "}
                           · {data.methods[method].turns} replies ·{" "}
                           {data.methods[method].attempts} normal SQL attempts
+                        </p>
+                        <p>
+                          Sphinteract-compatible check of saved attempts:{" "}
+                          {data.methods[method].sph_success
+                            ? "at least one match"
+                            : "no match"}
+                          . This is a reporting-only score. BIRD determined when
+                          this run stopped.
                         </p>
                       </details>
                     </div>
@@ -1227,6 +1242,7 @@ function App() {
                   </div>
                 )}
               </section>
+              {catalogue && <StudyDetails catalogue={catalogue} />}
               <details className="method-notes">
                 <summary>
                   <Info size={16} />
@@ -1241,7 +1257,8 @@ function App() {
                   <div>
                     <h3>What is being compared?</h3>
                     <p>
-                      All methods share the first SQL. No-user stops after
+                      The Sphinteract adaptation shares the initial SQL and any
+                      immediate repair. The initial-attempt baseline stops after
                       rejection. Recovery allows up to five normal SQL attempts,
                       with one invalid-SQL repair per attempt. Reactive
                       clarification can ask up to four questions.
@@ -1254,11 +1271,12 @@ function App() {
                     </p>
                   </div>
                   <div>
-                    <h3>What this demo is not</h3>
+                    <h3>What this demo covers</h3>
                     <p>
-                      This is saved, simulated-user evidence plus optional live
-                      exploration. The ten cases do not measure accuracy. Live
-                      branches do not alter the thesis results.
+                      Ten selected cases illustrate the primary study, with
+                      optional live exploration. Full-run statistics describe
+                      all 1,534 tasks. Live conversations stay separate from
+                      thesis results.
                     </p>
                     <p>
                       Result previews execute saved SQL read-only. Their row

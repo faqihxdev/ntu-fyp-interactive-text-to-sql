@@ -40,6 +40,7 @@ export type Step = {
   candidate?: {
     sql: string;
     official_ex: boolean | null;
+    sph_compatible_ex?: boolean;
     status: string;
     error: string | null;
     row_count: number;
@@ -68,12 +69,29 @@ export type CaseData = {
       attempts: number;
       turns: number;
       termination: string;
+      sph_success: boolean;
     }
   >;
 };
 export type Catalogue = {
   run: string;
   total_tasks: number;
+  summary: {
+    initial_failures: number;
+    methods: Record<
+      Method,
+      {
+        label: string;
+        successes: number;
+        ex: number;
+        turns: number;
+        recovered: number;
+      }
+    >;
+    difference: number;
+    interval: number[];
+    source: string;
+  };
   groups: {
     id: string;
     label: string;
@@ -113,4 +131,25 @@ export type Status = {
     max_usd: number;
     spent_usd: number | null;
   };
+};
+
+export type DatabaseInfo = {
+  id: string;
+  label: string;
+  description: string;
+  examples: string[];
+  tables?: string[];
+  schema?: string;
+};
+export type CustomSession = {
+  id: string;
+  db_id: string;
+  question: string;
+  mode: "custom";
+  phase: "ready" | "reply" | "result" | "repair" | "done";
+  steps: Step[];
+  revision: number;
+  calls: number;
+  attempts: number;
+  answers: number;
 };

@@ -10,10 +10,10 @@ from typing import Any
 
 from .bird_dev_clarification_value import ARMS, PROTOCOL_VERSION
 from .run_support import sha256_file
+from .artifact_paths import resolve_recorded_path
 
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_ROOT = EXPERIMENT_ROOT.parents[1]
 
 
 def _load_records(path: Path) -> list[dict[str, Any]]:
@@ -143,12 +143,7 @@ def export(run_root: Path, output: Path) -> dict[str, Any]:
     if manifest.get("task_records_sha256") != sha256_file(records_path):
         raise ValueError("Task-record hash does not match the run manifest")
 
-    recorded_selection = Path(str(manifest["selection"]["path"]))
-    selection_path = (
-        recorded_selection
-        if recorded_selection.is_absolute()
-        else WORKSPACE_ROOT / recorded_selection
-    )
+    selection_path = resolve_recorded_path(manifest["selection"]["path"], EXPERIMENT_ROOT)
     selection_sha256 = sha256_file(selection_path)
     if selection_sha256 != manifest["selection"]["sha256"]:
         raise ValueError("Selection hash does not match the run manifest")

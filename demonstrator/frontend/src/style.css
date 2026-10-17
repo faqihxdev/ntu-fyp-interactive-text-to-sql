@@ -12,16 +12,16 @@
   --color-muted: #a3a3a3;
   --color-line: #303030;
   --color-control: #696969;
-  --color-action: #e5e5e5;
-  --color-action-hover: #ffffff;
-  --color-accent: #d4d4d4;
+  --color-action: #66e8ff;
+  --color-action-hover: #99f0ff;
+  --color-accent: #66e8ff;
   --color-selected: #2a2a2a;
-  --color-positive: #97bfa6;
-  --color-positive-bg: #1c2520;
-  --color-caution: #c8b18a;
-  --color-caution-bg: #28231b;
-  --color-branch: #c5c5c5;
-  --color-branch-bg: #222222;
+  --color-positive: #82ffb1;
+  --color-positive-bg: #17291f;
+  --color-caution: #ffd166;
+  --color-caution-bg: #302819;
+  --color-branch: #c6a0ff;
+  --color-branch-bg: #261f31;
   --color-danger: #dda2a2;
   --color-danger-bg: #2a1d1d;
 }
@@ -34,6 +34,9 @@
   }
   * {
     scrollbar-width: thin;
+  }
+  [hidden] {
+    display: none !important;
   }
   ::selection {
     @apply bg-action text-canvas;
@@ -107,6 +110,15 @@
   }
   .brand {
     @apply flex items-center gap-3 text-sm font-semibold tracking-tight;
+  }
+  .app-heading {
+    @apply mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 pt-5 pb-2 lg:px-6;
+  }
+  .view-switch {
+    @apply flex flex-wrap gap-2;
+  }
+  .view-switch button[aria-current="page"] {
+    @apply bg-action text-canvas;
   }
   .brand-icon {
     @apply grid size-8 place-items-center rounded-lg bg-raised text-accent;
@@ -286,7 +298,7 @@
     @apply bg-positive-bg text-positive;
   }
   .mini-question {
-    @apply bg-selected text-accent;
+    @apply bg-branch-bg text-branch;
   }
   .method-footer {
     @apply mt-auto flex flex-col gap-1 pt-3 text-xs tabular-nums xl:flex-row xl:items-center xl:justify-between;
@@ -316,7 +328,7 @@
     @apply inline-flex items-center gap-1.5;
   }
   .replay {
-    @apply overflow-clip rounded-xl bg-panel;
+    @apply flow-root overflow-clip rounded-xl bg-panel;
   }
   .replay-heading {
     @apply flex flex-wrap items-center justify-between gap-3 p-4 sm:px-5;
@@ -374,7 +386,7 @@
     @apply relative z-1 grid size-7 shrink-0 place-items-center rounded-full bg-raised text-xs font-medium text-muted;
   }
   .question .step-marker {
-    @apply bg-selected text-accent;
+    @apply bg-branch-bg text-branch;
   }
   .step-body {
     @apply min-w-0 flex-1;
@@ -625,7 +637,7 @@
     @apply bg-branch-bg text-branch;
   }
   .live-controls {
-    @apply mx-3 mb-4 rounded-lg bg-branch-bg p-4 sm:mx-5 sm:p-5;
+    @apply mx-3 mb-3 rounded-lg bg-branch-bg p-4 sm:mx-5 sm:mb-5 sm:p-5;
   }
   .live-control-heading {
     @apply mb-4 flex items-center gap-2 text-branch;
@@ -665,6 +677,207 @@
   }
   .small {
     @apply text-xs;
+  }
+  .sql-repeat {
+    @apply mt-2 text-xs text-muted;
+  }
+  .sql-change,
+  .scoring-details {
+    @apply mt-3 text-xs text-muted;
+  }
+  .sql-change > summary,
+  .scoring-details > summary {
+    @apply min-h-11 rounded-lg bg-raised px-3 py-2 font-medium text-ink;
+  }
+  .sql-change pre {
+    @apply my-2 max-h-64 overflow-auto rounded-lg bg-inset p-3 font-mono text-xs leading-relaxed;
+  }
+  .sql-change .removed {
+    @apply text-danger;
+  }
+  .sql-change .added {
+    @apply text-positive;
+  }
+  .scoring-details p {
+    @apply my-3;
+  }
+  .scoring-details h4 {
+    @apply mt-4 mb-2 font-medium text-ink;
+  }
+  .scoring-details details > summary {
+    @apply mt-3 min-h-11 rounded-lg bg-inset px-3 py-2;
+  }
+  .study-details {
+    @apply mt-5 overflow-clip rounded-lg bg-panel;
+  }
+  .study-details > summary {
+    @apply min-h-11 px-4 py-3 text-xs font-medium;
+  }
+  .study-content {
+    @apply space-y-7 p-4 pt-2 text-sm text-muted sm:p-5;
+  }
+  .study-content h3 {
+    @apply mb-3 text-sm text-ink;
+  }
+  .study-content p {
+    @apply max-w-[75ch];
+  }
+  .study-content a {
+    @apply text-accent underline underline-offset-4;
+  }
+  .study-bars {
+    @apply my-5 space-y-4;
+  }
+  .bar-label {
+    @apply mb-2 flex justify-between gap-3 text-xs text-ink;
+  }
+  .bar-label strong {
+    @apply text-sm tabular-nums;
+  }
+  .bar-track {
+    @apply h-2 overflow-hidden rounded bg-raised;
+  }
+  .bar-fill {
+    @apply h-full rounded bg-muted;
+  }
+  .bar-fill.sql_only_recovery {
+    @apply bg-action;
+  }
+  .bar-fill.reactive_clarification {
+    @apply bg-branch;
+  }
+  .study-bars small {
+    @apply mt-1 block text-xs;
+  }
+  .study-takeaway {
+    @apply mb-3;
+  }
+  .study-takeaway strong {
+    @apply font-medium text-branch;
+  }
+  .info-flow {
+    @apply mb-4 grid gap-3 sm:grid-cols-3;
+  }
+  .info-flow > div {
+    @apply rounded-lg bg-raised p-4;
+  }
+  .info-flow h4 {
+    @apply mb-2 font-medium text-ink;
+  }
+  .info-flow p,
+  .info-flow small {
+    @apply text-xs leading-relaxed;
+  }
+  .info-flow small {
+    @apply mt-3 block;
+  }
+  .study-list {
+    @apply mb-4 space-y-4;
+  }
+  .study-list dt {
+    @apply mb-1 font-medium text-ink;
+  }
+  .study-list dd {
+    @apply text-xs leading-relaxed;
+  }
+  .database-list {
+    @apply space-y-2;
+  }
+  .database-button {
+    @apply w-full justify-start gap-3 bg-panel p-3 text-left;
+  }
+  .database-button.selected {
+    @apply bg-selected text-accent;
+  }
+  .database-hint {
+    @apply mt-4 text-xs text-muted;
+  }
+  .custom-heading {
+    @apply mb-5 flex flex-wrap items-start justify-between gap-4;
+  }
+  .custom-heading > div {
+    @apply max-w-xl;
+  }
+  .custom-heading h1 {
+    @apply mb-3 text-xl tracking-tight sm:text-2xl;
+  }
+  .custom-heading p {
+    @apply text-sm text-muted;
+  }
+  .schema-guide {
+    @apply mb-6 overflow-clip rounded-lg bg-panel;
+  }
+  .schema-guide > summary {
+    @apply min-h-11 flex-wrap px-4 py-3 text-xs font-medium;
+  }
+  .schema-guide > summary > span {
+    @apply ml-auto text-muted;
+  }
+  .schema-guide .disclosure-chevron {
+    @apply ml-0;
+  }
+  .schema-content {
+    @apply space-y-4 p-4 pt-0;
+  }
+  .schema-content p {
+    @apply max-w-[75ch] text-xs text-muted;
+  }
+  .table-names {
+    @apply flex flex-wrap gap-2;
+  }
+  .table-names code {
+    @apply rounded bg-raised px-2 py-1 font-mono text-xs text-muted;
+  }
+  .section-heading {
+    @apply mb-3 flex flex-wrap items-center justify-between gap-2;
+  }
+  .section-heading h2 {
+    @apply text-sm;
+  }
+  .section-heading span {
+    @apply text-xs text-muted;
+  }
+  .starter-questions {
+    @apply grid gap-3 sm:grid-cols-3;
+  }
+  .starter-questions button {
+    @apply items-start justify-between gap-3 bg-panel p-4 text-left text-sm leading-relaxed;
+  }
+  .starter-questions svg {
+    @apply mt-1 text-accent;
+  }
+  .question-composer {
+    @apply mt-6 rounded-xl bg-panel p-4 sm:p-5;
+  }
+  .question-composer label {
+    @apply mb-3 block text-sm font-medium;
+  }
+  .composer-footer {
+    @apply mt-3 flex flex-wrap items-center justify-between gap-3;
+  }
+  .composer-footer > span {
+    @apply text-xs text-muted;
+  }
+  .custom-conversation {
+    @apply flow-root overflow-clip rounded-xl bg-panel;
+  }
+  .custom-request {
+    @apply space-y-3 p-4 sm:p-5;
+  }
+  .custom-request h2 {
+    @apply text-base leading-relaxed;
+  }
+  .custom-request > span {
+    @apply text-xs text-muted;
+  }
+  .custom-boundary {
+    @apply mx-4 rounded-lg bg-raised px-3 py-2 text-xs text-muted sm:mx-5;
+  }
+  .custom-ended {
+    @apply bg-raised p-4 text-xs text-muted sm:px-5;
+  }
+  .custom-footnote {
+    @apply mt-4 max-w-[85ch] text-xs leading-relaxed text-muted;
   }
 }
 

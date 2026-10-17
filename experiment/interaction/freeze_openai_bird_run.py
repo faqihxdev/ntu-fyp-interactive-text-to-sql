@@ -21,11 +21,12 @@ from .run_bird_dev_clarification_value import (
     OPENAI_FREEZE_STATUS,
 )
 from .run_support import sha256_file
+from .artifact_paths import workspace_root
 from .sphinteract_source import SPHINTERACT_NOTEBOOK_SHA256
 
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_ROOT = EXPERIMENT_ROOT.parents[1]
+WORKSPACE_ROOT = workspace_root(EXPERIMENT_ROOT)
 
 
 def _relative(path: Path) -> str:
@@ -51,6 +52,7 @@ def _implementation_paths(experiment: str) -> list[Path]:
         interaction / "sqlite_env.py",
         interaction / "trajectory.py",
         interaction / "run_support.py",
+        interaction / "artifact_paths.py",
         interaction / "inference_runtime.py",
         interaction / "openai_structured.py",
         interaction / "model.py",

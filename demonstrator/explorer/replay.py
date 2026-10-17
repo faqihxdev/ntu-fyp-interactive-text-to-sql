@@ -15,7 +15,10 @@ RUN_NAME = "api-bird-dev-clarification-value-v1-full1534-luna-high-20260830"
 RUN = EXPERIMENT / "runs" / RUN_NAME
 DATABASES = EXPERIMENT / "datasets/bird-dev/dev_databases/dev_databases"
 METHODS = {
-    "no_user": {"label": "No user", "description": "One initial SQL attempt, then stop."},
+    "no_user": {
+        "label": "Initial-attempt baseline",
+        "description": "Use the shared initial attempt, including any immediate invalid-SQL repair, then stop.",
+    },
     "sql_only_recovery": {
         "label": "SQL-only recovery",
         "description": "Retry rejected SQL without asking.",
@@ -31,7 +34,7 @@ GROUPS = [
         "label": "Clarification recovers",
         "count": 437,
         "description": "Only clarification reaches the gold result.",
-        "ids": [1389, 780],
+        "ids": [780, 1389],
     },
     {
         "id": "both",
@@ -116,14 +119,37 @@ class ReplayStore:
                     **self.record(i)["task"],
                     "note": NOTES[i],
                     "group": g["id"],
-                    "outcomes": {
-                        m: self.record(i)["arms"][m]["official_success"] for m in METHODS
-                    },
+                    "outcomes": {m: self.record(i)["arms"][m]["official_success"] for m in METHODS},
                 }
                 for g in GROUPS
                 for i in g["ids"]
             ],
             "total_tasks": 1534,
+            "summary": self.summary(),
+        }
+
+    @lru_cache(maxsize=1)
+    def summary(self) -> dict:
+        analysis = json.loads((self.run / "analysis.json").read_text("utf-8"))
+        arms = analysis["arms"]
+        initial = arms["no_user"]["official_successes"]
+        failed = arms["no_user"]["tasks"] - initial
+        contrast = analysis["paired_comparisons_all_tasks"]["reactive_minus_sql_only"]
+        return {
+            "initial_failures": failed,
+            "methods": {
+                m: {
+                    "label": METHODS[m]["label"],
+                    "successes": arms[m]["official_successes"],
+                    "ex": arms[m]["official_ex"],
+                    "turns": arms[m]["mean_user_turns"],
+                    "recovered": arms[m]["official_successes"] - initial,
+                }
+                for m in METHODS
+            },
+            "difference": contrast["difference_percentage_points"],
+            "interval": contrast["task_bootstrap_95_ci_percentage_points"],
+            "source": f"{RUN_NAME}/analysis.json",
         }
 
     @lru_cache(maxsize=30)
@@ -186,6 +212,9 @@ class ReplayStore:
                     "attempts": record["arms"][m]["normal_sql_attempts"],
                     "turns": record["arms"][m]["user_turns"],
                     "termination": record["arms"][m]["termination"],
+                    "sph_success": any(
+                        c["sph_compatible_ex"] for c in record["arms"][m]["candidates"]
+                    ),
                 }
                 for m in METHODS
             },
@@ -203,7 +232,7 @@ class ReplayStore:
         if not 0 <= step_id < len(steps):
             raise KeyError("Unknown step.")
         step = steps[step_id]
-        # Simulator prompts intentionally remain behind a separate evaluator boundary.
+        # Simulator prompts contain gold SQL and are omitted from this response.
         if step["role"] == "simulator":
             return {
                 "role": "simulator",

@@ -13,6 +13,8 @@ from dotenv import load_dotenv
 
 from . import APP_ROOT, EXPERIMENT
 from .replay import ReplayStore
+from .databases import DatabaseStore
+from .custom import CustomQuestions
 from interaction.bird_dev_matched import (
     ANSWER_OUTPUT_SCHEMA,
     SQL_OUTPUT_SCHEMA,
@@ -50,6 +52,8 @@ class LiveService:
         self.sessions = {}
         self.lock = threading.RLock()
         self.call_lock = threading.Lock()
+        self.databases = DatabaseStore(store.database_root)
+        self.custom = CustomQuestions(self.databases, self._call)
         self.prompts = load_sphinteract_prompts(
             EXPERIMENT / "datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb"
         )
@@ -147,6 +151,34 @@ class LiveService:
         temporary.write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
         temporary.replace(destination)
 
+    def start_custom(self, db_id: str, question: str):
+        self.databases.path(db_id)
+        question = question.strip()
+        if not question or len(question) > 4000:
+            raise LiveError("Enter a question of up to 4,000 characters.")
+        with self.lock:
+            if len(self.sessions) >= 64:
+                raise LiveError("The 64-conversation limit is reached. Restart the local server.")
+            sid = str(uuid.uuid4())
+            session = {
+                "id": sid,
+                "db_id": db_id,
+                "question": question,
+                "mode": "custom",
+                "steps": [],
+                "phase": "ready",
+                "revision": 0,
+                "calls": 0,
+                "created_at": time.time(),
+                "responses": {},
+                "attempts": 0,
+                "answers": 0,
+                "error": None,
+            }
+            self.sessions[sid] = session
+            self._persist(session)
+            return self.public(session)
+
     def public(self, session):
         return deepcopy({k: v for k, v in session.items() if k not in {"responses", "created_at"}})
 
@@ -233,6 +265,8 @@ class LiveService:
             self.call_lock.release()
 
     def _perform(self, session, action, text):
+        if session["mode"] == "custom":
+            return self.custom.perform(session, action, text)
         case_id = session["case_id"]
         task = self.store.task(case_id)
         schema = self.store.schema(case_id)

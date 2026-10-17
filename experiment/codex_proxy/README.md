@@ -1,14 +1,16 @@
-# Codex subscription proxy fixtures
+# Codex development adapter
 
-These files support a strict, one-turn, tool-disabled `codex exec` proxy. They
-do not implement the shared interaction contract or a Sphinteract loop.
+The adapter runs tool-disabled `codex exec` calls and retries eligible transport
+failures. Each attempt uses one model turn. Experiment controllers manage
+clarification, SQL regeneration and scoring.
 
-- `minimal-benchmark-instructions.md` removes normal agent/tool behavior.
+- `minimal-benchmark-instructions.md` restricts agent and tool behaviour.
 - `smoke-prompt.txt` is the literal-output preflight case.
 - The passed 20 August 2026 run is recorded in
   [`../manifests/codex-proxy-smoke-2026-08-20.json`](../manifests/codex-proxy-smoke-2026-08-20.json).
-- The complete isolation, audit, labeling, and calibration rules remain in
+- Isolation, audit, labelling and calibration requirements are documented in
   [`../notes/codex_subscription_benchmark_proxy_guide.md`](../notes/codex_subscription_benchmark_proxy_guide.md).
 
-Do not report this surface as the OpenAI API. Do not start a large run until a
-task-specific prompt, scorer, retry policy, and manifest have been frozen.
+Record Codex as the provider for runs made with this adapter. The reported
+benchmark results use the separate OpenAI Responses API adapter.
+Freeze the prompt, scorer, retry policy and manifest before a large run.

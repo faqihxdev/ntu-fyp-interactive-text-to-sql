@@ -7,7 +7,7 @@ made for this audit.
 
 ## Bottom line
 
-If the 77.51% run used either (a) a correctness/failure signal obtained by comparing an intermediate SQL result with the reference result, or (b) clarification answers generated from the reference SQL, it is **oracle-assisted BIRD-dev EX**, not autonomous BIRD leaderboard-comparable EX. The safest description is an **oracle-assisted ceiling estimate**. “Upper bound” is acceptable informally, but it is not a mathematical upper bound unless the protocol guarantees that oracle interaction cannot hurt.
+If the 77.51% run used either (a) a correctness/failure signal obtained by comparing an intermediate SQL result with the reference result, or (b) clarification answers generated from the reference SQL, it is **oracle-assisted BIRD-dev EX**, not autonomous BIRD leaderboard-comparable EX. The appropriate description is **oracle-assisted execution accuracy under the declared protocol**. It is not a ceiling or upper-bound estimate: clarification can fail or make a trajectory worse. This wording was corrected on 8 October 2026; the audit findings below remain those of 30 August.
 
 This is not inherently cheating when it is an explicitly disclosed experimental condition. It becomes a leakage/misrepresentation problem if the number is presented without qualification as ordinary BIRD Dev EX, as a leaderboard/SOTA result, or as deployable autonomous performance.
 
@@ -44,11 +44,11 @@ BIRD-Interact reinforces rather than erases this distinction. It defines a **sep
 
 Recommended wording, if the local audit confirms gold-conditioned interaction **and** verifies that raw reference SQL is not directly exposed to the generator:
 
-> On the public BIRD development split, we obtain **77.51% execution accuracy under an oracle-assisted Sphinteract-style protocol**. The simulated user is conditioned on the reference SQL, and semantic success/retry decisions use reference-result equivalence. The SQL generator does not receive the raw reference SQL, but it does receive gold-derived clarification/correctness signals. We therefore report this as an oracle-assisted ceiling analysis, not as autonomous BIRD leaderboard/test EX.
+> On the public BIRD development split, we obtain **77.51% execution accuracy under an oracle-assisted Sphinteract-style protocol**. The simulated user is conditioned on the reference SQL, and semantic success/retry decisions use reference-result equivalence. The SQL generator does not receive the raw reference SQL, but it does receive gold-derived clarification/correctness signals. This measures performance with target-aware feedback, separately from autonomous BIRD leaderboard/test EX.
 
 Use **“gold-SQL-conditioned feedback oracle”** rather than merely “oracle knowledge,” because BIRD already uses “Oracle Knowledge” for the officially supplied `evidence` field.
 
-Minimum controls for defensible reporting:
+The following controls concern a possible future autonomous-versus-oracle study. They are not additional required experiments for the current report:
 
 - Report autonomous and oracle-assisted results as separate rows; never merge them into one headline score.
 - For the autonomous row, whitelist inputs (question, supplied DB/schema/metadata, declared BIRD evidence, and observations from executing the system’s own SQL). Freeze the final SQL before the evaluator can access gold SQL, gold results, EX bits, or test-case outcomes.
@@ -56,7 +56,7 @@ Minimum controls for defensible reporting:
 - Isolate the evaluator and, in the oracle arm, the simulator. Do not expose raw gold/test cases to the SQL agent; constrain answers to the asked ambiguity, reject solution-elicitation requests, and audit transcripts for SQL/target leakage, following BIRD-Interact’s function-driven separation.
 - Predeclare the simulator model/prompt/version, temperature/seed, evidence condition, maximum turns, retry policy, stopping rule, and token/tool budget. Keep budgets equal in matched autonomous-vs-oracle ablations.
 - Include at least: no-feedback baseline, database-exception-only feedback, semantic pass/fail oracle, and gold-conditioned clarification oracle. This identifies which privileged signal creates the gain.
-- Reserve an unseen holdout or use the official hidden test for any leaderboard/deployment claim. Public-dev oracle experiments are useful mechanism/ceiling studies, not evidence of hidden-test autonomous generalization.
+- Reserve an unseen holdout or use the official hidden test for any leaderboard/deployment claim. Public-dev oracle experiments are useful studies of recovery under declared feedback, not evidence of hidden-test autonomous generalization.
 
 ## 5. Local implementation and transcript audit
 

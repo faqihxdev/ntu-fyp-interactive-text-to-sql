@@ -29,8 +29,14 @@ class ActionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     revision: int = Field(ge=0)
     request_id: str = Field(min_length=8, max_length=80)
-    action: Literal["reply", "ask", "repair", "suggest", "stop"]
+    action: Literal["reply", "ask", "repair", "suggest", "stop", "generate", "feedback"]
     text: str = Field(default="", max_length=4000)
+
+
+class CustomRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    db_id: str = Field(min_length=1, max_length=80)
+    question: str = Field(min_length=1, max_length=4000)
 
 
 def create_app(store=None, live=None):
@@ -88,6 +94,18 @@ def create_app(store=None, live=None):
     @app.get("/api/catalogue")
     def catalogue():
         return store.catalogue()
+
+    @app.get("/api/databases")
+    def databases():
+        return live.databases.catalogue()
+
+    @app.get("/api/databases/{db_id}")
+    def database(db_id: str):
+        return live.databases.detail(db_id)
+
+    @app.post("/api/custom")
+    def custom(body: CustomRequest):
+        return live.start_custom(body.db_id, body.question)
 
     @app.get("/api/cases/{case_id}")
     def case(case_id: int):

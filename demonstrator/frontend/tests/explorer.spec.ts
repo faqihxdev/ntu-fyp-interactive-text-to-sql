@@ -66,7 +66,7 @@ test("dark-only palette, quiet legend and one search focus ring", async ({
   await page.keyboard.press("Enter");
   await expect(panel).toBeVisible();
   await expect(panel.locator("li")).toHaveText([
-    "No user",
+    "Initial-attempt baseline",
     "SQL-only recovery",
     "Reactive clarification",
   ]);
@@ -76,13 +76,14 @@ test("dark-only palette, quiet legend and one search focus ring", async ({
   expect(audit.violations).toEqual([]);
   await page
     .locator(".library")
+    .filter({ visible: true })
     .screenshot({ path: "test-results/dark-legend.png" });
   await page.keyboard.press("Escape");
   await expect(panel).not.toBeVisible();
   await expect(legend).toBeFocused();
   await legend.click();
   await page
-    .getByRole("heading", { name: "Which event has the lowest cost?" })
+    .getByRole("heading", { name: "List the powers of Hunter Zolomon." })
     .click();
   await expect(panel).not.toBeVisible();
   const search = page.getByRole("textbox", { name: "Find a question" });
@@ -90,7 +91,10 @@ test("dark-only palette, quiet legend and one search focus ring", async ({
   await expect(search).toHaveCSS("outline-style", "none");
   await expect(page.locator(".search")).toHaveCSS("outline-width", "2px");
   await expect(page.locator(".search")).toHaveCSS("outline-style", "solid");
-  await page.locator(".library-heading").scrollIntoViewIfNeeded();
+  await page
+    .locator(".library-heading")
+    .filter({ visible: true })
+    .scrollIntoViewIfNeeded();
   await page.screenshot({ path: "test-results/dark-search.png" });
   for (const scheme of ["dark", "light"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
@@ -128,7 +132,7 @@ test("case previews show each method's saved final outcome", async ({
       const indicator = button.locator(`[data-method="${method}"]`);
       await expect(indicator).toHaveAttribute("data-match", String(matched));
       await expect(indicator.locator(".sr-only")).toContainText(
-        matched ? ": gold match" : ": no gold match",
+        matched ? ": BIRD match" : ": no BIRD match",
       );
     }
   }
@@ -167,7 +171,10 @@ test("icon-only SQL steps and rounded scroll frames remain usable", async ({
   page,
 }) => {
   await page.goto("/");
-  const noUser = page.getByRole("button", { name: "No user", exact: true });
+  const noUser = page.getByRole("button", {
+    name: "Initial-attempt baseline",
+    exact: true,
+  });
   await expect(noUser.locator(".mini-flow > span")).toHaveCount(1);
   await expect(noUser.locator(".mini-flow")).toHaveText("");
   await expect(noUser.locator(".mini-flow svg.lucide-x")).toHaveCount(1);
@@ -248,7 +255,7 @@ test("saved playback, method switching, context and results", async ({
   });
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Which event has the lowest cost?" }),
+    page.getByRole("heading", { name: "List the powers of Hunter Zolomon." }),
   ).toBeVisible();
   await expect(page.locator(".timeline .step")).toHaveCount(4);
   await expect(page.getByRole("button", { name: "Show all" })).toBeDisabled();
@@ -266,7 +273,7 @@ test("saved playback, method switching, context and results", async ({
   await page.getByRole("button", { name: "Show all" }).click();
   await expect(page.locator(".timeline .step")).toHaveCount(4);
   await expect(
-    page.getByText("The result matched the gold target.", { exact: true }),
+    page.getByText("The result matched the BIRD target.", { exact: true }),
   ).toBeVisible();
   await page.screenshot({ path: "test-results/desktop.png", fullPage: true });
   await page
@@ -274,7 +281,9 @@ test("saved playback, method switching, context and results", async ({
     .click();
   await expect(page.locator(".timeline .step")).toHaveCount(5);
   await expect(page.getByRole("button", { name: "Show all" })).toBeDisabled();
-  await page.getByRole("button", { name: "No user", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Initial-attempt baseline", exact: true })
+    .click();
   await expect(page.locator(".timeline .step")).toHaveCount(1);
   expect(posts).toEqual([]);
   expect(errors).toEqual([]);
@@ -288,7 +297,7 @@ test("case selection, search and terminal outcomes", async ({ page }) => {
     page.getByRole("heading", { name: "What is Copycat's race?" }),
   ).toBeVisible();
   await expect(
-    page.getByText("The result matched the gold target.", { exact: true }),
+    page.getByText("The result matched the BIRD target.", { exact: true }),
   ).toBeVisible();
   await page.getByRole("textbox", { name: "Find a question" }).fill("780");
   await page.locator(".case-button").click();
@@ -401,7 +410,7 @@ test("375px mobile has no horizontal overflow and dialogs work by keyboard", asy
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Which event has the lowest cost?" }),
+    page.getByRole("heading", { name: "List the powers of Hunter Zolomon." }),
   ).toBeVisible();
   await expect(page.locator(".timeline .step")).toHaveCount(4);
   expect(
@@ -441,14 +450,12 @@ test("compact disclosures, consistent gutters and borderless filled controls", a
 }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Which event has the lowest cost?" }),
+    page.getByRole("heading", { name: "List the powers of Hunter Zolomon." }),
   ).toBeVisible();
   await expect(page.locator(".case-detail p")).not.toBeVisible();
   await expect(page.locator(".method-guide dl")).not.toBeVisible();
   await page.locator(".case-detail summary").click();
-  await expect(page.locator(".case-detail p")).toContainText(
-    "lowest single expense",
-  );
+  await expect(page.locator(".case-detail p")).toContainText("full_name");
   await page.locator(".case-detail summary").click();
   await page.locator(".method-guide summary").click();
   await expect(page.locator(".method-guide dl")).toContainText(

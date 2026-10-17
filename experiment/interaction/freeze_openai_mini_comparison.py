@@ -14,10 +14,11 @@ from .run_official_mini_interact import (
     DEFAULT_PUBLIC_DATA,
 )
 from .run_support import sha256_file
+from .artifact_paths import workspace_root
 
 
 EXPERIMENT_ROOT = Path(__file__).resolve().parents[1]
-WORKSPACE_ROOT = EXPERIMENT_ROOT.parents[1]
+WORKSPACE_ROOT = workspace_root(EXPERIMENT_ROOT)
 DEFAULT_SELECTION = EXPERIMENT_ROOT / "manifests" / "mini-interact-reserve-240.json"
 
 
@@ -45,6 +46,7 @@ def build_freeze(args: argparse.Namespace) -> dict:
         interaction / "compare_policy_metrics.py",
         interaction / "trajectory.py",
         interaction / "run_support.py",
+        interaction / "artifact_paths.py",
         interaction / "inference_runtime.py",
         interaction / "openai_structured.py",
         interaction / "model.py",
