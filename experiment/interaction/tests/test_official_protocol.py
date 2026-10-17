@@ -7,7 +7,7 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from interaction.controller import SubmissionJudgement
+from interaction.oracle_types import SubmissionJudgement
 from interaction.official_protocol import (
     MiniInteractPrivateBudgetProvider,
     OfficialAction,

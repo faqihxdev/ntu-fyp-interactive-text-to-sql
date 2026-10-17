@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any, Protocol
 from uuid import uuid4
 
-from .controller import ClarificationAnswer, InteractionOracle
+from .oracle_types import ClarificationAnswer, InteractionOracle
 from .sqlite_env import QueryResult, SQLiteEnvironment
 from .trajectory import BenchmarkTask, Trajectory, Usage
 

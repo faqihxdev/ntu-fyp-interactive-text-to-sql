@@ -58,14 +58,13 @@ retained runs. The command checks calculations from recorded judgments; checking
 Mini SQL correctness or its text-derived flags independently requires the
 restricted traces and authorised answer-key access.
 
-BIRD plots use `interaction.plot_bird_dev_clarification_value` and
-`interaction.plot_bird_dev_matched`. Each module provides `--help`.
-
 ## Model runs and frozen records
 
 Runners are `interaction.run_bird_dev_clarification_value`,
 `interaction.run_bird_dev_matched` and `interaction.run_official_mini_interact`.
-Use `--help` for required inputs, budgets and approval flags. Calls use API credits.
+Use `--help` for required inputs, budgets and approval flags. All three default
+to `--provider openai`. API calls require a key and a positive `--max-spend-usd`.
+The optional Codex adapter requires an explicit `--provider codex`.
 
 Freeze a new API run with `interaction.freeze_openai_bird_run` or
 `interaction.freeze_openai_mini_comparison`. A freeze records inputs, settings
@@ -78,6 +77,6 @@ reference their hashes. Recorded paths resolve against the local experiment
 directory. Historical protocol snapshots remain available in Git history.
 
 `interaction/` contains controllers, analysis and tests; `readiness/` contains
-data checks and evaluator adapters; `figures/` contains result plots.
+data checks and evaluator adapters.
 `results/` holds verification evidence. Downloaded datasets and new runs belong
 in ignored `datasets/` and `runs/`.

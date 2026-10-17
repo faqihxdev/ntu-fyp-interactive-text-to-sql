@@ -6,7 +6,6 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from interaction.context import ContextBuilder
 from interaction.sqlite_env import SQLiteEnvironment, bird_execution_equal
 from interaction.trajectory import (
     BenchmarkTask,
@@ -74,62 +73,7 @@ class SQLiteEnvironmentTest(unittest.TestCase):
             )
 
 
-class SharedContextAndTrajectoryTest(unittest.TestCase):
-    def test_value_retrieval_cache_is_task_specific(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            database = create_database(root)
-            with closing(sqlite3.connect(database)) as connection:
-                connection.execute("ALTER TABLE items ADD COLUMN alpha_name TEXT")
-                connection.execute("ALTER TABLE items ADD COLUMN beta_name TEXT")
-                connection.execute(
-                    "UPDATE items SET alpha_name = 'Shared', beta_name = 'Different'"
-                )
-                connection.execute("UPDATE items SET beta_name = 'Shared' WHERE id = 3")
-                connection.commit()
-            builder = ContextBuilder(
-                retrieval_query_budget=2,
-                retrieval_match_limit=1,
-            )
-            alpha = builder.build(
-                BenchmarkTask(
-                    question_id=101,
-                    db_id="demo",
-                    question="Find alpha_name equal to 'Shared'.",
-                    evidence=None,
-                    difficulty="simple",
-                ),
-                database,
-            )
-            beta = builder.build(
-                BenchmarkTask(
-                    question_id=102,
-                    db_id="demo",
-                    question="Find beta_name equal to 'Shared'.",
-                    evidence=None,
-                    difficulty="simple",
-                ),
-                database,
-            )
-            self.assertGreater(alpha.retrieval_queries, 0)
-            self.assertGreater(beta.retrieval_queries, 0)
-            self.assertEqual(alpha.retrieved_values[0].column, "alpha_name")
-            self.assertEqual(beta.retrieved_values[0].column, "beta_name")
-
-            alpha_cached = builder.build(
-                BenchmarkTask(
-                    question_id=101,
-                    db_id="demo",
-                    question="Find alpha_name equal to 'Shared'.",
-                    evidence=None,
-                    difficulty="simple",
-                ),
-                database,
-            )
-            self.assertTrue(alpha_cached.retrieval_cache_hit)
-            self.assertEqual(alpha_cached.retrieval_queries, 0)
-            self.assertEqual(alpha_cached.retrieved_values, alpha.retrieved_values)
-
+class TrajectoryTest(unittest.TestCase):
     def test_trajectory_round_trip(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

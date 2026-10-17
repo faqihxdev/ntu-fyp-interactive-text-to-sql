@@ -9,14 +9,12 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from codex_proxy.runner import CodexSubscriptionProxy
-
 from .openai_structured import OpenAIStructuredInvoker, SpendTracker
 
 
 OPENAI_SURFACE = "openai_responses_api"
 CODEX_SURFACE = "codex_subscription_proxy"
-PROVIDERS = ("codex", "openai")
+PROVIDERS = ("openai", "codex")
 
 
 @dataclass(frozen=True)
@@ -66,6 +64,8 @@ def create_structured_runtime(
     if provider not in PROVIDERS:
         raise ValueError(f"Unknown provider {provider!r}; choose from {PROVIDERS}")
     if provider == "codex":
+        from codex_proxy.runner import CodexSubscriptionProxy
+
         policy = CodexSubscriptionProxy(
             model=model,
             reasoning_effort=reasoning_effort,

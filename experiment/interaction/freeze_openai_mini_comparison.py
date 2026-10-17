@@ -42,6 +42,7 @@ def build_freeze(args: argparse.Namespace) -> dict:
         interaction / "codex_official_policy.py",
         interaction / "mini_interact.py",
         interaction / "oracles.py",
+        interaction / "oracle_types.py",
         interaction / "metrics.py",
         interaction / "compare_policy_metrics.py",
         interaction / "trajectory.py",

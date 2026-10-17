@@ -21,7 +21,7 @@ from readiness.mini_interact_live_eval import (
     evaluate_live_instance,
 )
 
-from .controller import ClarificationAnswer, SubmissionJudgement
+from .oracle_types import ClarificationAnswer, SubmissionJudgement
 from .sqlite_env import QueryResult, SQLiteEnvironment, bird_execution_equal
 from .trajectory import BenchmarkTask
 

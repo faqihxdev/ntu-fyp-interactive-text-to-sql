@@ -7,7 +7,7 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
-from interaction.controller import ClarificationAnswer
+from interaction.oracle_types import ClarificationAnswer
 from interaction.oracles import (
     CleanBirdExecutionOracle,
     MiniInteractExecutionOracle,

@@ -20,7 +20,7 @@ except ImportError:  # The shared lightweight experiment environment omits SQLGl
     tokenize = None
     TokenType = None
 
-from .controller import ClarificationAnswer
+from .oracle_types import ClarificationAnswer
 from .trajectory import BenchmarkTask, Usage
 
 SIMULATOR_ADAPTER_VERSION = "mini-interact-user-simulator-structured-v1"

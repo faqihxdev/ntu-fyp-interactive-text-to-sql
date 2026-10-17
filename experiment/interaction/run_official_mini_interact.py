@@ -143,7 +143,7 @@ def parse_args() -> argparse.Namespace:
         help="Secondary project success-by-user-turn horizon.",
     )
     parser.add_argument("--model", default="gpt-5.6-luna")
-    parser.add_argument("--provider", choices=PROVIDERS, default="codex")
+    parser.add_argument("--provider", choices=PROVIDERS, default="openai")
     parser.add_argument("--max-output-tokens", type=int, default=8_192)
     parser.add_argument("--max-transport-retries", type=int, default=3)
     parser.add_argument("--max-spend-usd", type=float)

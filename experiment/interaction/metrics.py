@@ -6,7 +6,7 @@ from collections.abc import Mapping
 from statistics import mean, median
 from typing import Any
 
-from .controller import REVIEW_SOURCES
+from .oracle_types import REVIEW_SOURCES
 from .trajectory import Trajectory
 
 

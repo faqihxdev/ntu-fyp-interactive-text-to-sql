@@ -25,9 +25,6 @@ from interaction.analyze_bird_dev_clarification_value_public import (
 from interaction.export_bird_dev_clarification_value_public import (
     build_public_projection,
 )
-from interaction.plot_bird_dev_clarification_value import (
-    render as render_clarification_value_figure,
-)
 from interaction.bird_dev_matched import (
     BirdDevPrivateEvaluator,
     build_schema_only_context,
@@ -456,52 +453,6 @@ class ClarificationValueControllerTest(unittest.TestCase):
         )
         self.assertEqual(comparison["difference_percentage_points"], 100.0)
         self.assertEqual(comparison["candidate_only_successes"], 1)
-
-    def test_primary_figure_sources_recovery_counts_from_result(self) -> None:
-        result = {
-            "artifact": "bird-dev-clarification-value-v1-full-result",
-            "protocol": PROTOCOL_VERSION,
-            "validity": {
-                "tasks": 1534,
-                "mechanical_audit_passed": True,
-                "initial_failures_available_for_recovery": 900,
-            },
-            "arms": {
-                "no_user": {
-                    "official_successes": 600,
-                    "official_ex": 600 / 1534,
-                    "task_bootstrap_95_ci": [0.36, 0.42],
-                },
-                "sql_only_recovery": {
-                    "official_successes": 700,
-                    "official_ex": 700 / 1534,
-                    "task_bootstrap_95_ci": [0.42, 0.49],
-                },
-                "reactive_clarification": {
-                    "official_successes": 1100,
-                    "official_ex": 1100 / 1534,
-                    "task_bootstrap_95_ci": [0.69, 0.75],
-                },
-            },
-            "primary_contrast": {
-                "difference_percentage_points_all_tasks": 26.08,
-                "task_bootstrap_95_ci_percentage_points": [23.0, 29.0],
-            },
-            "development_unexposed_sensitivity": {
-                "tasks": 1400,
-                "reactive_minus_sql_only_percentage_points": 26.5,
-            },
-        }
-
-        svg = render_clarification_value_figure(result)
-
-        self.assertIn("900 shared-initial failures", svg)
-        self.assertIn("100/900 (11.1%)", svg)
-        self.assertIn("500/900 (55.6%)", svg)
-        self.assertIn("Excluding 134 development tasks", svg)
-        self.assertIn("+26.50 points on 1,400 tasks", svg)
-        self.assertNotIn("unexposed", svg)
-        self.assertNotIn("865 shared-initial failures", svg)
 
     def test_public_projection_replays_outcomes_without_private_fields(self) -> None:
         records = []
