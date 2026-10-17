@@ -54,7 +54,7 @@ def build_manifest(
         ),
         "method": "All rows in the released dev.json order; no task selection.",
         "dataset": {
-            "path": "codebase/experiment/datasets/bird-dev/dev.json",
+            "path": "experiment/datasets/bird-dev/dev.json",
             "sha256": sha256_file(dataset),
             "rows": len(rows),
         },

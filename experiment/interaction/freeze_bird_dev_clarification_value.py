@@ -232,7 +232,7 @@ def build_freeze(
         },
         "planned_outputs": {
             "pilot100": (
-                "codebase/experiment/runs/"
+                "experiment/runs/"
                 "bird-dev-clarification-value-v1-pilot100-luna-high-20260826"
             ),
         },

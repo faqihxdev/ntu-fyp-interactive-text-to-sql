@@ -580,13 +580,17 @@ def check_evaluator(
 
 def check_original_bird(dataset_root: Path, freeze_path: Path) -> dict[str, Any]:
     """Verify original BIRD against the final run's recorded input hashes."""
+    from interaction.artifact_paths import resolve_recorded_path
+
     freeze = load_json(freeze_path)
-    prefix = "codebase/experiment/datasets/bird-dev/"
-    hashes = {
-        name.removeprefix(prefix): digest
-        for name, digest in freeze["artifact_hashes"].items()
-        if name.startswith(prefix)
-    }
+    local_root = (EXPERIMENT_ROOT / "datasets/bird-dev").resolve()
+    hashes = {}
+    for name, digest in freeze["artifact_hashes"].items():
+        path = resolve_recorded_path(name, EXPERIMENT_ROOT)
+        if path.is_relative_to(local_root):
+            relative = path.relative_to(local_root).as_posix()
+            require(relative not in hashes, f"Duplicate original-BIRD input: {relative}")
+            hashes[relative] = digest
     require("dev.json" in hashes, "The freeze must identify original BIRD Dev.")
     require(
         sum(name.endswith(".sqlite") for name in hashes) == 11,

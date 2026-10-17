@@ -37,19 +37,21 @@ class DatasetReadinessHelpersTest(unittest.TestCase):
                 database.parent.mkdir(exist_ok=True)
                 database.write_bytes(f"hash fixture {index}".encode())
                 files.append(database)
-            prefix = "codebase/experiment/datasets/bird-dev/"
-            hashes = {
-                prefix + path.relative_to(dataset).as_posix(): hashlib.sha256(
-                    path.read_bytes()
-                ).hexdigest()
-                for path in files
-            }
             freeze = root / "freeze.json"
-            freeze.write_text(json.dumps({"artifact_hashes": hashes}))
-            self.assertEqual(
-                check_original_bird(dataset, freeze),
-                {"status": "pass", "tasks": 1534, "verified_files": 12},
-            )
+            for prefix in ("experiment/datasets/bird-dev/",
+                           "archive/experiment/datasets/bird-dev/"):
+                with self.subTest(prefix=prefix):
+                    hashes = {
+                        prefix + path.relative_to(dataset).as_posix(): hashlib.sha256(
+                            path.read_bytes()
+                        ).hexdigest()
+                        for path in files
+                    }
+                    freeze.write_text(json.dumps({"artifact_hashes": hashes}))
+                    self.assertEqual(
+                        check_original_bird(dataset, freeze),
+                        {"status": "pass", "tasks": 1534, "verified_files": 12},
+                    )
             files[-1].write_bytes(b"changed")
             with self.assertRaisesRegex(ReadinessFailure, "hash mismatch"):
                 check_original_bird(dataset, freeze)

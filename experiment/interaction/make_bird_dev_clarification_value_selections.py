@@ -75,7 +75,7 @@ def _manifest(
         "method": methods[tier],
         "seed": SEED,
         "dataset": {
-            "path": "codebase/experiment/datasets/bird-dev/dev.json",
+            "path": "experiment/datasets/bird-dev/dev.json",
             "sha256": sha256_file(dataset),
             "rows": len(rows),
         },

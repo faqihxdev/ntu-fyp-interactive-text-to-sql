@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from . import EXPERIMENT
+from interaction.artifact_paths import resolve_recorded_path
 from interaction.bird_dev_matched import build_schema_only_context, database_path
 from interaction.sqlite_env import SQLiteEnvironment
 from interaction.trajectory import BenchmarkTask
@@ -246,9 +247,14 @@ class ReplayStore:
             if hashlib.sha256(prompt.encode()).hexdigest() == step["prompt_sha256"]:
                 instructions_path = EXPERIMENT / "interaction/codex-policy-instructions.md"
                 contract = json.loads((self.run / "run-contract.json").read_text("utf-8"))
-                expected = contract["implementation_hashes"][
-                    "codebase/experiment/interaction/codex-policy-instructions.md"
+                hashes = [
+                    digest
+                    for name, digest in contract["implementation_hashes"].items()
+                    if resolve_recorded_path(name, EXPERIMENT) == instructions_path.resolve()
                 ]
+                if len(hashes) != 1:
+                    raise ValueError("The saved run must identify one system-instruction hash.")
+                expected = hashes[0]
                 if hashlib.sha256(instructions_path.read_bytes()).hexdigest() != expected:
                     raise ValueError("System instructions differ from the saved run.")
                 return {

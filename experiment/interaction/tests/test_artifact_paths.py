@@ -16,13 +16,13 @@ class ArtifactPathsTest(unittest.TestCase):
     def test_both_layouts_and_path_spellings(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            for layout in ("codebase/experiment", "experiment"):
+            for layout in ("nested/experiment", "experiment"):
                 experiment = root / layout
-                self.assertEqual(workspace_root(experiment), root)
+                self.assertEqual(workspace_root(experiment), experiment.parent)
                 for spelling in (
-                    "codebase/experiment/manifests/selection.json",
+                    "archive/experiment/manifests/selection.json",
                     "experiment/manifests/selection.json",
-                    "codebase\\experiment\\manifests\\selection.json",
+                    "archive\\experiment\\manifests\\selection.json",
                 ):
                     self.assertEqual(
                         resolve_recorded_path(spelling, experiment),
@@ -32,10 +32,14 @@ class ArtifactPathsTest(unittest.TestCase):
                 self.assertEqual(resolve_recorded_path(absolute, experiment), absolute)
                 with self.assertRaisesRegex(ValueError, "traversal"):
                     resolve_recorded_path("experiment/../secret", experiment)
+                with self.assertRaisesRegex(ValueError, "traversal"):
+                    resolve_recorded_path("../experiment/manifests/selection.json", experiment)
+                self.assertEqual(resolve_recorded_path("README.md", experiment),
+                                 experiment.parent / "README.md")
 
     def test_relocated_freezes_accept_same_bytes_and_reject_changed_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
-            for layout in ("codebase/experiment", "experiment"):
+            for layout in ("nested/experiment", "experiment"):
                 for runner in (primary, supporting):
                     with self.subTest(layout=layout, runner=runner.__name__):
                         experiment = Path(directory) / layout
@@ -45,7 +49,7 @@ class ArtifactPathsTest(unittest.TestCase):
                         artifact = experiment / "fixture.txt"
                         artifact.write_text("frozen", encoding="utf-8")
                         selection_info = {
-                            "path": "codebase/experiment/manifests/selection.json",
+                            "path": "archive/experiment/manifests/selection.json",
                             "sha256": hashlib.sha256(selection.read_bytes()).hexdigest(),
                         }
                         payload = {
@@ -60,7 +64,7 @@ class ArtifactPathsTest(unittest.TestCase):
                                 "notebook_sha256": runner.SPHINTERACT_NOTEBOOK_SHA256,
                             },
                             "artifact_hashes": {
-                                "codebase/experiment/fixture.txt": hashlib.sha256(
+                                "archive/experiment/fixture.txt": hashlib.sha256(
                                     artifact.read_bytes()
                                 ).hexdigest(),
                             },

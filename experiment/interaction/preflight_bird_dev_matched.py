@@ -109,7 +109,7 @@ def main() -> int:
         "created_at": datetime.now(timezone.utc).isoformat(),
         "model_calls": 0,
         "dataset": {
-            "path": "codebase/experiment/datasets/bird-dev/dev.json",
+            "path": "experiment/datasets/bird-dev/dev.json",
             "sha256": sha256_file(args.dataset),
             "tasks": len(tasks),
             "databases": len(database_ids),
