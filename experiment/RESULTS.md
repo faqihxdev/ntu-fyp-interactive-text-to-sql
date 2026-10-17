@@ -5,6 +5,9 @@ Responses API. BIRD results measure recovery with hidden correctness feedback
 and gold-aware simulated answers. They are not autonomous leaderboard scores.
 See [methods and scoring](interaction/README.md) for controls and limitations.
 
+The [offline verification command](README.md#reproduce-analyses) recalculates the
+three studies from the task records and numerical evidence in `results/`.
+
 ## Primary BIRD: clarification versus retry
 
 The methods share one initial SQL attempt per task. Of 1,534 tasks, 872 initially fail.

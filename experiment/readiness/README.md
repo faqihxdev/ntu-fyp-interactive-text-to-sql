@@ -1,6 +1,8 @@
 # Dataset and evaluator setup
 
 Paths below are relative to `experiment/`. All dataset directories are Git-ignored.
+Saved-case replay and [result verification](../README.md#reproduce-analyses) work
+without these downloads.
 
 | Input | Location |
 |---|---|
@@ -43,10 +45,28 @@ Keep line-ending conversion disabled for this evaluator checkout. Its prompts
 and scorer are used by offline tests. The Sphinteract notebook supplies BIRD
 generation and clarification prompts.
 
-Private Mini-Interact ground truth requires permission from its authors; follow
-[their merge instructions](https://github.com/bird-bench/BIRD-Interact#combine-the-public-data-with-the-ground-truth-and-test-cases).
-The supplied private bundle is for academic use with a non-redistribution
-commitment. Keep solution SQL, oracle knowledge and test material local.
+## Private answer keys and API access
+
+Request Mini-Interact ground truth from `bird.bench25@gmail.com`, with subject
+`[mini-interact GT&Test Cases]`, following the
+[authors' instructions](https://huggingface.co/datasets/birdsql/mini-interact#dataset-uses).
+The recorded release uses `mini_interact_GTs_20251112.jsonl`. Save the authorised
+attachment under `datasets/private/mini-interact/`, then run:
+
+```powershell
+uv run --frozen python -m readiness.prepare_mini_interact --merge
+```
+
+The merge verifies the recorded input hashes. A different release requires a
+separate experiment configuration. Keep solution SQL, oracle knowledge and test
+material local; the received bundle has a non-redistribution commitment.
+
+For live model calls, copy `.env.example` to `.env` and set `OPENAI_API_KEY` using
+your own API account. See the [demo guide](../../demonstrator/README.md) for live
+configuration. Restricted Mini prompts and answer-bearing traces have no public
+download; contact the repository maintainer for review arrangements subject to
+the dataset authors' permission. Provider response artifacts and local sessions
+are unnecessary for the bundled statistical checks.
 
 ## Verification
 

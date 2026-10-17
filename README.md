@@ -36,10 +36,17 @@ and stopping configurations on BIRD Dev, and controllers on Mini-Interact.
 - [Results and saved evidence](experiment/RESULTS.md)
 - [Dataset setup](experiment/readiness/README.md)
 
-The primary outcome analysis runs offline using tracked data. Full trajectory
-analysis requires local run records. Each component has its own dependency lock;
-keep `experiment/` and `demonstrator/` beside each other.
+Verify all three studies from the included records, without datasets or an API key:
 
-Full datasets, full run directories, credentials and demo sessions are Git-ignored.
-Private Mini-Interact answer keys must not be redistributed.
+```bash
+cd experiment
+uv run --frozen python -m interaction.verify_results
+```
+
+The check recalculates statistics and usage from saved outcomes. Each component
+has its own dependency lock; keep `experiment/` and `demonstrator/` beside each other.
+
+For live use or new benchmark runs, follow [input setup](experiment/readiness/README.md).
+Full datasets, API artifacts, credentials and demo sessions are Git-ignored.
+Mini-Interact answer keys and answer-bearing traces require the authors' permission.
 See [third-party notices](THIRD_PARTY_NOTICES.md) for attribution and licences.

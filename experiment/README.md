@@ -39,28 +39,24 @@ These verify the merge, data hashes and evaluator source without model calls.
 
 ## Reproduce analyses
 
-The primary analysis needs only the tracked public outcome projection.
-Supporting BIRD and Mini-Interact analyses need the retained local run files.
+The included records cover all three studies. From `experiment/`:
 
 ```powershell
-New-Item -ItemType Directory -Force runs/replay-check | Out-Null
-
-uv run --frozen python -m interaction.analyze_bird_dev_clarification_value_public `
-  --projection manifests/api-bird-dev-clarification-value-v1-public-outcomes-2026-08-30.json `
-  --output runs/replay-check/primary-analysis.json
-
-uv run --frozen python -m interaction.analyze_bird_dev_matched `
-  --run-root runs/api-bird-dev-matched-v4-full1534-luna-high-20260830 `
-  --output runs/replay-check/supporting-analysis.json `
-  --sensitivity-exclusions manifests/bird-dev-matched-v4-full1534.json
-
-uv run --frozen python -m interaction.analyze_standardized_results `
-  runs/api-official-mini-stress-comparison-v2-luna-high-reserve240-20260830 `
-  --output-json runs/replay-check/mini-analysis.json `
-  --output-markdown runs/replay-check/mini-analysis.md `
-  --figure-dir runs/replay-check/figures `
-  --bootstrap-samples 10000 --bootstrap-seed 20260822
+uv run --frozen python -m interaction.verify_results
 ```
+
+The check takes several minutes and needs no datasets, evaluator download or API
+key. It verifies file hashes and recalculates scores, paired tests, confidence
+intervals, development-exclusion checks, usage and Mini-Interact event counts.
+It exits with an error on a mismatch and saves analyses under `runs/verification/`.
+
+`results/` contains both complete BIRD task-record files, four original
+Mini-Interact metrics files and a text-free Mini event projection. The BIRD files
+retain generated SQL and clarification exchanges. Mini records retain public IDs,
+outcomes, event order, usage and derived flags. Their source hashes identify the
+retained runs. The command checks calculations from recorded judgments; checking
+Mini SQL correctness or its text-derived flags independently requires the
+restricted traces and authorised answer-key access.
 
 BIRD plots use `interaction.plot_bird_dev_clarification_value` and
 `interaction.plot_bird_dev_matched`. Each module provides `--help`.
@@ -83,4 +79,5 @@ directory. Historical protocol snapshots remain available in Git history.
 
 `interaction/` contains controllers, analysis and tests; `readiness/` contains
 data checks and evaluator adapters; `figures/` contains result plots.
-Datasets and raw trajectories belong in ignored `datasets/` and `runs/`.
+`results/` holds verification evidence. Downloaded datasets and new runs belong
+in ignored `datasets/` and `runs/`.

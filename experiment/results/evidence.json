@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "files": {
+    "bird-primary.jsonl.gz": {
+      "content_sha256": "f20f519be238de22c7319eb1015af8c72cce55a706e6fd7b3924cb54fac68e18",
+      "records": 1534,
+      "sha256": "3f0a32155a44498ad967cf3bc89ea797f4e8af31269fd753256b3553a01022c0",
+      "bytes": 2461764
+    },
+    "bird-supporting.jsonl.gz": {
+      "content_sha256": "b9f8505d6252dcc1aae5b77af1c7d5090872baa538afe99ad698c2e05ab1f4db",
+      "records": 1534,
+      "sha256": "6caa4643581838d6edc39ecaf921b632deffcb1d11b5366e2b8ab3005120fb27",
+      "bytes": 5175888
+    },
+    "mini-mini_react_port.metrics.json": {
+      "content_sha256": "79fce92982a424391e6f4113e017ffe44dad2c72668bfd044b7d3ecf49722336",
+      "records": 240,
+      "sha256": "79fce92982a424391e6f4113e017ffe44dad2c72668bfd044b7d3ecf49722336",
+      "bytes": 487161
+    },
+    "mini-sphinteract_cq.metrics.json": {
+      "content_sha256": "5c021a6718c7a701dd9d167c609235cca4dfa003af70e90447663e7478989408",
+      "records": 240,
+      "sha256": "5c021a6718c7a701dd9d167c609235cca4dfa003af70e90447663e7478989408",
+      "bytes": 489115
+    },
+    "mini-proactive.metrics.json": {
+      "content_sha256": "0d854a3b7ff68566459c44004e74f5b1137d045fbd5d6c966951ae45e9305773",
+      "records": 240,
+      "sha256": "0d854a3b7ff68566459c44004e74f5b1137d045fbd5d6c966951ae45e9305773",
+      "bytes": 486892
+    },
+    "mini-hybrid.metrics.json": {
+      "content_sha256": "42be8cefb15a126ef621c62f090d61912fe3d9616607bfc6ec19500ccfe7d07f",
+      "records": 240,
+      "sha256": "42be8cefb15a126ef621c62f090d61912fe3d9616607bfc6ec19500ccfe7d07f",
+      "bytes": 486137
+    },
+    "mini-events.jsonl.gz": {
+      "content_sha256": "c476215740f0f32b10cfae888a143fdc27ec1b028bc8ffaa610495aae44df7fa",
+      "records": 960,
+      "sha256": "80def323b841475f0f0eb28991c298a5c2829f57ec4515b2c8672587eca42284",
+      "bytes": 335515
+    }
+  },
+  "mini_source_trajectory_sha256": {
+    "mini_react_port": "8362de6a3649361adc3513bb8403fe104bc72adbba7af0ca8561ab949b273d95",
+    "sphinteract_cq": "e4fd7edbe392008cc21a72c4435263ff09e47d755ffa0c2ca6fc1e66a4f73dfb",
+    "proactive": "40c546dd7012d5f620357ae4f93117ceb8e261e699485458c3373dfc2a29fe6c",
+    "hybrid": "a2c35f733dad55b84d0275ff59e38fc7dbf55e8bbf5eac8290e828e9abfcc02c"
+  },
+  "mini_public_data_sha256": "d4c0b4f1e8cfd22ec6caa389ce4706aaa83a4d2879384079839cea072c94adb0",
+  "mini_event_fields": "Public task/database IDs and strata, event order, outcomes, usage, fixed status labels, and derived SRA/repeated-SQL flags.",
+  "verification_scope": "Recalculate statistics from recorded outcomes. Mini event flags are derived from withheld text; this package cannot independently rescore Mini SQL or inspect its question/answer content."
+}

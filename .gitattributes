@@ -1,6 +1,5 @@
 * text=auto
 
-# LF line endings for source files
 *.sh text eol=lf
 *.py text eol=lf
 *.md text eol=lf
@@ -10,8 +9,9 @@
 *.ts text eol=lf
 *.tsx text eol=lf
 
-# Frozen JSON evidence is hashed as bytes, including its original line endings.
+# Preserve the exact bytes used by evidence checksums.
 experiment/manifests/** -text
+experiment/results/** -text whitespace=cr-at-eol
 
 *.pdf binary
 *.png binary
@@ -19,3 +19,4 @@ experiment/manifests/** -text
 *.jpeg binary
 *.sqlite binary
 *.zip binary
+*.gz binary
