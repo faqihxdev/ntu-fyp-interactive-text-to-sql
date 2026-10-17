@@ -128,6 +128,8 @@ export type Status = {
   token: string;
   live: {
     available: boolean;
+    databases_ready?: boolean;
+    branch_inputs_ready?: boolean;
     model: string;
     reasoning: string;
     max_calls_per_branch: number;

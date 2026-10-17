@@ -88,6 +88,8 @@ def iter_snapshot_files(root: Path) -> Iterable[Path]:
     for path in sorted(root.rglob("*")):
         if not path.is_file() or ".git" in path.relative_to(root).parts:
             continue
+        if path.name == ".public-inputs.json" or path.name.endswith((".sqlite-shm", ".sqlite-wal")):
+            continue
         yield path
 
 
@@ -107,6 +109,15 @@ def hash_snapshot(root: Path) -> dict[str, Any]:
 
 
 def git_revision(root: Path) -> str:
+    if (root / ".public-inputs.json").is_file():
+        from readiness.fetch_public_inputs import download_provenance
+        return download_provenance(root)
+    top = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--show-toplevel"],
+        check=True, capture_output=True, text=True,
+    )
+    if Path(top.stdout.strip()).resolve() != root.resolve():
+        raise ReadinessFailure("Expected a dataset checkout or verified download marker, not an enclosing repository.")
     result = subprocess.run(
         ["git", "-C", str(root), "rev-parse", "HEAD"],
         check=True,

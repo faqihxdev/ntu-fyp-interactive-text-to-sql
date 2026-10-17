@@ -239,6 +239,7 @@ function App() {
     };
   }, [caseId]);
   const steps = branch?.steps || data?.methods[method].steps || [];
+  const canUseLiveBranch = !!status?.live.available && status.live.branch_inputs_ready !== false;
   const visible = branch ? steps : steps.slice(0, cursor);
   useEffect(() => {
     if (!playing || branch) return;
@@ -1086,6 +1087,12 @@ function App() {
                 )}
                 {branch && (
                   <div className="live-controls">
+                    {status?.live.branch_inputs_ready === false && (
+                      <p className="small muted">
+                        Install live inputs: from <code>experiment/</code>, run
+                        {" "}<code>python -m readiness.fetch_public_inputs demo</code> and reload.
+                      </p>
+                    )}
                     {error && (
                       <p role="alert" className="error">
                         {error}
@@ -1134,7 +1141,7 @@ function App() {
                           )}
                           <button
                             className="btn-secondary"
-                            disabled={!!busy || !status?.live.available}
+                            disabled={!!busy || !canUseLiveBranch}
                             onClick={() => act("suggest")}
                           >
                             <Sparkles size={14} />
@@ -1164,7 +1171,7 @@ function App() {
                           className="primary"
                           onClick={() => act("reply", reply)}
                           disabled={
-                            !!busy || !reply.trim() || !status?.live.available
+                            !!busy || !reply.trim() || !canUseLiveBranch
                           }
                         >
                           <Send size={15} />
@@ -1201,7 +1208,7 @@ function App() {
                           {branch.phase === "repair" && (
                             <button
                               className="primary"
-                              disabled={!!busy}
+                              disabled={!!busy || !canUseLiveBranch}
                               onClick={() => act("repair")}
                             >
                               Repair invalid SQL · API
@@ -1213,6 +1220,7 @@ function App() {
                             }
                             disabled={
                               !!busy ||
+                              !canUseLiveBranch ||
                               branch.attempts >= 5 ||
                               branch.answers >= 4 ||
                               (branch.mode === "changed" && !reply.trim())
@@ -1279,8 +1287,8 @@ function App() {
                       thesis results.
                     </p>
                     <p>
-                      Result previews execute saved SQL read-only. Their row
-                      displays are not new benchmark measurements.
+                      Saved result previews are cached from read-only SQL execution.
+                      Benchmark scores come from the recorded run.
                     </p>
                     <h3>Source record</h3>
                     <code className="source-path">
@@ -1355,6 +1363,12 @@ function App() {
               ? `${status.live.model} · ${status.live.reasoning}. API calls start only when you send or generate a reply.`
               : "No API key configured. You can inspect the branch, but live generation is unavailable."}
           </p>
+          {status?.live.branch_inputs_ready === false && (
+            <p className="small muted">
+              For live replies, run <code>python -m readiness.fetch_public_inputs demo</code>
+              {" "}from <code>experiment/</code>, then reload this page.
+            </p>
+          )}
           <button className="primary" disabled={!!busy} onClick={fork}>
             <GitBranch size={16} />
             Start a branch · free

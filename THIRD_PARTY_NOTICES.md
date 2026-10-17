@@ -13,6 +13,17 @@ External datasets and evaluators must be obtained under their own terms.
 Python and frontend dependencies retain their respective licences; their
 versions are recorded in the lockfiles.
 
+## BIRD replay data
+
+`demonstrator/data/replay.json` includes ten selected BIRD Dev questions, table
+definitions and derived SQL result previews, with saved model-generated trajectories
+and prompt contexts added by Muhammad Faqih Akmal. Source: the
+[BIRD authors' dataset](https://bird-bench.github.io/). The bundle is distributed
+under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Changes comprise selection, JSON packaging, added model records and cached
+read-only query previews. Original record and prompt hashes are retained.
+Sphinteract prompt portions retain the MIT notice below.
+
 ## Sphinteract and BIRD-Interact: MIT License
 
 Copyright (c) 2024 ZhaoFuheng (Sphinteract)

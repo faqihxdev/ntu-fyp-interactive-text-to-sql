@@ -21,9 +21,10 @@ The launcher installs frozen dependencies and prints the local URL, normally
 demo processes, or `--port 8775 --api-port 8776` to change ports. PowerShell users
 can run `.\run-demo.dev.ps1`.
 
-Replay requires local BIRD databases and saved run records. The launcher does
-not download them. See the [demo guide](demonstrator/README.md) for inputs,
-credentials, controls and tests.
+The ten cases, model inputs and cached result previews are included. Replay needs
+no dataset download or API key. For live questions and alternative replies, run
+`python -m readiness.fetch_public_inputs demo` from `experiment/`, then add your
+API key. See the [demo guide](demonstrator/README.md) for controls and tests.
 
 ## Experiments
 
@@ -39,6 +40,6 @@ The primary outcome analysis runs offline using tracked data. Full trajectory
 analysis requires local run records. Each component has its own dependency lock;
 keep `experiment/` and `demonstrator/` beside each other.
 
-Datasets, raw trajectories, credentials and demo sessions are Git-ignored.
+Full datasets, full run directories, credentials and demo sessions are Git-ignored.
 Private Mini-Interact answer keys must not be redistributed.
 See [third-party notices](THIRD_PARTY_NOTICES.md) for attribution and licences.

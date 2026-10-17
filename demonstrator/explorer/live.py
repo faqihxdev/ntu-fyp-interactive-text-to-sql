@@ -2,6 +2,7 @@
 
 from copy import deepcopy
 from dataclasses import asdict
+from functools import cached_property
 import json
 import os
 from pathlib import Path
@@ -55,22 +56,35 @@ class LiveService:
         self.call_lock = threading.Lock()
         self.databases = DatabaseStore(store.database_root)
         self.custom = CustomQuestions(self.databases, self._call)
-        self.prompts = load_sphinteract_prompts(
-            EXPERIMENT / "datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb"
-        )
-        self.evaluator = BirdDevPrivateEvaluator(
+
+    @cached_property
+    def prompts(self):
+        path = EXPERIMENT / "datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb"
+        if not path.is_file():
+            raise LiveError("Download the live inputs first: from experiment/, run python -m readiness.fetch_public_inputs demo.")
+        return load_sphinteract_prompts(path)
+
+    @cached_property
+    def evaluator(self):
+        path = EXPERIMENT / "datasets/bird-dev/dev.json"
+        if not path.is_file():
+            raise LiveError("Original-target branches require BIRD Dev metadata. From experiment/, run python -m readiness.fetch_public_inputs demo.")
+        return BirdDevPrivateEvaluator(
             rows=load_original_bird_rows(EXPERIMENT / "datasets/bird-dev/dev.json"),
-            database_root=store.database_root,
+            database_root=self.store.database_root,
             timeout_seconds=15,
             max_rows=50_000,
         )
-        # Only pure prompt builders are reused, not the automatic controller loop.
-        self.builder = BirdDevMatchedController(
-            policy_invoker=invoker,
-            simulator_invoker=simulator,
-            evaluator=self.evaluator,
+
+    @cached_property
+    def builder(self):
+        # These prompt builders do not execute the controller or use its evaluator.
+        return BirdDevMatchedController(
+            policy_invoker=self.invoker,
+            simulator_invoker=self.simulator,
+            evaluator=None,
             prompts=self.prompts,
-            database_root=store.database_root,
+            database_root=self.store.database_root,
             artifact_root=self.state_dir,
         )
 
@@ -82,6 +96,14 @@ class LiveService:
             "max_calls_per_branch": 12,
             "max_usd": float(os.environ.get("DEMO_MAX_USD", "2")),
             "spent_usd": self.tracker.spent_usd if self.tracker else None,
+            "databases_ready": bool(self.databases.catalogue()),
+            "branch_inputs_ready": all(path.is_file() for path in (
+                EXPERIMENT / "datasets/bird-dev/dev.json",
+                EXPERIMENT / "datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb",
+            )) and all(
+                (self.store.database_root / self.store.task(i).db_id / f"{self.store.task(i).db_id}.sqlite").is_file()
+                for i in (780, 1389, 407, 952)
+            ),
         }
 
     def _initialise_client(self):
@@ -208,6 +230,12 @@ class LiveService:
             raise LiveError(
                 "This branch reached its 12-call limit. Saved replay is still available."
             )
+        if session.get("mode") == "custom":
+            self.databases.path(session["db_id"])
+        else:
+            self.databases.path(self.store.task(session["case_id"]).db_id)
+            if session["mode"] == "original":
+                self.evaluator.private_row(self.store.task(session["case_id"]))
         self._initialise_client()
         invoker = self.simulator if role == "simulator" else self.invoker
         if session.get("mode") == "custom":

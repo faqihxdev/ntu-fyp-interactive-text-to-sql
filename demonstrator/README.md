@@ -6,18 +6,10 @@ interface; FastAPI serves the local API.
 
 ## Setup
 
-Requires Windows, Git Bash, Python 3.12+, uv and Node.js/npm. Place these inputs
-under the adjacent `experiment/` directory:
-
-| Input | Path |
-|---|---|
-| BIRD metadata | `datasets/bird-dev/dev.json` |
-| Eleven BIRD databases | `datasets/bird-dev/dev_databases/dev_databases/<db>/<db>.sqlite` |
-| Pinned Sphinteract source | `datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb` |
-| Saved primary run, including prompts and schemas | `runs/api-bird-dev-clarification-value-v1-full1534-luna-high-20260830/` |
-
-See [dataset setup](../experiment/readiness/README.md) for public downloads.
-Saved trajectories are separate local inputs. Replay checks their prompt hashes.
+Requires Windows, Git Bash, Python 3.12+, uv and Node.js/npm. The ten saved cases,
+schemas, model inputs and cached result previews are included in `data/replay.json`.
+Replay checks the bundle, original record, schema and policy-prompt hashes.
+No dataset download or API key is needed for replay.
 
 From `demonstrator/` in Git Bash:
 
@@ -32,15 +24,26 @@ The Bash launcher uses Windows PowerShell, not WSL. PowerShell users can run
 `..\run-demo.dev.ps1`; `-Help` lists options. To build and serve the production
 frontend locally, use `& '.\start.ps1'`, or add `-SkipBuild` to reuse a build.
 
+For live questions and alternative replies, from `experiment/`:
+
+```powershell
+python -m readiness.fetch_public_inputs demo
+```
+
+This downloads original BIRD Dev (about 346 MB, 1.5 GB extracted) and the pinned
+Sphinteract notebook, then verifies the recorded hashes. No model calls are made.
+See [dataset setup](../experiment/readiness/README.md) for paths and source versions.
+
 Live actions read credentials from `../experiment/.env`, with overrides from
 the demo's `.env`. See [.env.example](.env.example). The default model is
-`gpt-5.6-luna` with high reasoning. API keys stay on the server; replay needs no key.
+`gpt-5.6-luna` with high reasoning. Restart the demo after changing `.env`.
+API keys stay on the server; replay needs no key.
 
 ## Modes
 
 | Mode | Behaviour |
 |---|---|
-| Saved cases | Shows the full conversation, SQL, results and recorded model context. Restart or play steps individually. No model calls. |
+| Saved cases | Shows the full conversation, SQL, cached result previews and recorded model context. Restart or play steps individually. No model calls. |
 | Try your reply | Copies history through the selected clarification and continues with reactive Summarize-Review-Ask. Original-target mode uses hidden BIRD scoring and optional simulated answers; changed-intent mode uses user feedback. |
 | Try a question | Offers 11 databases, descriptions, schemas and three starter questions per database. The model can inspect values, ask about intent or generate an answer query. |
 
@@ -78,28 +81,27 @@ Sphinteract-compatible scores only rescore their saved queries.
 
 ## Tests
 
-From `demonstrator/`, packaging tests need no data or API key:
-
-```powershell
-uv run --frozen pytest -q tests/test_packaging.py tests/test_replay_paths.py
-& '.\tests\test_dev_processes.ps1'
-```
-
-With the local inputs above, run all backend tests and lint:
+From `demonstrator/`, tests use no API key or paid calls:
 
 ```powershell
 uv run --frozen pytest -q tests
 uv run --frozen ruff check .
+& '.\tests\test_dev_processes.ps1'
 ```
+
+Bundle, packaging and synthetic-database tests run on a fresh clone. Integration
+tests skip with an explanation when BIRD inputs or original raw run files are absent.
 
 With the dev server running, from `frontend/`:
 
 ```powershell
 npm run build
 npx playwright install chromium --only-shell
-npm test
+npm test -- tests/explorer.spec.ts tests/offline.spec.ts
 ```
 
+With the BIRD databases installed, `npm test` also checks custom questions.
+Set `DEMO_BASE_URL` if the server uses a different port.
 Tests cover replay hashes, fork history, read-only execution, answer-key isolation,
 call limits, explicit continuation, keyboard access and mobile layout. Browser
 tests mock paid actions. The optional `uv run --frozen python scripts/smoke_live.py --live`
@@ -111,3 +113,8 @@ performs two paid calls.
 `custom.py` handles new questions; `databases.py` supplies database guides and
 execution; `server.py` exposes the API. `frontend/src/` contains the interface.
 The app imports shared SQL, scoring and inference code from `experiment/`.
+
+`uv run --frozen python scripts/export_replay.py` rebuilds the replay bundle from
+the original primary run, its policy prompt files and the matching BIRD databases.
+The export retains recorded inputs and scores and adds cached previews; simulator
+prompts stay private. See [data attribution](../THIRD_PARTY_NOTICES.md).

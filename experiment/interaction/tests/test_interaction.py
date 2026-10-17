@@ -33,6 +33,23 @@ def create_database(root: Path, db_id: str = "demo") -> Path:
 
 
 class SQLiteEnvironmentTest(unittest.TestCase):
+    def test_row_limit_requires_an_extra_row(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            database = create_database(Path(directory))
+            for limit in (3, 1_000, 1_001):
+                for count in (0, limit - 1, limit, limit + 1):
+                    with self.subTest(limit=limit, count=count):
+                        environment = SQLiteEnvironment(database, max_rows=limit)
+                        result = environment.execute(
+                            "WITH RECURSIVE numbers(n) AS (SELECT 1 UNION ALL "
+                            f"SELECT n + 1 FROM numbers WHERE n < {count}) "
+                            f"SELECT n FROM numbers WHERE n <= {count}"
+                        )
+                        self.assertEqual(result.observation.status, "ok")
+                        self.assertEqual(result.observation.row_count, min(count, limit))
+                        self.assertEqual(result.observation.truncated, count > limit)
+                        self.assertEqual(bird_execution_equal(result, result), count <= limit)
+
     def test_execution_is_read_only_and_bird_equality_ignores_duplicates(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             database = create_database(Path(directory))

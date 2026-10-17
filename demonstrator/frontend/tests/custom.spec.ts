@@ -4,6 +4,11 @@ import type { CustomSession } from "../src/types";
 
 // Every paid route is intercepted before the page opens. These tests never use the model.
 test.beforeEach(async ({ page }) => {
+  await page.route("**/api/status", async (route) => {
+    const status = await (await route.fetch()).json();
+    status.live.available = true;
+    await route.fulfill({ json: status });
+  });
   await page.route("**/api/branches/*/actions", (route) =>
     route.fulfill({
       status: 502,

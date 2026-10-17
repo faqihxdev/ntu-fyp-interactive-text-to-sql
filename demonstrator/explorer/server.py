@@ -13,7 +13,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from . import APP_ROOT
 from .live import LiveService
-from .replay import ReplayStore
+from .replay import BundledReplayStore
 from interaction.openai_structured import OpenAIStructuredError
 
 
@@ -40,7 +40,7 @@ class CustomRequest(BaseModel):
 
 
 def create_app(store=None, live=None):
-    store = store or ReplayStore()
+    store = store or BundledReplayStore()
     live = live or LiveService(store)
     token = secrets.token_urlsafe(32)
     app = FastAPI(title="SQL interaction explorer", docs_url=None, redoc_url=None)

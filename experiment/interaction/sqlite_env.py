@@ -167,7 +167,7 @@ class SQLiteEnvironment:
                         break
                     remaining = self.max_rows - len(rows)
                     rows.extend(tuple(row) for row in batch[:remaining])
-                    if len(batch) > remaining or len(rows) >= self.max_rows:
+                    if len(batch) > remaining:
                         truncated = True
                         break
         except sqlite3.Error as exc:

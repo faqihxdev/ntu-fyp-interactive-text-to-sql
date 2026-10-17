@@ -10,24 +10,39 @@ Paths below are relative to `experiment/`. All dataset directories are Git-ignor
 | Pinned Mini-Interact evaluator | `datasets/bird-interact-evaluator/` |
 | Pinned Sphinteract notebook and licence | `datasets/sphinteract-source-21c6fcd/` |
 
-## Public sources
+## Public downloads
 
 From `experiment/`:
 
 ```powershell
-git clone -c core.autocrlf=false --filter=blob:none --no-checkout https://github.com/bird-bench/BIRD-Interact.git datasets/bird-interact-evaluator
-git -C datasets/bird-interact-evaluator checkout 451fe2c3518ee1cf908d8139e2913483bd519381
-git clone -c core.autocrlf=false --filter=blob:none --no-checkout https://github.com/ZhaoFuheng/Sphinteract.git datasets/sphinteract-source-21c6fcd
-git -C datasets/sphinteract-source-21c6fcd checkout 21c6fcdd01f8173b3eaf51df796aee6d18e5fa4b
+python -m readiness.fetch_public_inputs demo
+python -m readiness.fetch_public_inputs mini
 ```
 
-Keep automatic line-ending conversion disabled so source hashes match.
-Mini-Interact supplies the prompts and scorer used by offline tests. The
-Sphinteract notebook supplies BIRD generation and clarification prompts.
+`demo` installs original BIRD Dev and the pinned Sphinteract notebook. It downloads
+about 346 MB and installs about 1.5 GB. `mini` installs the 139 public Mini-Interact
+files, about 139 MB. Both verify SHA-256 hashes from the study records before
+installing files. Existing mismatched files are left unchanged.
 
-Obtain original BIRD Dev from the [BIRD project](https://bird-bench.github.io/)
-and public Mini-Interact tasks from
-[the dataset release](https://huggingface.co/datasets/birdsql/mini-interact).
+Sources: [original BIRD Dev](https://bird-bench.github.io/),
+[Mini-Interact revision 10253f2](https://huggingface.co/datasets/birdsql/mini-interact/tree/10253f235dbc6092a97e9c0acd30dba6203d8e59),
+and [Sphinteract revision 21c6fcd](https://github.com/ZhaoFuheng/Sphinteract/tree/21c6fcdd01f8173b3eaf51df796aee6d18e5fa4b).
+Mini-Interact and Sphinteract text files use the line endings required by their
+recorded hashes. SQLite bytes are unchanged. Mini-Interact acquisition records
+its pinned revision in `.public-inputs.json`; verification rechecks the files.
+
+For Mini-Interact evaluation and the experiment test suite, also install the
+pinned evaluator:
+
+```powershell
+git clone -c core.autocrlf=false --filter=blob:none --no-checkout https://github.com/bird-bench/BIRD-Interact.git datasets/bird-interact-evaluator
+git -C datasets/bird-interact-evaluator checkout 451fe2c3518ee1cf908d8139e2913483bd519381
+```
+
+Keep line-ending conversion disabled for this evaluator checkout. Its prompts
+and scorer are used by offline tests. The Sphinteract notebook supplies BIRD
+generation and clarification prompts.
+
 Private Mini-Interact ground truth requires permission from its authors; follow
 [their merge instructions](https://github.com/bird-bench/BIRD-Interact#combine-the-public-data-with-the-ground-truth-and-test-cases).
 The supplied private bundle is for academic use with a non-redistribution

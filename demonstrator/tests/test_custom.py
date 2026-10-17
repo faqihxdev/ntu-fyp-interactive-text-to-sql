@@ -10,13 +10,15 @@ from explorer.custom import bounded_observation
 from explorer.databases import DATABASE_GUIDES
 from explorer.server import create_app
 from explorer.live import LiveService
-from explorer.replay import ReplayStore
+from explorer.replay import BundledReplayStore
 from test_explorer import FakeInvoker
 
 
 @pytest.fixture(scope="module", name="store")
 def replay_store():
-    return ReplayStore()
+    if not (EXPERIMENT / "datasets/bird-dev/dev.json").is_file():
+        pytest.skip("BIRD integration tests require: python -m readiness.fetch_public_inputs demo")
+    return BundledReplayStore()
 
 
 @pytest.fixture(name="live")

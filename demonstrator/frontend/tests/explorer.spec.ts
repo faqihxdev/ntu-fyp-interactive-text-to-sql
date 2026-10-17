@@ -1,6 +1,18 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/branches/*/actions", (route) => route.fulfill({
+    status: 502, json: { detail: "Test blocked an unexpected paid action" },
+  }));
+  await page.route("**/api/status", async (route) => {
+    const status = await (await route.fetch()).json();
+    status.live.available = true;
+    status.live.branch_inputs_ready = true;
+    await route.fulfill({ json: status });
+  });
+});
+
 test("same-origin protection works through the dev proxy", async ({
   request,
   baseURL,

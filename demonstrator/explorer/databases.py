@@ -121,7 +121,7 @@ class DatabaseStore:
             raise ValueError("Choose a database from the list.")
         path = (self.root / db_id / f"{db_id}.sqlite").resolve()
         if not path.is_relative_to(self.root) or not path.is_file():
-            raise ValueError("This database is unavailable locally.")
+            raise ValueError("This database is not installed. From experiment/, run python -m readiness.fetch_public_inputs demo.")
         return path
 
     def catalogue(self) -> list[dict]:

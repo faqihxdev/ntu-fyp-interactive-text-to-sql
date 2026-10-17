@@ -24,7 +24,8 @@ export function Sandbox({
   onBusy: (busy: boolean) => void;
 }) {
   const [databases, setDatabases] = useState<DatabaseInfo[]>([]);
-  const [dbId, setDbId] = useState("superhero");
+  const [dbId, setDbId] = useState("");
+  const [loaded, setLoaded] = useState(false);
   const [detail, setDetail] = useState<DatabaseInfo>();
   const [question, setQuestion] = useState("");
   const [reply, setReply] = useState("");
@@ -33,12 +34,17 @@ export function Sandbox({
   const [error, setError] = useState("");
   useEffect(() => {
     api<DatabaseInfo[]>("/databases")
-      .then(setDatabases)
-      .catch((e) => setError(String(e.message)));
+      .then((items) => {
+        setDatabases(items);
+        setDbId(items.some((item) => item.id === "superhero") ? "superhero" : (items[0]?.id || ""));
+      })
+      .catch((e) => setError(String(e.message)))
+      .finally(() => setLoaded(true));
   }, []);
   useEffect(() => {
     let active = true;
     setDetail(undefined);
+    if (!dbId) return;
     api<DatabaseInfo>(`/databases/${dbId}`)
       .then((d) => {
         if (active) setDetail(d);
@@ -54,7 +60,7 @@ export function Sandbox({
     onBusy(busy);
   }, [busy, onBusy]);
   const exhausted = !!session && session.calls >= 12;
-  const canCall = !!status?.live.available && !busy && !exhausted;
+  const canCall = !!status?.live.available && !!detail && !busy && !exhausted;
   const selectDatabase = (id: string) => {
     setDbId(id);
     setQuestion("");
@@ -98,6 +104,19 @@ export function Sandbox({
     } finally {
       setBusy(false);
     }
+  }
+  if (!databases.length) {
+    return (
+      <main id="custom-main" className="mx-auto max-w-3xl space-y-4 px-6 py-12">
+        <h1 className="text-2xl font-semibold">{loaded ? "Set up live questions" : "Loading databases…"}</h1>
+        {loaded && !error && <>
+          <p>Download the BIRD databases once. From <code>experiment/</code>, run:</p>
+          <pre className="raw p-4" tabIndex={0}>python -m readiness.fetch_public_inputs demo</pre>
+          <p>Add your API key in <code>demonstrator/.env</code>, then restart the demo.</p>
+        </>}
+        {error && <p className="inline-error" role="alert">{error}</p>}
+      </main>
+    );
   }
   return (
     <div className="workspace sandbox">

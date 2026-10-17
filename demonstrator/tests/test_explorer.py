@@ -13,7 +13,10 @@ from interaction.trajectory import Usage
 
 @pytest.fixture(scope="module")
 def store():
-    return ReplayStore()
+    store = ReplayStore()
+    if not (store.run / "analysis.json").is_file() or not store.database_root.is_dir():
+        pytest.skip("Raw-run integration tests require the original run and BIRD databases; test_bundle.py covers packaged replay.")
+    return store
 
 
 class FakeInvoker:

@@ -20,6 +20,9 @@ SPHINTERACT_COMMIT = "21c6fcdd01f8173b3eaf51df796aee6d18e5fa4b"
 SPHINTERACT_NOTEBOOK_SHA256 = (
     "4daf7a8bac96d9cca66e91d5dee5639f6890568a27f47778c039d23311132108"
 )
+SPHINTERACT_NOTEBOOK_LF_SHA256 = (
+    "2c25a5d1425a5a3153a3c4c8cd915b06bf89a4ea57f9c6f0c59be3628a54d435"
+)
 REQUIRED_PROMPTS = {
     "feedback_prefix_v1",
     "feedback_v2",
@@ -83,7 +86,11 @@ def load_sphinteract_prompts(
     if not notebook_path.is_file():
         raise FileNotFoundError(notebook_path)
     actual_hash = sha256_file(notebook_path)
-    if actual_hash.casefold() != expected_sha256.casefold():
+    accepted_hashes = {expected_sha256.casefold()}
+    if expected_sha256.casefold() == SPHINTERACT_NOTEBOOK_SHA256:
+        # Git may check out this exact notebook with LF or CRLF line endings.
+        accepted_hashes.add(SPHINTERACT_NOTEBOOK_LF_SHA256)
+    if actual_hash.casefold() not in accepted_hashes:
         raise ValueError(
             "Unexpected Sphinteract notebook hash: "
             f"expected {expected_sha256}, got {actual_hash}"

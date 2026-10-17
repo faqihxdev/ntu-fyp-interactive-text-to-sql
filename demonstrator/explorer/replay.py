@@ -6,7 +6,7 @@ import hashlib
 import json
 from pathlib import Path
 
-from . import EXPERIMENT
+from . import APP_ROOT, EXPERIMENT
 from interaction.artifact_paths import resolve_recorded_path
 from interaction.bird_dev_matched import build_schema_only_context, database_path
 from interaction.sqlite_env import SQLiteEnvironment
@@ -202,9 +202,7 @@ class ReplayStore:
             "note": NOTES[case_id],
             "schema": self.schema(case_id),
             "source": RUN_NAME,
-            "record_sha256": hashlib.sha256(
-                (self.run / "tasks" / f"{case_id:04}.json").read_bytes()
-            ).hexdigest(),
+            "record_sha256": self.record_hash(case_id),
             "methods": {
                 m: {
                     **METHODS[m],
@@ -220,6 +218,9 @@ class ReplayStore:
                 for m in METHODS
             },
         }
+
+    def record_hash(self, case_id: int) -> str:
+        return hashlib.sha256((self.run / "tasks" / f"{case_id:04}.json").read_bytes()).hexdigest()
 
     def prefix(self, case_id: int, method: str, step_id: int) -> list[dict]:
         steps = self.steps(case_id, method)
@@ -295,3 +296,64 @@ class ReplayStore:
             "Read-only preview executed now; recorded benchmark scoring is unchanged."
         )
         return result
+
+
+class BundledReplayStore(ReplayStore):
+    """Read the ten exported cases without loading databases or raw run directories."""
+
+    def __init__(self, bundle: Path | None = None, database_root: Path = DATABASES):
+        super().__init__(database_root=database_root)
+        path = bundle or APP_ROOT / "data/replay.json"
+        raw = path.read_bytes()
+        expected = path.with_suffix(".sha256").read_text("ascii").strip()
+        if hashlib.sha256(raw).hexdigest() != expected:
+            raise ValueError("The replay bundle checksum does not match.")
+        self.bundle = json.loads(raw)
+        if self.bundle["version"] != 1 or set(self.bundle["cases"]) != {str(i) for i in IDS}:
+            raise ValueError("Unsupported or incomplete replay bundle.")
+        for case_id in IDS:
+            entry = self._entry(case_id)
+            if hashlib.sha256(entry["record"].encode()).hexdigest() != entry["record_sha256"]:
+                raise ValueError("A bundled record differs from its original checksum.")
+            self.schema(case_id)
+            for method in METHODS:
+                for step in self.steps(case_id, method):
+                    context = self.context(case_id, method, step["id"])
+                    if step["role"] == "policy":
+                        if hashlib.sha256(context["prompt"].encode()).hexdigest() != step["prompt_sha256"]:
+                            raise ValueError("A bundled policy prompt checksum does not match.")
+                    elif not context.get("private") or "prompt" in context:
+                        raise ValueError("Simulator prompts must be excluded from replay bundles.")
+
+    def _entry(self, case_id: int) -> dict:
+        if case_id not in IDS:
+            raise KeyError("Choose one of the ten available cases.")
+        return self.bundle["cases"][str(case_id)]
+
+    @lru_cache(maxsize=10)
+    def record(self, case_id: int) -> dict:
+        return json.loads(self._entry(case_id)["record"])
+
+    def record_hash(self, case_id: int) -> str:
+        return self._entry(case_id)["record_sha256"]
+
+    def schema(self, case_id: int) -> str:
+        schema = self._entry(case_id)["schema"]
+        if hashlib.sha256(schema.encode()).hexdigest() != self.record(case_id)["schema_sha256"]:
+            raise ValueError("The bundled schema checksum does not match.")
+        return schema
+
+    def summary(self) -> dict:
+        return self.bundle["summary"]
+
+    def context(self, case_id: int, method: str, step_id: int) -> dict:
+        steps = self.steps(case_id, method)
+        if not 0 <= step_id < len(steps):
+            raise KeyError("Unknown step.")
+        return self._entry(case_id)["contexts"][f"{method}/{step_id}"]
+
+    def preview(self, case_id: int, method: str, step_id: int) -> dict:
+        steps = self.steps(case_id, method)
+        if not 0 <= step_id < len(steps) or steps[step_id]["kind"] != "sql":
+            raise KeyError("Choose a SQL step.")
+        return self._entry(case_id)["previews"][f"{method}/{step_id}"]
