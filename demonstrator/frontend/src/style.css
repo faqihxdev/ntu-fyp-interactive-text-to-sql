@@ -12,18 +12,34 @@
   --color-muted: #a3a3a3;
   --color-line: #303030;
   --color-control: #696969;
-  --color-action: #66e8ff;
-  --color-action-hover: #99f0ff;
-  --color-accent: #66e8ff;
+  --color-action: var(--color-neutral-200);
+  --color-action-hover: var(--color-neutral-100);
+  --color-accent: var(--color-neutral-300);
   --color-selected: #2a2a2a;
-  --color-positive: #82ffb1;
-  --color-positive-bg: #17291f;
-  --color-caution: #ffd166;
-  --color-caution-bg: #302819;
-  --color-branch: #c6a0ff;
-  --color-branch-bg: #261f31;
-  --color-danger: #dda2a2;
-  --color-danger-bg: #2a1d1d;
+  --color-positive: var(--color-green-600);
+  --color-positive-bg: color-mix(
+    in oklab,
+    var(--color-green-600) 12%,
+    var(--color-canvas)
+  );
+  --color-caution: var(--color-amber-600);
+  --color-caution-bg: color-mix(
+    in oklab,
+    var(--color-amber-600) 12%,
+    var(--color-canvas)
+  );
+  --color-branch: var(--color-violet-600);
+  --color-branch-bg: color-mix(
+    in oklab,
+    var(--color-violet-600) 12%,
+    var(--color-canvas)
+  );
+  --color-danger: var(--color-red-600);
+  --color-danger-bg: color-mix(
+    in oklab,
+    var(--color-red-600) 12%,
+    var(--color-canvas)
+  );
 }
 
 @layer base {
@@ -85,7 +101,7 @@
     content: "";
   }
   summary:hover {
-    @apply text-accent;
+    @apply text-ink;
   }
   .disclosure-chevron {
     @apply ml-auto shrink-0 text-muted transition-transform;
@@ -120,6 +136,9 @@
   .view-switch button[aria-current="page"] {
     @apply bg-action text-canvas;
   }
+  .view-switch button[aria-current="page"]:hover {
+    @apply bg-action-hover;
+  }
   .brand-icon {
     @apply grid size-8 place-items-center rounded-lg bg-raised text-accent;
   }
@@ -145,7 +164,7 @@
     @apply mb-5 flex items-center gap-2 rounded-lg bg-panel px-3 text-muted transition-colors;
   }
   .search:focus-within {
-    @apply outline-2 outline-offset-2 outline-accent/50;
+    @apply outline-2 outline-offset-2 outline-accent;
   }
   .search > svg {
     @apply shrink-0;
@@ -312,6 +331,9 @@
   .text-miss {
     @apply text-caution;
   }
+  .method.active .method-footer strong {
+    @apply text-ink;
+  }
   .method-guide {
     @apply mt-3 mb-5 rounded-lg bg-panel text-xs;
   }
@@ -343,7 +365,7 @@
     @apply inline-flex items-center gap-1.5 rounded-md bg-raised px-2 py-1 text-xs font-medium text-muted;
   }
   .mode-label.live {
-    @apply bg-branch-bg text-branch;
+    @apply bg-branch-bg text-ink;
   }
   .free-label {
     @apply text-xs text-muted;
@@ -366,7 +388,9 @@
     @apply bg-action text-canvas;
   }
   .primary:hover:not(:disabled),
-  .playback .next:hover:not(:disabled) {
+  .primary:active:not(:disabled),
+  .playback .next:hover:not(:disabled),
+  .playback .next:active:not(:disabled) {
     @apply bg-action-hover;
   }
   .btn-secondary {
@@ -386,7 +410,7 @@
     @apply relative z-1 grid size-7 shrink-0 place-items-center rounded-full bg-raised text-xs font-medium text-muted;
   }
   .question .step-marker {
-    @apply bg-branch-bg text-branch;
+    @apply bg-branch-bg text-ink;
   }
   .step-body {
     @apply min-w-0 flex-1;
@@ -410,7 +434,7 @@
     @apply bg-caution-bg text-caution;
   }
   .badge.neutral {
-    @apply bg-branch-bg text-branch;
+    @apply bg-branch-bg text-ink;
   }
   .sql-frame {
     @apply overflow-hidden rounded-lg bg-inset;
@@ -434,7 +458,7 @@
     @apply text-caution;
   }
   .hljs-number {
-    @apply text-branch;
+    @apply text-ink;
   }
   .hljs-built_in {
     @apply text-positive;
@@ -544,13 +568,13 @@
     @apply pt-2;
   }
   .inline-error {
-    @apply my-3 rounded-lg bg-danger-bg p-3 text-xs text-danger;
+    @apply my-3 rounded-lg bg-danger-bg p-3 text-xs text-ink;
   }
   .error {
-    @apply mb-4 flex items-center gap-3 rounded-lg bg-danger-bg p-3 text-sm text-danger;
+    @apply mb-4 flex items-center gap-3 rounded-lg bg-danger-bg p-3 text-sm text-ink;
   }
   .error > svg {
-    @apply shrink-0;
+    @apply shrink-0 text-danger;
   }
   .error button {
     @apply ml-auto;
@@ -625,22 +649,22 @@
     @apply mb-3 flex items-center gap-1.5 text-xs text-positive;
   }
   .branch-notice {
-    @apply bg-branch-bg px-4 py-3 text-xs leading-relaxed text-branch sm:px-5;
+    @apply bg-branch-bg px-4 py-3 text-xs leading-relaxed text-ink sm:px-5;
   }
   .branch-notice small {
     @apply mt-1 block text-xs;
   }
   .live-tag {
-    @apply rounded bg-branch-bg px-1.5 py-1 text-xs text-branch;
+    @apply rounded bg-branch-bg px-1.5 py-1 text-xs text-ink;
   }
   .live-step .step-marker {
-    @apply bg-branch-bg text-branch;
+    @apply bg-branch-bg text-ink;
   }
   .live-controls {
     @apply mx-3 mb-3 rounded-lg bg-branch-bg p-4 sm:mx-5 sm:mb-5 sm:p-5;
   }
   .live-control-heading {
-    @apply mb-4 flex items-center gap-2 text-branch;
+    @apply mb-4 flex items-center gap-2 text-ink;
   }
   .live-control-heading h3 {
     @apply text-sm;
@@ -667,7 +691,7 @@
     @apply block text-xs text-muted;
   }
   .busy {
-    @apply mt-3 flex items-center gap-2 text-xs text-branch;
+    @apply mt-3 flex items-center gap-2 text-xs text-ink;
   }
   .live-controls > p {
     @apply text-sm text-muted;
@@ -693,7 +717,7 @@
     @apply my-2 max-h-64 overflow-auto rounded-lg bg-inset p-3 font-mono text-xs leading-relaxed;
   }
   .sql-change .removed {
-    @apply text-danger;
+    @apply bg-danger text-white;
   }
   .sql-change .added {
     @apply text-positive;
@@ -753,7 +777,7 @@
     @apply mb-3;
   }
   .study-takeaway strong {
-    @apply font-medium text-branch;
+    @apply font-medium text-ink;
   }
   .info-flow {
     @apply mb-4 grid gap-3 sm:grid-cols-3;
@@ -787,7 +811,10 @@
     @apply w-full justify-start gap-3 bg-panel p-3 text-left;
   }
   .database-button.selected {
-    @apply bg-selected text-accent;
+    @apply bg-selected text-ink;
+  }
+  .database-button.selected svg {
+    @apply text-accent;
   }
   .database-hint {
     @apply mt-4 text-xs text-muted;

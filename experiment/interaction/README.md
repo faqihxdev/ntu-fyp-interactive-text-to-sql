@@ -1,107 +1,100 @@
-# Text-to-SQL controllers
+# Controllers and scoring
 
-The package implements the three studies described below. The final API freezes
-identify the code, prompts, data and settings used for the reported results.
+The three studies use `gpt-5.6-luna` with high reasoning through the OpenAI
+Responses API. Results, task selections and input hashes are in `../manifests/`.
+See [results](../RESULTS.md) and [setup and commands](../README.md).
 
-## Method names
+## BIRD Dev
 
-The **initial-attempt baseline** stops after the shared first SQL attempt and
-any permitted invalid-SQL repair. **SQL-only recovery** receives correctness
-feedback and retries without asking clarification questions. Saved records use
-`no_user` as the identifier for the initial-attempt baseline.
+Both studies use the 1,534-task original BIRD Dev split. SQL generation receives
+the question and `CREATE TABLE` definitions. Recovery receives rejected SQL;
+clarification also receives previous questions and answers. Invalid-SQL repair
+receives the SQLite error.
+Gold SQL, BIRD evidence, sampled values and result rows stay outside generation
+prompts. The evaluator supplies acceptance feedback; the simulated user reads
+gold SQL to answer clarification questions.
 
-[Sphinteract, Table 2 and §6.2](https://www.vldb.org/pvldb/vol18/p1145-zhao.pdf)
-uses `Baseline`, `Simple`, `CQs` and `CQs & ES`. Its Simple method also receives
-correctness feedback. The report labels describe the local implementations.
-[Wu et al.](https://aclanthology.org/2024.emnlp-main.131/) instead distinguishes
-conditions with and without supplied evidence. Its labels describe a different
-support protocol.
+The initial-attempt baseline stops after the shared first query and any immediate
+repair. Saved records call this method `no_user`.
 
-## Primary clarification versus retry
-
-`bird_dev_clarification_value.py` and `run_bird_dev_clarification_value.py`
-compare the initial-attempt baseline, SQL-only recovery and reactive clarification
-on all 1,534 original BIRD Dev tasks.
-
-All methods share the first SQL and its immediate invalid-SQL repair, if needed.
-After a hidden rejection, the baseline stops, SQL-only recovery retries, and
-reactive clarification asks a target-aware simulated user before retrying.
-Both recovery methods permit five normal SQL generations.
-
-The final BIRD execution accuracies are 43.16%, 50.13% and 77.51%.
-Clarification exceeds retry by 27.38 percentage points, with a paired 95%
-interval of 25.03 to 29.73. See the
-[primary result](../notes/api-bird-dev-clarification-value-v1-full-result-2026-08-30.md).
-
-## Supporting asking and stopping configurations
-
-`bird_dev_matched.py` and `run_bird_dev_matched.py` implement five methods:
-the initial-attempt baseline, proactive-only, reactive CQ, hybrid and reactive
-CQ with early stopping. Their final BIRD accuracies are 44.65%, 58.02%, 78.29%,
-78.36% and 64.99%.
-
-The baseline and reactive methods share the first SQL. Proactive and hybrid
-reuse it when their initial decision is `no_ambiguity`; when they ask, they
-generate SQL after the answer. Reactive CQ and hybrid share the later
-non-early-stopping loop.
-
-The comparison concerns complete controller configurations. It does not isolate
-question timing from differences in information, budgets and stopping.
-See the [protocol](../notes/bird-dev-matched-v4-timing-protocol-2026-08-24.md)
-and [supporting result](../notes/api-bird-dev-matched-v4-full-result-2026-08-30.md).
-
-Both BIRD studies supply schema-only generation context. BIRD's released
-set-of-result-rows rule controls acceptance and stopping. Sphinteract-compatible
-scores are calculated on the saved queries afterwards.
-
-## Mini-Interact controller comparison
-
-`official_protocol.py` and `run_official_mini_interact.py` implement the local
-Mini-Interact Stress adaptation. The final comparison uses 240 paired tasks:
-
-| Controller | Asking behaviour | Success |
+| Study | Methods and rules | Main modules |
 |---|---|---|
-| Local reference port | Model chooses among all nine released actions | 38.33% |
-| Reactive | SRA after rejected SQL, with early stopping | 22.08% |
-| Proactive | One SRA opportunity after schema retrieval | 22.92% |
-| Hybrid | Proactive opportunity followed by reactive SRA | 31.25% |
+| Primary | Initial-attempt baseline, SQL-only recovery and reactive clarification share the same initial attempt and repair. Both recovery methods allow five normal generations; clarification allows four answers. Question-ID hashing determines which recovery method runs first. | `bird_dev_clarification_value.py`, `run_bird_dev_clarification_value.py` |
+| Supporting | Initial-attempt baseline, proactive-only, reactive CQ, hybrid and reactive CQ with early stopping. Proactive/hybrid first decide whether to ask. They reuse shared SQL if they do not ask, or generate SQL after the answer. Hybrid then uses reactive clarification. | `bird_dev_matched.py`, `run_bird_dev_matched.py` |
 
-All four use the same paid retrieval interface, coin budget formula
-`12 + 2 * ambiguity_count`, 60-action cap, sanitised two-stage simulator and
-released SQLite submission evaluator. The reference prompt is adapted to
-structured JSON. The SRA controllers also impose their own question,
-submission and stopping rules.
+Each normal generation permits one immediate invalid-SQL repair outside the
+normal-generation count. Proactive-only allows one answer; other clarification
+methods allow four, including any proactive answer. Reactive CQ with early
+stopping can stop after a `NO AMBIGUITY` decision. These comparisons measure
+complete methods, including their extra information and computation.
 
-The gold SQL, annotations and test material stay on the evaluator/simulator
-side. Policy histories receive the permitted tool observations and user replies.
-The result is a local whole-controller comparison, separate from the official
-leaderboard. See the
-[adaptation account](../notes/official-mini-interact-adaptation-account-2026-08-23.md)
-and [final result](../notes/api-official-mini-interact-stress-comparison-v2-result-2026-08-30.md).
+Clarification adapts [Sphinteract](https://www.vldb.org/pvldb/vol18/p1145-zhao.pdf)
+and its [pinned notebook](https://github.com/ZhaoFuheng/Sphinteract/blob/21c6fcdd01f8173b3eaf51df796aee6d18e5fa4b/zeroshot_experiments.ipynb).
+Summarize-Review-Ask reviews question, schema, output and value ambiguity, then
+asks one question with three options and an open alternative. The implementation
+uses structured JSON, `AmbTableColumn` for schema ambiguity and removes trailing
+recommendation labels. Simulator replies pass lexical checks for SQL fragments
+and evaluator labels. These checks cannot rule out all indirect target hints.
 
-## Shared modules
+Sphinteract already supplies SRA, gold-aware answers, correctness-assisted retry,
+shared initial predictions, equal round limits, repair and optional early stopping.
+This implementation also shares the initial repair, uses BIRD scoring and adds
+proactive/hybrid comparisons. It evaluates oracle-assisted recovery, not autonomous
+leaderboard performance or real-user effectiveness.
 
-`inference_runtime.py` selects OpenAI or the optional Codex development adapter.
-`codex_official_policy.py` and the two `codex-*-instructions.md` files also
-serve the final API path. Their names describe their origin, not the provider
-used in a particular result.
+## Scoring
 
-`controller.py`, `recovery.py`, `context.py`, `model.py` and the trajectory,
-oracle and metric modules provide shared types and functions.
+| Rule | Comparison |
+|---|---|
+| BIRD EX | Equal sets of result-row tuples. Ignores row order and duplicate rows; preserves column positions. Controls acceptance and stopping in both BIRD studies. |
+| Sphinteract-compatible | Equal row counts, ignoring column order within each row. Preserves row sequence when gold SQL contains literal uppercase `ORDER BY`; otherwise compares normalised row sets. Applied afterwards to saved candidates. |
+| Mini-Interact | Pinned single-instance SQLite evaluator checks private solution SQL and conditions on one database. The supplied bundle uses its default test, with order/column checks and floating-point handling. |
 
-The Mini-Interact selections contain 10 pilot IDs, 50 exploratory IDs and
-240 comparison IDs. The selection records also include the original 290-ID
-parent group. These records identify task allocation and prior evaluation exposure.
+BIRD's rule comes from the [released evaluator](https://github.com/AlibabaResearch/DAMO-ConvAI/blob/483554eae102996f5ec1f4feab4e78ef29c2a394/bird/llm/src/evaluation.py).
+The [bird-bench fork](https://github.com/bird-bench/DAMO-ConvAI/blob/f9e562d05548d5d921bdb952d779398c0ffe9887/bird/llm/src/evaluation.py)
+contains the same file. Scorers can produce different stopping decisions, so
+rescoring saved candidates does not reproduce a run controlled by another scorer.
 
-## Verification and analysis
+## Mini-Interact
 
-Run these commands from `experiment/`:
+`official_protocol.py` and `run_official_mini_interact.py` implement four controllers
+on 240 tasks, separate from 10 pilot and 50 exploratory tasks.
 
-```powershell
-uv run --frozen python -m unittest discover -s interaction/tests -v
-uv run --frozen ruff check interaction readiness codex_proxy
-```
+| Controller | Action rules |
+|---|---|
+| Reference | Model chooses among the nine released actions, including retrieval, asking, submission and stopping. |
+| Reactive | Retrieve schema, submit SQL, then use SRA after rejection. Permits early stopping. |
+| Proactive | One SRA opportunity after schema retrieval, followed by SQL-only recovery. |
+| Hybrid | Proactive opportunity followed by reactive SRA. Permits early stopping. |
 
-[The experiment README](../README.md) lists commands to reproduce the recorded
-analyses without model calls. Runners require explicit settings and approval
-flags for large runs. Private trajectories stay under the ignored `runs/` folder.
+All use Stress action prices, `12 + 2 * ambiguity_count` coins, six user-patience
+coins and a 60-action cap. The three constrained controllers allow five normal
+submissions and one immediate repair after each invalid submission, subject to
+budgets. Reactive/hybrid allow four answers; proactive allows one.
+
+The [reference prompt and actions](https://github.com/bird-bench/BIRD-Interact/blob/451fe2c3518ee1cf908d8139e2913483bd519381/mini_interact/knowledge_based/mini_interact_agent/experiments/utils/prompts.py)
+are adapted to structured JSON. Malformed actions terminate as failures rather
+than receiving the released small penalty. A normaliser supplies missing SRA
+summary/review fields or the open option, while retaining raw output. The
+two-stage simulator classifies and answers questions in separate calls and
+sanitises replies. Gold data stays on the simulator/evaluator side.
+
+The SQLite adapter checks read-only execution and invokes the pinned scorer on
+a temporary database copy, with timeouts and private error handling. Controllers
+differ in action choice, retrieval, question timing and stopping; their results
+measure those combined differences.
+
+## Analysis and shared code
+
+BIRD reports the full split and recalculates results excluding development IDs:
+120 primary and 110 supporting tasks. Mini-Interact's main comparison excludes
+its 60 development tasks. Paired analysis uses 10,000 task-bootstrap samples,
+exact two-sided McNemar tests and Holm adjustment for designated contrast families.
+Database-cluster and leave-one-database-out checks are additional analyses.
+These intervals describe task variation, not repeated model runs.
+
+`inference_runtime.py` selects the API or optional Codex adapter;
+`openai_structured.py` handles API calls and spend tracking. The `codex_` policy
+modules and instruction filenames also serve API runs. `sqlite_env.py` implements
+BIRD comparison. Trajectory, model, context, oracle and metric modules provide
+shared records.

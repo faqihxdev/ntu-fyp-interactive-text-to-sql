@@ -13,6 +13,16 @@ from interaction import run_bird_dev_matched as supporting
 
 
 class ArtifactPathsTest(unittest.TestCase):
+    def test_freeze_protocol_documents_exist(self):
+        from interaction.freeze_bird_dev_clarification_value import DEFAULT_PROTOCOL_NOTE
+        from interaction.freeze_bird_dev_clarification_value_full import (
+            DEFAULT_PROTOCOL_NOTE as full_protocol,
+        )
+
+        for path in (DEFAULT_PROTOCOL_NOTE, full_protocol):
+            self.assertTrue(path.is_file(), path)
+            self.assertIn("# Controllers and scoring", path.read_text(encoding="utf-8"))
+
     def test_both_layouts_and_path_spellings(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()

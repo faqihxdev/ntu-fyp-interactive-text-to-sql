@@ -34,8 +34,8 @@ DEFAULT_PILOT = (
 )
 DEFAULT_PROTOCOL_NOTE = (
     EXPERIMENT_ROOT
-    / "notes"
-    / "bird-dev-clarification-value-protocol-2026-08-26.md"
+    / "interaction"
+    / "README.md"
 )
 DEFAULT_OUTPUT = (
     EXPERIMENT_ROOT

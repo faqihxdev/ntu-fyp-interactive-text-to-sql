@@ -216,28 +216,193 @@ test("custom clarification, reply, unverified result and revision are explicit",
 
 test("waiting controls keep equal side and bottom insets", async ({ page }) => {
   let release!: () => void;
-  const waiting = new Promise<void>(resolve => { release = resolve; });
-  await page.route("**/api/branches/*/actions", async route => {
+  const waiting = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/branches/*/actions", async (route) => {
     await waiting;
-    await route.fulfill({ status: 502, json: { detail: "Mock call ended. No API request was made." } });
+    await route.fulfill({
+      status: 502,
+      json: { detail: "Mock call ended. No API request was made." },
+    });
   });
   await page.goto("/");
-  await page.getByRole("button", { name: "Try a question", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Try a question", exact: true })
+    .click();
   await page.getByLabel("Or ask your own question").fill("Count heroes");
   await page.getByRole("button", { name: "Ask AI · API", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("Waiting for the API");
   for (const width of [1440, 375]) {
     await page.setViewportSize({ width, height: 900 });
     const outer = await page.locator(".custom-conversation").boundingBox();
-    const inner = await page.locator("#custom-main .live-controls").boundingBox();
+    const inner = await page
+      .locator("#custom-main .live-controls")
+      .boundingBox();
     const inset = width >= 640 ? 20 : 12;
     expect(inner!.x - outer!.x).toBeCloseTo(inset, 0);
-    expect(outer!.y + outer!.height - inner!.y - inner!.height).toBeCloseTo(inset, 0);
+    expect(outer!.y + outer!.height - inner!.y - inner!.height).toBeCloseTo(
+      inset,
+      0,
+    );
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.locator(".custom-conversation").screenshot({ path: "test-results/custom-padding.png" });
+  await page
+    .locator(".custom-conversation")
+    .screenshot({ path: "test-results/custom-padding.png" });
   release();
   await expect(page.getByRole("alert")).toContainText("Mock call ended");
+});
+
+test("database checks pause for Continue, retain context and handle failed calls", async ({
+  page,
+}) => {
+  let calls = 0;
+  let session: CustomSession;
+  const sent: string[] = [];
+  await page.route("**/api/branches/*", async (route) => {
+    if (session) await route.fulfill({ json: session });
+    else await route.continue();
+  });
+  await page.route("**/api/branches/*/actions", async (route) => {
+    const body = route.request().postDataJSON();
+    calls++;
+    if (!session)
+      session = await (
+        await page.request.get(route.request().url().replace("/actions", ""))
+      ).json();
+    if (calls === 2) {
+      session.calls++;
+      await route.fulfill({
+        status: 502,
+        json: { detail: "Test API failure. Retry explicitly." },
+      });
+      return;
+    }
+    const inspect = body.action === "generate";
+    sent.push(body.text);
+    session.steps.push({
+      id: session.steps.length,
+      kind: "sql",
+      role: "policy",
+      source: "live",
+      query_purpose: inspect ? "inspect" : "answer",
+      call_kind: "custom_sql",
+      output: {
+        sql: "SELECT publisher_name FROM publisher LIMIT 3",
+        purpose: "Check the stored publisher names.",
+      },
+      candidate: {
+        sql: "SELECT publisher_name FROM publisher LIMIT 3",
+        official_ex: null,
+        status: "ok",
+        error: null,
+        row_count: 25,
+      },
+      preview: {
+        columns: ["publisher_name"],
+        preview: [["Marvel Comics"], ["DC Comics"]],
+        row_count: 25,
+        status: "ok",
+        error: null,
+        truncated: false,
+        preview_limited: true,
+      },
+    });
+    session.phase = inspect ? "inspect" : "result";
+    session.calls++;
+    session.attempts++;
+    session.revision++;
+    await route.fulfill({ json: { session } });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Try a question", exact: true })
+    .click();
+  await page
+    .getByLabel("Or ask your own question")
+    .fill("Which publishers are represented?");
+  await page.getByRole("button", { name: "Ask AI · API", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Database check", exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("Observation", { exact: true })).toBeVisible();
+  await expect(page.getByText("Marvel Comics", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("Executed · unverified", { exact: true }),
+  ).toHaveCount(0);
+  await expect(page.getByText(/Preview shortened/)).toBeVisible();
+  expect(calls).toBe(1);
+  await page.screenshot({
+    path: "test-results/custom-inspect-desktop.png",
+    fullPage: true,
+  });
+  const audit = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+    .analyze();
+  expect(audit.violations).toEqual([]);
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.locator("#custom-main .live-controls").scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: "test-results/custom-inspect-mobile.png",
+    fullPage: true,
+  });
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await page.getByText("Add context", { exact: true }).click();
+  await page
+    .getByLabel("Anything else the AI should know?")
+    .fill("Include publishers with zero heroes");
+  expect(calls).toBe(1);
+  await page
+    .getByRole("button", { name: "Continue · API", exact: true })
+    .click();
+  await expect(page.getByRole("alert")).toContainText("Test API failure");
+  await expect(
+    page.getByLabel("Anything else the AI should know?"),
+  ).toHaveValue("Include publishers with zero heroes");
+  await expect(
+    page.getByRole("button", { name: "Continue · API", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "Continue · API", exact: true })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Answer query", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Executed · unverified", { exact: true }),
+  ).toBeVisible();
+  expect(sent.at(-1)).toBe("Include publishers with zero heroes");
+  expect(calls).toBe(3);
+});
+
+test("exhausted custom sessions offer a fresh question instead of more paid calls", async ({
+  page,
+}) => {
+  await page.route("**/api/branches/*/actions", async (route) => {
+    const session: CustomSession = await (
+      await page.request.get(route.request().url().replace("/actions", ""))
+    ).json();
+    session.calls = 12;
+    session.phase = "done";
+    session.termination = "call_limit";
+    await route.fulfill({ json: { session } });
+  });
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "Try a question", exact: true })
+    .click();
+  await page.getByLabel("Or ask your own question").fill("Count heroes");
+  await page.getByRole("button", { name: "Ask AI · API", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("12-call limit");
+  await expect(page.locator("#custom-main .live-controls")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "New question", exact: true }),
+  ).toBeEnabled();
 });
 
 test("study totals, score boundaries and SQL changes match the report", async ({

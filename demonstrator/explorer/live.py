@@ -47,6 +47,7 @@ class LiveService:
         self.model = os.environ.get("DEMO_MODEL", "gpt-5.6-luna")
         self.reasoning = os.environ.get("DEMO_REASONING", "high")
         self.invoker = invoker
+        self.custom_invoker = invoker
         self.simulator = simulator
         self.tracker = None
         self.sessions = {}
@@ -108,6 +109,9 @@ class LiveService:
         self.simulator = OpenAIStructuredInvoker(
             **options,
             instructions_file=EXPERIMENT / "interaction/codex-user-simulator-instructions.md",
+        )
+        self.custom_invoker = OpenAIStructuredInvoker(
+            **options, instructions_file=APP_ROOT / "explorer/custom-instructions.md"
         )
 
     def fork(self, case_id: int, method: str, step_id: int, mode: str):
@@ -206,6 +210,8 @@ class LiveService:
             )
         self._initialise_client()
         invoker = self.simulator if role == "simulator" else self.invoker
+        if session.get("mode") == "custom":
+            invoker = self.custom_invoker
         session["calls"] += 1
         self._persist(session)
         result = invoker.run(

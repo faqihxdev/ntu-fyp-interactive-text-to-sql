@@ -586,7 +586,7 @@ def check_original_bird(dataset_root: Path, freeze_path: Path) -> dict[str, Any]
     local_root = (EXPERIMENT_ROOT / "datasets/bird-dev").resolve()
     hashes = {}
     for name, digest in freeze["artifact_hashes"].items():
-        path = resolve_recorded_path(name, EXPERIMENT_ROOT)
+        path = resolve_recorded_path(name, EXPERIMENT_ROOT).resolve()
         if path.is_relative_to(local_root):
             relative = path.relative_to(local_root).as_posix()
             require(relative not in hashes, f"Duplicate original-BIRD input: {relative}")

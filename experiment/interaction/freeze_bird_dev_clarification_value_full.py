@@ -38,8 +38,8 @@ DEFAULT_FULL = (
 )
 DEFAULT_PROTOCOL_NOTE = (
     EXPERIMENT_ROOT
-    / "notes"
-    / "bird-dev-clarification-value-full-protocol-2026-08-26.md"
+    / "interaction"
+    / "README.md"
 )
 DEFAULT_PILOT_FREEZE = (
     EXPERIMENT_ROOT

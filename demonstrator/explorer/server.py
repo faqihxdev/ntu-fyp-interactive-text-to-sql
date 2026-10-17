@@ -29,7 +29,7 @@ class ActionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     revision: int = Field(ge=0)
     request_id: str = Field(min_length=8, max_length=80)
-    action: Literal["reply", "ask", "repair", "suggest", "stop", "generate", "feedback"]
+    action: Literal["reply", "ask", "repair", "suggest", "stop", "generate", "feedback", "continue"]
     text: str = Field(default="", max_length=4000)
 
 

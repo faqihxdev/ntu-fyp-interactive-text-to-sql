@@ -110,6 +110,9 @@ export function PreviewTable({ data }: { data: Preview }) {
           <p>{data.source}</p>
         </details>
       )}
+      {data.preview_limited && (
+        <p>Preview shortened. Some rows, columns or long values are omitted.</p>
+      )}
     </div>
   );
 }

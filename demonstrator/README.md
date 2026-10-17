@@ -1,148 +1,98 @@
 # SQL interaction explorer
 
-A local research demonstrator for the final three-method BIRD study. Ten real
-cases show where clarification helps, where retry is enough, and where both fail.
-A separate **Try a question** mode lets users select a database and explore
-their own requests, with clarification and SQL revision on demand.
+A local web app for replaying saved BIRD conversations, trying alternative
+replies and asking new database questions. React and Tailwind provide the
+interface; FastAPI serves the local API.
 
-## Start
+## Setup
 
-From this `demonstrator/` directory in Git Bash:
+Requires Windows, Git Bash, Python 3.12+, uv and Node.js/npm. Place these inputs
+under the adjacent `experiment/` directory:
+
+| Input | Path |
+|---|---|
+| BIRD metadata | `datasets/bird-dev/dev.json` |
+| Eleven BIRD databases | `datasets/bird-dev/dev_databases/dev_databases/<db>/<db>.sqlite` |
+| Pinned Sphinteract source | `datasets/sphinteract-source-21c6fcd/zeroshot_experiments.ipynb` |
+| Saved primary run, including prompts and schemas | `runs/api-bird-dev-clarification-value-v1-full1534-luna-high-20260830/` |
+
+See [dataset setup](../experiment/readiness/README.md) for public downloads.
+Saved trajectories are separate local inputs. Replay checks their prompt hashes.
+
+From `demonstrator/` in Git Bash:
 
 ```bash
 bash ../run-demo.dev.sh
 ```
 
-Open **http://127.0.0.1:8765/**, also printed in the terminal. Frontend edits update
-live. The API runs on port 8766 and reloads when `explorer/*.py` changes.
-Ctrl+C stops both services. Run the same command again to replace existing demo
-processes, or use `bash ../run-demo.dev.sh --stop` to stop them without restarting.
+Open `http://127.0.0.1:8765/`. The reloading API uses port 8766. Ctrl+C stops both.
+Use `--stop` to stop recognised demo processes or `--port 8775 --api-port 8776`
+to change ports. Unrelated port owners block startup. Both servers bind to loopback.
+The Bash launcher uses Windows PowerShell, not WSL. PowerShell users can run
+`..\run-demo.dev.ps1`; `-Help` lists options. To build and serve the production
+frontend locally, use `& '.\start.ps1'`, or add `-SkipBuild` to reuse a build.
 
-Only recognised processes from this demonstrator are stopped. An unrelated port
-owner blocks startup with its PID. Close it yourself or choose two different ports:
-`bash ../run-demo.dev.sh --port 8775 --api-port 8776`. Both servers bind to loopback only.
-API reloads/restarts clear in-memory live branches; saved results and `.local/`
-branch logs are untouched. API startup logs go to `.local/dev-*-api.*.log`.
+Live actions read credentials from `../experiment/.env`, with overrides from
+the demo's `.env`. See [.env.example](.env.example). The default model is
+`gpt-5.6-luna` with high reasoning. API keys stay on the server; replay needs no key.
 
-The `.sh` entry point delegates Windows process management to `../run-demo.dev.ps1`.
-Use Git Bash, not WSL; this project uses Windows dependencies and paths.
-PowerShell users can run `..\run-demo.dev.ps1` directly. Both scripts resolve
-their paths from their own location, independently of the terminal directory.
+## Modes
 
-The launcher syncs frozen Python dependencies and runs `npm ci` only when the
-frontend lockfile changes or Vite is missing. It does not make model calls.
-To serve the built frontend locally, run `& '.\start.ps1'` from this directory.
-Use `-SkipBuild` to reuse an existing frontend build.
+| Mode | Behaviour |
+|---|---|
+| Saved cases | Shows the full conversation, SQL, results and recorded model context. Restart or play steps individually. No model calls. |
+| Try your reply | Copies history through the selected clarification and continues with reactive Summarize-Review-Ask. Original-target mode uses hidden BIRD scoring and optional simulated answers; changed-intent mode uses user feedback. |
+| Try a question | Offers 11 databases, descriptions, schemas and three starter questions per database. The model can inspect values, ask about intent or generate an answer query. |
 
-Requires `uv`, Node.js, the adjacent `experiment/` directory, the original BIRD Dev
-databases, the pinned Sphinteract source notebook, and the local final API run:
+Selecting a starter or reply option fills the input without sending it. Each
+API-labelled action makes at most one model request. Database inspections pause
+for **Continue · API**; **Add context** includes further user instructions.
+Custom results are labelled **Executed · unverified** because users judge the
+answer. Custom mode has no answer key or simulated user.
 
-`../experiment/runs/api-bird-dev-clarification-value-v1-full1534-luna-high-20260830/`
+Custom exploration adapts the flexible action pattern of the
+[Mini-Interact reference controller](https://github.com/bird-bench/BIRD-Interact/blob/451fe2c3518ee1cf908d8139e2913483bd519381/mini_interact/knowledge_based/mini_interact_agent/experiments/utils/prompts.py).
+It supplies schema upfront and uses real user replies and explicit continuation.
+Its accuracy is separate from the [reported experiments](../experiment/RESULTS.md).
 
-The app reads these artefacts without modifying them. Mini-Interact data is
-not required. Missing saved prompts or hash mismatches produce an error.
+## Limits and information flow
 
-## Use it
+- Each live conversation allows 12 model calls, five normal SQL generations
+  and four clarification replies. Forked conversations count their saved prefix
+  towards the query/reply limits. One invalid-SQL repair per query is explicit.
+- Custom inspections share the SQL limit. The final query slot and final call
+  permit an answer, not another inspection. Observations contain at most eight
+  rows, 12 columns and 12 KB of JSON; truncation is shown and binary values omitted.
+- SQL is read-only, with a 15-second execution limit and 50,000-row cap.
+- The cumulative estimated spend guard defaults to US$2, reserving US$0.10 per
+  request, with 4,096 maximum output tokens and no automatic connection retries.
+  It is a local estimate, not an exact billing cap.
+- Sessions and private prompts are stored in ignored `.local/`. Logs can contain
+  user text, database values and simulator-side gold SQL. Do not publish them.
+  A restart clears in-memory sessions; refresh returns the interface to replay.
 
-1. Choose a case. The three method cards show their complete saved outcomes.
-2. Each case and method opens with its full saved conversation visible. Use
-   **Restart replay** or **Play** to go through it step by step. No API calls.
-3. Inspect a SQL result, schema, saved prompt, or structured SRA output.
-4. At a clarification, select **Try your reply**. Only the prefix up to that
-   question is copied. Later saved replies never enter the new model context.
-5. Type a reply, reuse the saved reply for free, or request a generated suggestion.
-   Every paid action has an **API** label. No background model loop runs.
+The case library has two examples for each outcome: clarification alone, retry
+alone, both recover, initial success and neither recovers. These are selected
+examples, not an accuracy sample. BIRD scoring controlled the saved trajectories;
+Sphinteract-compatible scores only rescore their saved queries.
 
-The interface uses neutral dark surfaces, neon cyan actions, green matches,
-amber mismatches and violet clarification, with filled, borderless controls.
-The info icon beside **Case library** explains the
-three outcome indicators, in the order initial-attempt baseline, SQL-only
-recovery, reactive clarification. **Study results & information flow** contains
-the full-study figures read from the frozen analysis and explains the roles of
-the model, evaluator and simulated user. SQL changes and scoring details are
-collapsible. The Sphinteract-compatible score is a reporting-only check of saved
-queries; BIRD controlled the original trajectories.
+## Tests
 
-### Ask a new question
-
-1. Select **Try a question**, then one of the 11 available BIRD databases.
-2. Read its description or expand **Inside this database** for its tables and
-   schema. Each database has three new starter questions, separate from saved
-   benchmark questions. Selecting an example fills the input without sending it.
-3. Select **Ask AI · API** to make one model request. It returns a query or asks
-   one clarification. Selecting a clarification option only fills your reply.
-4. Send your answer, request a SQL revision, or finish. Each **API** button makes
-   at most one model request. Execution errors allow one explicit repair.
-
-Custom exploration has no gold answer, acceptance feedback or simulated oracle.
-**Executed · unverified** means the query ran. The user checks whether its
-result answers their question. The model sees the question, table definitions,
-conversation and execution errors, but no sampled values or preview rows.
-Actual prompts, instructions, outputs and response formats can be inspected.
-This mode is an exploratory demo, not one of the evaluated controllers.
-It shares the 12-call spend guard and allows five normal queries and four
-clarification replies per conversation. Database queries are read-only.
-Switching modes preserves the current conversation; **New question** starts over.
-
-For live branches, **original target** keeps the benchmark's hidden result
-comparison and optional gold-conditioned simulator. **Changed intent** uses your
-feedback instead, disables gold scoring and offers only possible reply suggestions.
-The latter is a demonstration variant, not the evaluated research protocol.
-
-The live branch inherits the original five-normal-attempt/four-reply limits. A
-single invalid-SQL repair must be requested explicitly. A branch allows at most
-12 model calls; the server processes one at a time. Live SQL has a 15-second,
-50,000-row execution limit for responsiveness, lower than the benchmark's limits.
-Live results therefore must not be substituted into the benchmark.
-
-## Credentials and saved state
-
-The server reads `../experiment/.env`. An optional local `.env` overrides it;
-see `.env.example`. The API key never goes to the browser. Default live model is
-`gpt-5.6-luna` with `high` reasoning. Replay works without an API key.
-
-The local estimated spend guard defaults to $2 cumulatively, with a $0.10
-reservation per request, 4,096 maximum output tokens and no automatic transport
-retries. This is not an exact provider-side billing ceiling.
-
-Live state and prompt logs go to ignored `.local/`, separate from frozen results.
-They can contain typed replies, and private simulator call logs contain gold SQL.
-Do not publish that folder. The interface returns to saved replay after a page
-refresh; active branches remain available through their server IDs until a
-restart. Live JSON logs remain on disk. There is a 64-branch server limit.
-Replay remains available throughout.
-
-## Selected evidence
-
-| Outcome | Task IDs | Count in all 1,534 tasks |
-| --- | --- | ---: |
-| Only clarification recovers | 780, 1389 | 437 |
-| Both recover | 794, 1364 | 90 |
-| Only retry recovers | 1342, 1379 | 17 |
-| Shared initial SQL succeeds | 737, 820 | 662 |
-| Neither recovers | 407, 952 | 328 |
-
-These are deliberately selected examples, not an accuracy sample. Match means
-the official BIRD result-set comparison. The replay labels simulator replies and
-rejection feedback; it is not an autonomous leaderboard demonstration.
-
-## Checks
-
-From this directory, the packaging checks need no databases or API key:
+From `demonstrator/`, packaging tests need no data or API key:
 
 ```powershell
-uv run --frozen pytest -q tests/test_packaging.py
+uv run --frozen pytest -q tests/test_packaging.py tests/test_replay_paths.py
 & '.\tests\test_dev_processes.ps1'
 ```
 
-The full backend suite also needs the local data and saved records listed above:
+With the local inputs above, run all backend tests and lint:
 
 ```powershell
 uv run --frozen pytest -q tests
 uv run --frozen ruff check .
 ```
 
-With the local server running, from `frontend/`:
+With the dev server running, from `frontend/`:
 
 ```powershell
 npm run build
@@ -150,28 +100,14 @@ npx playwright install chromium --only-shell
 npm test
 ```
 
-Browser tests replay real data, but mock paid live actions. They do not spend
-tokens. Screenshots are saved under ignored `frontend/test-results/`.
+Tests cover replay hashes, fork history, read-only execution, answer-key isolation,
+call limits, explicit continuation, keyboard access and mobile layout. Browser
+tests mock paid actions. The optional `uv run --frozen python scripts/smoke_live.py --live`
+performs two paid calls.
 
-An optional **paid, two-call** smoke is separate. From this `demonstrator/` directory:
+## Code
 
-```powershell
-uv run --frozen python scripts/smoke_live.py --live
-```
-
-## Implementation
-
-- `explorer/replay.py`: selected cases, authentic events, verified prompt loading,
-  read-only result previews.
-- `explorer/live.py`: prefix-only forks, explicit state transitions, isolated API
-  calls, limits, and private simulator boundary.
-- `explorer/databases.py`: allowlisted database discovery, descriptions, new
-  starter questions and read-only execution for custom questions.
-- `explorer/custom.py`: bounded user-led questions, clarification and revision,
-  without reading saved benchmark tasks or gold answers.
-- `explorer/server.py`: same-origin loopback API and frontend hosting.
-- `frontend/src/`: React/TypeScript interface styled with Tailwind 4, including
-  syntax-highlighted replay. Tailwind runs through Vite; no browser-side CDN compiler.
-
-The app imports the experiment's SQL executor, scorer, API client and
-prompt-building functions. Saved result files are read-only inputs.
+`explorer/replay.py` reads saved cases; `live.py` manages branches and API limits;
+`custom.py` handles new questions; `databases.py` supplies database guides and
+execution; `server.py` exposes the API. `frontend/src/` contains the interface.
+The app imports shared SQL, scoring and inference code from `experiment/`.

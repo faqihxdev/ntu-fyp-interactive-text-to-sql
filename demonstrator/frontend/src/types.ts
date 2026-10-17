@@ -6,6 +6,7 @@ export type Preview = {
   error: string | null;
   row_count: number;
   truncated: boolean;
+  preview_limited?: boolean;
   source?: string;
 };
 export type Context = {
@@ -28,8 +29,10 @@ export type Step = {
   source: "saved" | "live";
   role: string;
   call_kind?: string;
+  query_purpose?: "inspect" | "answer";
   output: {
     sql?: string;
+    purpose?: string;
     question?: string;
     options?: string[];
     summary?: string;
@@ -146,7 +149,8 @@ export type CustomSession = {
   db_id: string;
   question: string;
   mode: "custom";
-  phase: "ready" | "reply" | "result" | "repair" | "done";
+  phase: "ready" | "reply" | "result" | "repair" | "inspect" | "done";
+  termination?: "user" | "query_limit" | "call_limit";
   steps: Step[];
   revision: number;
   calls: number;

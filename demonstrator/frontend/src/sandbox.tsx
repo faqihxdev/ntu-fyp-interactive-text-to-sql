@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   ArrowUp,
+  ArrowRight,
   ChevronDown,
   Database,
   FileCode2,
+  Search,
   LoaderCircle,
   MessageCircle,
   Plus,
@@ -51,7 +53,8 @@ export function Sandbox({
   useEffect(() => {
     onBusy(busy);
   }, [busy, onBusy]);
-  const canCall = !!status?.live.available && !busy;
+  const exhausted = !!session && session.calls >= 12;
+  const canCall = !!status?.live.available && !busy && !exhausted;
   const selectDatabase = (id: string) => {
     setDbId(id);
     setQuestion("");
@@ -173,9 +176,10 @@ export function Sandbox({
               </div>
               <p>
                 The model receives your question, these table definitions and
-                the conversation. SQL errors are included for repairs. Result
-                previews are for you; row values are not added to the model's
-                context.
+                the conversation. On your next API action, it also receives
+                bounded result previews and execution errors from this
+                conversation. It can inspect database values, ask about your
+                intent, or write an answer query.
               </p>
               <pre
                 className="raw"
@@ -232,7 +236,9 @@ export function Sandbox({
                 placeholder="What would you like to find out?"
               />
               <div className="composer-footer">
-                <span>The AI can ask you to clarify before writing SQL.</span>
+                <span>
+                  The AI can check database values or ask you to clarify.
+                </span>
                 <button
                   className="primary"
                   disabled={!question.trim() || !canCall || !detail}
@@ -266,7 +272,11 @@ export function Sandbox({
                 >
                   <div className="step-marker">
                     {step.kind === "sql" ? (
-                      <FileCode2 size={14} />
+                      step.query_purpose === "inspect" ? (
+                        <Search size={14} />
+                      ) : (
+                        <FileCode2 size={14} />
+                      )
                     ) : (
                       <MessageCircle size={14} />
                     )}
@@ -275,9 +285,13 @@ export function Sandbox({
                     <div className="step-heading">
                       <h3>
                         {step.kind === "sql"
-                          ? step.call_kind === "custom_invalid_repair"
-                            ? "SQL repair"
-                            : "Generated SQL"
+                          ? step.query_purpose === "inspect"
+                            ? step.call_kind === "custom_invalid_repair"
+                              ? "Database check · repair"
+                              : "Database check"
+                            : step.call_kind === "custom_invalid_repair"
+                              ? "SQL repair"
+                              : "Answer query"
                           : step.kind === "question"
                             ? "Clarification"
                             : "Your reply"}
@@ -287,13 +301,16 @@ export function Sandbox({
                           className={`badge ${step.candidate.status === "ok" ? "neutral" : "miss"}`}
                         >
                           {step.candidate.status === "ok"
-                            ? "Executed · unverified"
+                            ? step.query_purpose === "inspect"
+                              ? "Observation"
+                              : "Executed · unverified"
                             : "Execution error"}
                         </span>
                       )}
                     </div>
                     {step.kind === "sql" && (
                       <>
+                        {step.output.purpose && <p>{step.output.purpose}</p>}
                         <Sql
                           text={step.candidate?.sql || step.output.sql || ""}
                         />
@@ -301,7 +318,11 @@ export function Sandbox({
                           before={
                             session.steps
                               .slice(0, index)
-                              .filter((s) => s.kind === "sql")
+                              .filter(
+                                (s) =>
+                                  s.kind === "sql" &&
+                                  s.query_purpose === step.query_purpose,
+                              )
                               .at(-1)?.candidate?.sql
                           }
                           after={step.candidate?.sql || ""}
@@ -388,7 +409,7 @@ export function Sandbox({
                 </article>
               ))}
             </div>
-            {session.phase !== "done" && (
+            {session.phase !== "done" && !exhausted && (
               <div className="live-controls">
                 {(session.phase === "reply" || session.phase === "result") && (
                   <form
@@ -443,6 +464,43 @@ export function Sandbox({
                     <Send size={15} /> Generate response · API
                   </button>
                 )}
+                {session.phase === "inspect" && (
+                  <>
+                    <p>
+                      The database check is complete. Continue to let the AI use
+                      these results.
+                    </p>
+                    <details className="scoring-details">
+                      <summary>
+                        Add context{" "}
+                        <ChevronDown size={14} className="disclosure-chevron" />
+                      </summary>
+                      <label htmlFor="inspection-context">
+                        Anything else the AI should know?
+                      </label>
+                      <textarea
+                        id="inspection-context"
+                        rows={2}
+                        maxLength={4000}
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                        disabled={busy}
+                      />
+                    </details>
+                    <div className="live-buttons">
+                      <button
+                        className="primary"
+                        disabled={!canCall}
+                        onClick={() => void act("continue", reply)}
+                      >
+                        <ArrowRight size={15} /> Continue · API
+                      </button>
+                      <button disabled={busy} onClick={() => void act("stop")}>
+                        <Square size={14} /> Finish
+                      </button>
+                    </div>
+                  </>
+                )}
                 {session.phase === "repair" && (
                   <>
                     <p>
@@ -471,9 +529,14 @@ export function Sandbox({
                 )}
               </div>
             )}
-            {session.phase === "done" && (
-              <p className="custom-ended">
-                Conversation ended. Use “New question” to start again.
+            {(session.phase === "done" || exhausted) && (
+              <p className="custom-ended" role="status">
+                {exhausted
+                  ? "The 12-call limit is reached. "
+                  : session.termination === "query_limit"
+                    ? "The five-query limit is reached. "
+                    : "Conversation ended. "}
+                Use “New question” to start again.
               </p>
             )}
           </section>

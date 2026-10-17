@@ -40,6 +40,24 @@ test("dark-only palette, quiet legend and one search focus ring", async ({
     "background-color",
     "rgb(11, 11, 11)",
   );
+  const palette = await page.evaluate(() => {
+    const style = getComputedStyle(document.documentElement);
+    return Object.entries({
+      action: "neutral-200",
+      accent: "neutral-300",
+      positive: "green-600",
+      caution: "amber-600",
+      branch: "violet-600",
+      danger: "red-600",
+    }).map(([token, colour]) => ({
+      actual: style.getPropertyValue(`--color-${token}`).trim(),
+      expected: style.getPropertyValue(`--color-${colour}`).trim(),
+    }));
+  });
+  for (const { actual, expected } of palette) {
+    expect(expected).not.toBe("");
+    expect(actual).toBe(expected);
+  }
   await expect(page.locator(".case-outcome-legend")).toHaveCount(0);
   await expect(page.locator(".progress")).toHaveCount(0);
   for (const selector of [
@@ -195,6 +213,64 @@ test("icon-only SQL steps and rounded scroll frames remain usable", async ({
     "Clarification question",
   );
   await expect(clarify.locator(".mini-match svg.lucide-check")).toHaveCount(1);
+  const indicators = await clarify
+    .locator(".mini-flow > span")
+    .evaluateAll((items) => {
+      const probe = document.createElement("span");
+      probe.style.display = "none";
+      document.body.append(probe);
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d")!;
+      const luminance = (colour: string) => {
+        context.fillStyle = colour;
+        context.fillRect(0, 0, 1, 1);
+        const [r, g, b] = Array.from(context.getImageData(0, 0, 1, 1).data)
+          .slice(0, 3)
+          .map((channel) => {
+            const value = channel / 255;
+            return value <= 0.04045
+              ? value / 12.92
+              : ((value + 0.055) / 1.055) ** 2.4;
+          });
+        return r * 0.2126 + g * 0.7152 + b * 0.0722;
+      };
+      const result = items.map((item) => {
+        const token = item.classList.contains("mini-question")
+          ? "branch"
+          : item.classList.contains("mini-match")
+            ? "positive"
+            : "caution";
+        probe.style.color = `var(--color-${token})`;
+        probe.style.backgroundColor = `var(--color-${token}-bg)`;
+        const expected = getComputedStyle(probe);
+        const actual = getComputedStyle(item);
+        const foreground = luminance(actual.color);
+        const background = luminance(actual.backgroundColor);
+        return {
+          token,
+          colourMatches: actual.color === expected.color,
+          tintMatches: actual.backgroundColor === expected.backgroundColor,
+          contrast:
+            (Math.max(foreground, background) + 0.05) /
+            (Math.min(foreground, background) + 0.05),
+        };
+      });
+      probe.remove();
+      return result;
+    });
+  expect(indicators.map(({ token }) => token)).toEqual([
+    "caution",
+    "branch",
+    "positive",
+  ]);
+  for (const indicator of indicators) {
+    expect(indicator.colourMatches, indicator.token).toBe(true);
+    expect(indicator.tintMatches, indicator.token).toBe(true);
+    expect(
+      indicator.contrast,
+      `${indicator.token} icon contrast`,
+    ).toBeGreaterThanOrEqual(3);
+  }
   const retryRows = await retry
     .locator(".mini-flow > span")
     .evaluateAll((items) =>

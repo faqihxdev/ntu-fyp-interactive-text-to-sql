@@ -1,16 +1,34 @@
 # Codex development adapter
 
-The adapter runs tool-disabled `codex exec` calls and retries eligible transport
-failures. Each attempt uses one model turn. Experiment controllers manage
-clarification, SQL regeneration and scoring.
+`runner.py` implements `CodexSubscriptionProxy`, selected by
+`--provider codex` in experiment runners. It runs one tool-disabled, ephemeral
+`codex exec` call per model request in an empty temporary directory.
 
-- `minimal-benchmark-instructions.md` restricts agent and tool behaviour.
-- `smoke-prompt.txt` is the literal-output preflight case.
-- The passed 20 August 2026 run is recorded in
-  [`../manifests/codex-proxy-smoke-2026-08-20.json`](../manifests/codex-proxy-smoke-2026-08-20.json).
-- Isolation, audit, labelling and calibration requirements are documented in
-  [`../notes/codex_subscription_benchmark_proxy_guide.md`](../notes/codex_subscription_benchmark_proxy_guide.md).
+Each request supplies an instruction file and JSON output schema. The adapter
+removes inherited API keys, applies strict configuration, records the CLI
+version and rejects tool activity, missing completion events or invalid output.
+Eligible connection failures receive bounded, logged retries. Controllers
+handle SQL repair and clarification separately.
 
-Record Codex as the provider for runs made with this adapter. The reported
-benchmark results use the separate OpenAI Responses API adapter.
-Freeze the prompt, scorer, retry policy and manifest before a large run.
+Check the installed client before use:
+
+```powershell
+codex --version
+codex login status
+codex exec --help
+```
+
+ChatGPT authentication and all flags used by `build_codex_command` are required.
+Pin the CLI version for a run; do not silently drop rejected configuration.
+`minimal-benchmark-instructions.md` restricts tool behaviour, and
+`smoke-prompt.txt` provides a literal-output preflight prompt.
+
+From `experiment/`, offline tests require no credentials:
+
+```powershell
+uv run --frozen python -m unittest codex_proxy.test_runner -v
+```
+
+Record these runs as `codex_subscription_proxy`. They measure that client
+configuration, not direct API latency or cost. All [reported study results](../RESULTS.md)
+use the separate OpenAI Responses API adapter.

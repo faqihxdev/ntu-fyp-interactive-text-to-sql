@@ -46,13 +46,15 @@ DEFAULT_FREEZE_02 = (
 )
 DEFAULT_JSON_OUTPUT = (
     EXPERIMENT_ROOT
-    / "manifests"
-    / "bird-dev-matched-v4-recovery-audit-2026-08-25.json"
+    / "runs"
+    / "replay-check"
+    / "recovery-audit.json"
 )
 DEFAULT_MARKDOWN_OUTPUT = (
     EXPERIMENT_ROOT
-    / "notes"
-    / "bird-dev-matched-v4-recovery-audit-2026-08-25.md"
+    / "runs"
+    / "replay-check"
+    / "recovery-audit.md"
 )
 
 
