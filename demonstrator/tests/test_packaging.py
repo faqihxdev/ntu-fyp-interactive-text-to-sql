@@ -135,3 +135,16 @@ def test_git_rules_are_self_contained(isolated, git):
     attributes = run([git, "check-attr", "eol", "--", "run-demo.dev.sh"], isolated)
     assert attributes.returncode == 0, attributes.stderr
     assert "eol: lf" in attributes.stdout
+
+
+def test_manifest_bytes_survive_git_line_ending_rules(isolated, git):
+    assert run([git, "init", "--quiet"], isolated).returncode == 0
+    manifest = isolated / "experiment/manifests/fixture.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_bytes(b'{\r\n  "frozen": true\r\n}\r\n')
+    relative = manifest.relative_to(isolated).as_posix()
+    raw = run([git, "hash-object", "--no-filters", relative], isolated)
+    filtered = run([git, "-c", "core.autocrlf=true", "hash-object",
+                    f"--path={relative}", relative], isolated)
+    assert raw.returncode == filtered.returncode == 0
+    assert raw.stdout == filtered.stdout

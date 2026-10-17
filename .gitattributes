@@ -10,6 +10,9 @@
 *.ts text eol=lf
 *.tsx text eol=lf
 
+# Frozen JSON evidence is hashed as bytes, including its original line endings.
+experiment/manifests/** -text
+
 *.pdf binary
 *.png binary
 *.jpg binary
